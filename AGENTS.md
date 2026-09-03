@@ -38,8 +38,9 @@ Also read the relevant document when available:
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
 - `docs/deployment.md`: environment setup and deployment
 
-The PRD and design system are available. The database and deployment documents
-are planned; until created, follow the corresponding architecture and PRD sections.
+The PRD, design system, and database infrastructure guide are available. Schema
+design remains pending. The deployment document is planned; until created, follow
+the corresponding architecture and PRD sections.
 Keep all specialized documents consistent with the architecture contract.
 
 Before the final response for each task, check whether `README.md` needs updating.
@@ -70,6 +71,12 @@ After meaningful code changes, run the applicable checks using installed tools:
 
 For documentation-only changes, check consistency, references, environment safety,
 and `git diff --check`. Report failures or checks not completed accurately.
+
+# Change Handoff
+
+After each task that generates or changes repository files, include a ready-to-copy
+Conventional Commit message in the final response. Use `type(scope): summary`
+(scope optional), describing the task's actual changes.
 
 # Content Accuracy
 

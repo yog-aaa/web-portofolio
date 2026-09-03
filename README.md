@@ -12,8 +12,11 @@ and the environment template are established. Foundational Calm Blue tokens,
 typography, responsive layout utilities, focus, and reduced-motion CSS are in place.
 The application still renders the Next.js starter homepage; its composition and
 utility classes have not yet been migrated to the design system.
-Portfolio pages, the owner CMS, database, authentication, media integration, and
-deployment are not implemented yet.
+Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
+environment validation, and a Cloudinary configuration skeleton are in place.
+Portfolio pages, schemas/migrations, the owner CMS, authentication flows, media
+management, and deployment are not implemented. No live service connection has
+been verified.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -21,17 +24,21 @@ no source-code change, Git commit, or redeployment.
 ## Stack
 
 - **Installed:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Geist,
-  Geist Mono, and npm.
-- **Locked for implementation:** Aiven PostgreSQL, Drizzle ORM + Drizzle Kit,
-  postgres.js, Better Auth email/password authentication, Cloudinary, and Vercel.
+  Geist Mono, npm, Drizzle ORM + Drizzle Kit, postgres.js, Better Auth, Zod,
+  Cloudinary, react-markdown, and remark-gfm.
+- **Environment tooling:** `@next/env` lets Drizzle Kit load the same local
+  environment as Next.js; no separate dotenv dependency is needed.
+- **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; live
+  integrations and deployment configuration remain pending.
 
 The CMS will have one owner and no public registration. See the architecture
 contract for system boundaries and planned capabilities.
 
 ## Local development
 
-Use Node.js 20.9 or newer and npm. The repository audit used Node.js 24.15.0 and
-npm 11.12.1. Install the existing locked dependencies, then start the starter app:
+Use Node.js 22 or newer and npm; Better Auth's dependency tree requires Node 22.
+The current workspace uses Node.js 24.15.0 and npm 11.12.1. Install the locked
+dependencies, then start the starter app:
 
 ```bash
 npm ci
@@ -43,7 +50,7 @@ database, authentication, or Cloudinary credentials.
 
 ## Environment configuration
 
-[.env.example](.env.example) defines the future integration variables with explicit
+[.env.example](.env.example) defines integration variables with explicit
 placeholders. When configuring integrations, put real local values in root
 `.env.local`; Git ignores real environment files and allows only the example.
 Do not overwrite an existing local environment file or commit real credentials.
@@ -51,8 +58,14 @@ Do not overwrite an existing local environment file or commit real credentials.
 Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, and
 owner bootstrap credentials remain server-only. Remove `BOOTSTRAP_OWNER_PASSWORD`
 from the production environment after owner provisioning succeeds. Next.js and the
-future Drizzle Kit configuration must share `.env.local` without duplicated
-database credentials. These integration and provisioning flows are not implemented.
+Drizzle Kit configuration share `.env.local` without duplicated database
+credentials. Drizzle resolves the project root from its config file and preserves
+injected environment values. Do not run it with `NODE_ENV=test`, which skips
+`.env.local`. Validation errors identify variables without printing their values.
+
+Database and Cloudinary configuration is lazy; it is validated only when used.
+Database TLS verification stays enabled. See [database infrastructure](docs/database.md)
+for connection limits, Aiven CA trust, folder boundaries, and pending schema/auth work.
 
 See [the environment contract](docs/architecture.md#11-environment-variables) for
 the full variable list and loading requirements.
@@ -74,6 +87,11 @@ Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,
 environment safety, and `git diff --check`.
 
+`npm exec -- drizzle-kit --version` checks the installed CLI without connecting.
+No schema or migrations exist yet; do not generate migrations or push an empty
+schema. npm reports four moderate advisories through Drizzle Kit's tooling chain;
+see [the audit notes](docs/database.md#dependency-audit) before changing versions.
+
 ## Project documentation
 
 - [AGENTS.md](AGENTS.md): canonical Codex instructions; read this first.
@@ -84,8 +102,9 @@ environment safety, and `git diff --check`.
 - [Design system](docs/design-system.md): palette/contrast, typography, responsive
   layout, interaction, media guidance, and the future CMS theme allowlist.
   [Foundational CSS](app/globals.css) implements the semantic tokens and base utilities.
+- [Database infrastructure](docs/database.md): installed backend packages, module
+  boundaries, environment loading, verified TLS, and pending persistence work.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
-The database and deployment documents are planned under
-`docs/`; their responsibilities are mapped in the architecture contract. Vercel
-is the deployment target; deployment configuration is still pending.
+The deployment document is planned under `docs/`; its responsibility is mapped
+in the architecture contract. Vercel is the deployment target; configuration is pending.
