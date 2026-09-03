@@ -38,8 +38,8 @@ Also read the relevant document when available:
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
 - `docs/deployment.md`: environment setup and deployment
 
-The PRD is available. The design-system, database, and deployment documents are
-planned; until created, follow the corresponding architecture and PRD sections.
+The PRD and design system are available. The database and deployment documents
+are planned; until created, follow the corresponding architecture and PRD sections.
 Keep all specialized documents consistent with the architecture contract.
 
 Before the final response for each task, check whether `README.md` needs updating.

@@ -7,8 +7,11 @@ Planned domain: [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
 
 ## Project status
 
-Repository guidance, the architecture contract, the formal V1 PRD, and the environment
-template are established. The application still renders the Next.js starter homepage.
+Repository guidance, the architecture contract, the formal V1 PRD, the design system,
+and the environment template are established. Foundational Calm Blue tokens,
+typography, responsive layout utilities, focus, and reduced-motion CSS are in place.
+The application still renders the Next.js starter homepage; its composition and
+utility classes have not yet been migrated to the design system.
 Portfolio pages, the owner CMS, database, authentication, media integration, and
 deployment are not implemented yet.
 
@@ -66,7 +69,9 @@ npm run build
 ```
 
 `npm run start` serves a completed production build. No automated test suite is
-configured yet. For documentation-only changes, check references, consistency,
+configured yet. The current `next/font/google` setup downloads Geist and Geist
+Mono during compilation; builds require access to Google Fonts.
+For documentation-only changes, check references, consistency,
 environment safety, and `git diff --check`.
 
 ## Project documentation
@@ -76,8 +81,11 @@ environment safety, and `git diff --check`.
   content architecture, security, media, theme, environment, and caching rules.
 - [Portfolio PRD](docs/portfolio-prd.md): product vision, journeys, route requirements,
   logical content models, CMS/publishing behavior, V1 scope, and acceptance criteria.
+- [Design system](docs/design-system.md): palette/contrast, typography, responsive
+  layout, interaction, media guidance, and the future CMS theme allowlist.
+  [Foundational CSS](app/globals.css) implements the semantic tokens and base utilities.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
-The design-system, database, and deployment documents are planned under
+The database and deployment documents are planned under
 `docs/`; their responsibilities are mapped in the architecture contract. Vercel
 is the deployment target; deployment configuration is still pending.

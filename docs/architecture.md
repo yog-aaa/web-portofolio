@@ -38,7 +38,8 @@ when the implementation phase needs them, with compatible versions recorded in
 the npm lockfile.
 
 Instructions, architecture, the environment template, and the [formal V1 PRD](portfolio-prd.md)
-are documented. Integrations, service connections, owner provisioning, migrations,
+are documented. The [design system](design-system.md) and foundational CSS tokens
+are also in place. Integrations, service connections, owner provisioning, migrations,
 pages/CMS, and deployment remain unimplemented. The PRD supplies product behavior
 and logical models within this architecture; it does not define a database schema.
 
@@ -279,9 +280,9 @@ requiring confidentiality, and document delivery visibility before implementatio
 
 ## 10. Theme settings
 
-The design direction is **Modern Minimal + Editorial + Calm Technology**, with
+The design direction is **Modern Minimalist + Editorial + Calm Technology**, with
 **Calm Blue** as the default identity. Retain Geist and Geist Mono. Color values
-and detailed component rules will be specified in `docs/design-system.md`.
+and component guidance are defined in [docs/design-system.md](design-system.md).
 
 Use semantic CSS variables mapped through Tailwind CSS 4's CSS-first theme:
 
@@ -290,8 +291,10 @@ Use semantic CSS variables mapped through Tailwind CSS 4's CSS-first theme:
 | `--background` | Page canvas |
 | `--surface` | Panels and elevated content surfaces |
 | `--foreground` | Primary text |
-| `--muted` | Secondary text; must remain legible on its supported surfaces |
-| `--border` | Dividers and control boundaries |
+| `--foreground-secondary` | Readable supporting text on supported light surfaces |
+| `--muted` | Nonessential decoration only; not informative text/icons |
+| `--border` | Decorative dividers |
+| `--border-control` | Visible control boundaries |
 | `--accent` | Primary brand/action color |
 | `--accent-foreground` | Text/icons on the accent color |
 | `--accent-soft` | Subtle accent backgrounds |
@@ -462,7 +465,7 @@ registration, and arbitrary CMS-controlled layouts remain outside V1.
 | `CLAUDE.md` | Compatibility pointer to AGENTS.md and docs/ | Present; no independent rules |
 | `docs/architecture.md` | System boundaries and locked architecture | This document |
 | `docs/portfolio-prd.md` | Product requirements, IA, logical content models, scope, acceptance criteria | Present |
-| `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Planned |
+| `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Present; foundational CSS implemented |
 | `docs/database.md` | Schema, owner binding, constraints, migrations, provisioning | Planned |
 | `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Planned |
 

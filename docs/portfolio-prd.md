@@ -686,8 +686,9 @@ stored values must fall back safely.
 
 Do not expose arbitrary CSS, selectors, classes, JavaScript, font changes, layouts,
 grids, breakpoints, component anatomy, animation code, or accessibility behavior.
-Exact default palette values and component states belong in the design-system
-specification. A theme-mode switcher and additional editable token groups are future scope.
+Exact default palette values and component states belong in the
+[design-system specification](design-system.md). A theme-mode switcher and
+additional editable token groups are future scope.
 
 ## 15. SEO
 
@@ -734,9 +735,9 @@ screen-reader, zoom, and contrast review; they do not establish conformance alon
 ## 17. Responsive UX
 
 Build public pages mobile-first with the same information and actions available on
-small and large screens. Test representative widths of 320, 375, 768, 1024, and
+small and large screens. Test representative widths of 320, 375, 390, 768, 1024, 1280, and
 1440 CSS pixels, plus landscape and zoom; these are QA widths, not mandated CSS
-breakpoints. The future design system owns breakpoint values.
+breakpoints. The [design system](design-system.md) owns breakpoint values.
 
 On narrow screens, navigation becomes an accessible menu without removing Contact
 or the About/footer path to Credentials. Project/research media retain their
@@ -921,10 +922,10 @@ details, and Better Auth owns identity/session handling. Keep code-owned structu
 separate from database-managed content. The domain model does not authorize a
 database schema or service connection in this documentation phase.
 
-The design-system specification will define palette values, component anatomy,
-and breakpoints within this product direction. Persistence design will specify
-relationships/constraints, owner binding, published/draft representation, and
-slug-history handling. Deployment planning will specify environment isolation,
+The [design-system specification](design-system.md) defines palette values,
+component guidance, and breakpoints within this product direction. Persistence
+design will specify relationships/constraints, owner binding, published/draft
+representation, and slug-history handling. Deployment planning will specify environment isolation,
 connection limits, upload delivery, caching behavior, migrations, and recovery.
 These documents must follow the architecture contract and this PRD rather than
 silently changing product scope.

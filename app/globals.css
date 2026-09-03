@@ -1,26 +1,209 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Calm Blue. Runtime color contract: docs/design-system.md. */
+  --background: #f7f9fc;
+  --background-secondary: #f1f5f9;
+  --surface: #ffffff;
+  --foreground: #172033;
+  --foreground-secondary: #586a80;
+  --muted: #94a3b8; /* Decorative only; never essential text. */
+  --border: #d9e2ec; /* Decorative dividers; controls use border-control. */
+  --border-control: #586a80;
+  --accent: #526d82;
+  --accent-secondary: #6e8ca6;
+  --accent-deep: #27374d;
+  --accent-foreground: #ffffff;
+  --accent-soft: #ddeaf3;
+  --accent-very-soft: #edf4f8;
+  --focus-ring: #27374d;
+  --focus-ring-offset: #ffffff;
+
+  /* Code-owned layout and motion; never configurable through the CMS. */
+  --page-gutter: 1.25rem;
+  --section-space: 4rem;
+  --section-space-compact: 2.5rem;
+  --grid-columns: 4;
+  --grid-gap: 1rem;
+  --duration-fast: 140ms;
+  --duration-normal: 220ms;
+  --duration-slow: 360ms;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-control: var(--border-control);
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-very-soft: var(--accent-very-soft);
+  --color-focus-ring: var(--focus-ring);
+  --color-focus-ring-offset: var(--focus-ring-offset);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --spacing-gutter: var(--page-gutter);
+  --spacing-section: var(--section-space);
+  --spacing-section-compact: var(--section-space-compact);
+  --spacing-grid-gap: var(--grid-gap);
 }
 
-@media (prefers-color-scheme: dark) {
+@theme {
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  --container-site: 80rem;
+  --container-content: 64rem;
+  --container-reading: 42rem;
+  --container-form: 28rem;
+
+  --text-display: clamp(3rem, 2rem + 4vw, 5.5rem);
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.045em;
+  --text-display--font-weight: 500;
+  --text-h1: clamp(2.5rem, 1.75rem + 3vw, 4.5rem);
+  --text-h1--line-height: 1.12;
+  --text-h1--letter-spacing: -0.035em;
+  --text-h1--font-weight: 500;
+  --text-h2: clamp(1.875rem, 1.375rem + 1.5vw, 2.75rem);
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.025em;
+  --text-h2--font-weight: 500;
+  --text-h3: clamp(1.25rem, 1.125rem + 0.5vw, 1.5rem);
+  --text-h3--line-height: 1.35;
+  --text-h3--letter-spacing: -0.015em;
+  --text-h3--font-weight: 500;
+  --text-body-lg: clamp(1.125rem, 1.0625rem + 0.25vw, 1.25rem);
+  --text-body-lg--line-height: 1.65;
+  --text-body-lg--letter-spacing: 0em;
+  --text-body-lg--font-weight: 400;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-body--letter-spacing: 0em;
+  --text-body--font-weight: 400;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.5;
+  --text-caption--letter-spacing: 0em;
+  --text-caption--font-weight: 400;
+  --text-metadata: 0.75rem;
+  --text-metadata--line-height: 1.5;
+  --text-metadata--letter-spacing: 0.04em;
+  --text-metadata--font-weight: 400;
+
+  --radius-media: 0.125rem;
+  --radius-control: 0.25rem;
+  --radius-panel: 0.5rem;
+  --spacing-target: 2.75rem;
+  --ease-calm: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Keep these thresholds aligned with md, lg, and xl above. */
+@media (min-width: 48rem) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --page-gutter: 2rem;
+    --section-space: 5rem;
+    --section-space-compact: 3rem;
+    --grid-columns: 8;
+    --grid-gap: 1.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (min-width: 64rem) {
+  :root {
+    --page-gutter: 3rem;
+    --section-space: 6rem;
+    --section-space-compact: 4rem;
+    --grid-columns: 12;
+    --grid-gap: 2rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --page-gutter: 4rem;
+    --section-space: 7.5rem;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background font-sans text-body text-foreground;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 3px var(--focus-ring-offset);
+  }
+
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline-color: Highlight;
+      box-shadow: none;
+    }
+  }
+}
+
+/* Use once at the outer page boundary; narrow content with max-w-* inside. */
+@utility container-site {
+  width: min(calc(100% - var(--page-gutter) * 2), var(--container-site));
+  margin-inline: auto;
+}
+
+@utility editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+@utility type-metadata {
+  @apply font-mono text-metadata;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility transition-interactive {
+  transition-property: color, background-color, border-color, text-decoration-color;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-calm);
+}
+
+/* Accessibility guardrail: do not depend on animation completion for behavior. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
 }
