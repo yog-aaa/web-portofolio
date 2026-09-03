@@ -7,10 +7,10 @@ Planned domain: [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
 
 ## Project status
 
-Repository guidance, the architecture contract, and the environment template are
-established. The application still renders the Next.js starter homepage. Portfolio
-pages, the owner CMS, database, authentication, media integration, and deployment
-are not implemented yet.
+Repository guidance, the architecture contract, the formal V1 PRD, and the environment
+template are established. The application still renders the Next.js starter homepage.
+Portfolio pages, the owner CMS, database, authentication, media integration, and
+deployment are not implemented yet.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -74,8 +74,10 @@ environment safety, and `git diff --check`.
 - [AGENTS.md](AGENTS.md): canonical Codex instructions; read this first.
 - [Architecture contract](docs/architecture.md): locked stack, public/admin routes,
   content architecture, security, media, theme, environment, and caching rules.
+- [Portfolio PRD](docs/portfolio-prd.md): product vision, journeys, route requirements,
+  logical content models, CMS/publishing behavior, V1 scope, and acceptance criteria.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
-The PRD, design-system, database, and deployment documents are planned under
+The design-system, database, and deployment documents are planned under
 `docs/`; their responsibilities are mapped in the architecture contract. Vercel
 is the deployment target; deployment configuration is still pending.

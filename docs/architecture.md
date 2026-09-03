@@ -37,9 +37,10 @@ existing root `app/` structure and TypeScript/Tailwind setup. Add dependencies o
 when the implementation phase needs them, with compatible versions recorded in
 the npm lockfile.
 
-This phase establishes instructions, architecture, and the environment template
-only. It does not create the PRD, install integrations, connect services, provision
-an owner, run migrations, implement pages/CMS, or deploy the application.
+Instructions, architecture, the environment template, and the [formal V1 PRD](portfolio-prd.md)
+are documented. Integrations, service connections, owner provisioning, migrations,
+pages/CMS, and deployment remain unimplemented. The PRD supplies product behavior
+and logical models within this architecture; it does not define a database schema.
 
 ### System flow
 
@@ -397,8 +398,10 @@ stateDiagram-v2
     Archived --> Draft: Restore
 ```
 
-New long-form entries begin as drafts. Saving or previewing a draft is private;
-publishing is an explicit validated action. Draft edits to an existing publication
+Project, Research, and Thought entries begin as drafts. Other models use validated
+saves and, where appropriate, simple visibility flags as defined in the PRD.
+Saving or previewing an editorial draft is private; publishing is an explicit
+validated action. Draft edits to an existing publication
 must not leak into public reads: retain the last published version until publish
 succeeds. The database design must represent this separation; a revision-history
 editor UI is not required by this contract.
@@ -458,7 +461,7 @@ registration, and arbitrary CMS-controlled layouts remain outside V1.
 | `AGENTS.md` | Canonical Codex operating map | Present; preserve the managed Next.js guidance |
 | `CLAUDE.md` | Compatibility pointer to AGENTS.md and docs/ | Present; no independent rules |
 | `docs/architecture.md` | System boundaries and locked architecture | This document |
-| `docs/portfolio-prd.md` | Product requirements, IA, scope, acceptance criteria | Planned; not created in this task |
+| `docs/portfolio-prd.md` | Product requirements, IA, logical content models, scope, acceptance criteria | Present |
 | `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Planned |
 | `docs/database.md` | Schema, owner binding, constraints, migrations, provisioning | Planned |
 | `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Planned |

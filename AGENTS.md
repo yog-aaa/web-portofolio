@@ -38,8 +38,9 @@ Also read the relevant document when available:
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
 - `docs/deployment.md`: environment setup and deployment
 
-The four specialized documents above are planned; until created, follow the
-corresponding sections of `docs/architecture.md`. Keep them consistent with it.
+The PRD is available. The design-system, database, and deployment documents are
+planned; until created, follow the corresponding architecture and PRD sections.
+Keep all specialized documents consistent with the architecture contract.
 
 Before the final response for each task, check whether `README.md` needs updating.
 Update it when changes affect project status, setup, commands, environment variables,
