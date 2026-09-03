@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YOGAAA.
 
-## Getting Started
+Personal website of **Yoga Agustiansyah**: a long-term digital hub for software
+development, AI, computer vision, research, products, experiments, and writing.
 
-First, run the development server:
+Planned domain: [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
+
+## Project status
+
+Repository guidance, the architecture contract, and the environment template are
+established. The application still renders the Next.js starter homepage. Portfolio
+pages, the owner CMS, database, authentication, media integration, and deployment
+are not implemented yet.
+
+The intended system is CMS-first: routine content updates should eventually require
+no source-code change, Git commit, or redeployment.
+
+## Stack
+
+- **Installed:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Geist,
+  Geist Mono, and npm.
+- **Locked for implementation:** Aiven PostgreSQL, Drizzle ORM + Drizzle Kit,
+  postgres.js, Better Auth email/password authentication, Cloudinary, and Vercel.
+
+The CMS will have one owner and no public registration. See the architecture
+contract for system boundaries and planned capabilities.
+
+## Local development
+
+Use Node.js 20.9 or newer and npm. The repository audit used Node.js 24.15.0 and
+npm 11.12.1. Install the existing locked dependencies, then start the starter app:
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). The current starter does not require
+database, authentication, or Cloudinary credentials.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+[.env.example](.env.example) defines the future integration variables with explicit
+placeholders. When configuring integrations, put real local values in root
+`.env.local`; Git ignores real environment files and allows only the example.
+Do not overwrite an existing local environment file or commit real credentials.
 
-## Learn More
+Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, and
+owner bootstrap credentials remain server-only. Remove `BOOTSTRAP_OWNER_PASSWORD`
+from the production environment after owner provisioning succeeds. Next.js and the
+future Drizzle Kit configuration must share `.env.local` without duplicated
+database credentials. These integration and provisioning flows are not implemented.
 
-To learn more about Next.js, take a look at the following resources:
+See [the environment contract](docs/architecture.md#11-environment-variables) for
+the full variable list and loading requirements.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Validation commands
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run the applicable checks after meaningful code changes:
 
-## Deploy on Vercel
+```bash
+npm exec -- next typegen
+npm exec -- tsc --noEmit
+npm run lint
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`npm run start` serves a completed production build. No automated test suite is
+configured yet. For documentation-only changes, check references, consistency,
+environment safety, and `git diff --check`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project documentation
+
+- [AGENTS.md](AGENTS.md): canonical Codex instructions; read this first.
+- [Architecture contract](docs/architecture.md): locked stack, public/admin routes,
+  content architecture, security, media, theme, environment, and caching rules.
+- [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
+
+The PRD, design-system, database, and deployment documents are planned under
+`docs/`; their responsibilities are mapped in the architecture contract. Vercel
+is the deployment target; deployment configuration is still pending.
