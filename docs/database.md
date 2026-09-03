@@ -364,6 +364,12 @@ Close it after local work. No `db:push` shortcut or automatic build migration ex
 Once applied anywhere shared, do not rewrite an existing migration; generate a
 forward correction instead. Resolve branch snapshot conflicts before applying.
 
+`db:migrate` runs the committed journal through Drizzle ORM's postgres.js migrator.
+It deliberately reuses the application database connection, including validated
+`DATABASE_CA_CERT_BASE64`, and prints a success message only after the migrator
+resolves. Drizzle Kit remains responsible for generation, consistency checking,
+and Studio.
+
 ## Production migration safety
 
 1. Verify deployment scope and the intended Aiven host/database through a secure
@@ -383,8 +389,12 @@ forward correction instead. Resolve branch snapshot conflicts before applying.
    a separate explicit plan and approval. Do not auto-run migrations at startup,
    login, requests, owner provisioning, or ordinary content publication.
 
-`db:migrate` is a direct Drizzle command, not a production-target detector or an
+`db:migrate` is a deliberate CLI operation, not a production-target detector or an
 approval system. Its presence does not authorize running it against any configured DB.
+The migration account must be able to create the `drizzle` schema and create/alter
+objects in `public`. A restricted runtime user commonly lacks these permissions;
+use an approved administrative migration account or have an Aiven administrator
+grant the exact required privileges. Do not weaken TLS or make the schema public-writable.
 
 ## Cloudinary and authentication readiness
 

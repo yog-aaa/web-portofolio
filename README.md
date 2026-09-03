@@ -148,8 +148,11 @@ For documentation-only changes, check references, consistency,
 environment safety, and `git diff --check`.
 
 Database scripts are `db:generate`, `db:check`, `db:migrate`, and `db:studio`.
-Generation and checking are local schema operations. Migration and Studio use the
-configured database and require deliberate target verification. npm reports four
+Generation and checking are local schema operations. `db:migrate` uses Drizzle ORM's
+postgres.js migrator so it shares the application's validated TLS configuration and
+prints an explicit success result. Migration and Studio use the configured database
+and require deliberate target verification plus a database user that can create the
+Drizzle journal schema and application objects. npm reports four
 moderate advisories through Drizzle Kit's tooling chain;
 see [the audit notes](docs/database.md#dependency-audit) before changing versions.
 
