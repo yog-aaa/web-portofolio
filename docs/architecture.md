@@ -23,12 +23,12 @@ of editable information; code owns its safe delivery and presentation.
 
 | Responsibility | Locked choice | Current state |
 | --- | --- | --- |
-| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; starter homepage only |
+| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; starter homepage and owner authentication shell |
 | Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, fonts, and foundational tokens present; final pages pending |
 | Package management | npm | Existing package-lock.json; retain it |
 | Database | Aiven PostgreSQL | Initial schema/migration generated; not connected or applied |
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
-| Authentication | Better Auth, email/password | Core adapter schema present; auth instance, routes, and provisioning pending |
+| Authentication | Better Auth, email/password | Drizzle adapter, login/logout, owner guards, password change, and CLI bootstrap implemented; live provisioning pending |
 | Media | Cloudinary, server-authorized uploads | SDK and lazy configuration skeleton present; media flow pending |
 | Hosting | Vercel | Deployment target; not configured by this task |
 
@@ -41,8 +41,9 @@ Instructions, architecture, the environment template, and the [formal V1 PRD](po
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
 environment validation, database/Cloudinary foundations, and module boundaries.
-Live service connections, owner provisioning, schema application, pages/CMS, and
-deployment remain unimplemented. The PRD supplies product behavior
+Live service connections, production schema application/provisioning, portfolio
+pages, content-management screens, and deployment remain pending. Auth tests use
+isolated PostgreSQL via PGlite. The PRD supplies product behavior
 and logical models within this architecture; it does not define a database schema.
 
 ### System flow
@@ -225,16 +226,22 @@ custom admin-user table or implement independent password/session handling.
 
 The runtime must disable public registration at the authentication API, not merely
 omit a sign-up screen. Better Auth provides an email/password `disableSignUp`
-option; verify the selected version during integration. See the
+option, enabled in the installed runtime configuration. See the
 [Better Auth options reference](https://better-auth.com/docs/reference/options)
 and [Drizzle adapter documentation](https://better-auth.com/docs/adapters/drizzle).
 
 Authorization verifies a valid session and its association with the one provisioned
 owner. Bind the owner to a stable Better Auth user ID in server-controlled persistent
 state; a profile name, client role flag, or arbitrary logged-in account must not
-grant ownership. The exact singleton binding/constraint belongs in the schema
-design before implementation; it must reference the existing Better Auth user,
-not duplicate it. Ordinary CMS settings cannot reassign this identity.
+grant ownership. The singleton `owner_binding` references the existing Better Auth
+user without duplicating it. Ordinary CMS settings cannot reassign this identity.
+
+The runtime exposes only email sign-in, session, sign-out, password change, and
+the disabled signup endpoint through `/api/auth/[...all]`. The server checks the
+persisted owner in the `/admin/:path*` gate and at private server boundaries.
+Session creation also rejects non-owners. Sessions expire after 12 hours without
+sliding renewal; cookie caching is disabled. Better Auth rate limits use PostgreSQL
+so they survive serverless instance changes. See [authentication operations](authentication.md).
 
 ### Owner bootstrap contract
 
@@ -247,7 +254,7 @@ password, or silently reassign ownership; unexpected existing state fails safely
 
 After successful provisioning, remove `BOOTSTRAP_OWNER_PASSWORD` from the production
 environment and remove temporary local values when no longer needed. Change the
-temporary password through a secure owner flow. Normal authentication and owner
+temporary password through the authenticated form at `/admin`. Normal authentication and owner
 authorization use persisted auth identity and do not depend on any bootstrap
 environment value. Document provisioning and recovery before enabling CMS access.
 

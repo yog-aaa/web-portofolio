@@ -1,28 +1,9 @@
 import "server-only";
 
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-
-import { parseDatabaseEnvironment } from "@/lib/validation/environment";
-import * as schema from "@/lib/database/schema";
+import { createDatabaseConnection } from "./connection";
 
 function createDatabase() {
-  const { DATABASE_URL } = parseDatabaseEnvironment({
-    DATABASE_URL: process.env.DATABASE_URL,
-  });
-
-  const client = postgres(DATABASE_URL, {
-    // Conservative per-process bound until the Aiven/Vercel budget is measured.
-    max: 1,
-    idle_timeout: 20,
-    connect_timeout: 10,
-    ssl: { rejectUnauthorized: true },
-    prepare: false,
-    debug: false,
-    onnotice: () => {},
-  });
-
-  return drizzle({ client, schema, logger: false });
+  return createDatabaseConnection(process.env.DATABASE_URL).db;
 }
 
 type Database = ReturnType<typeof createDatabase>;

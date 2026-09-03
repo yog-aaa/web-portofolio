@@ -36,6 +36,7 @@ Also read the relevant document when available:
 - `docs/portfolio-prd.md`: product requirements, information architecture, scope
 - `docs/design-system.md`: UI and design tokens
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
+- `docs/authentication.md`: owner login, guards, bootstrap, session policy, recovery limits
 - `docs/deployment.md`: environment setup and deployment
 
 The PRD, design system, and database guide are available. The initial schema and
@@ -67,6 +68,7 @@ After meaningful code changes, run the applicable checks using installed tools:
 
 - TypeScript: `npm exec -- next typegen`, then `npm exec -- tsc --noEmit`
 - ESLint: `npm run lint`
+- Authentication changes: `npm run test:auth` (isolated PostgreSQL; never production credentials)
 - Production build, when relevant: `npm run build`
 
 For documentation-only changes, check consistency, references, environment safety,

@@ -80,3 +80,25 @@ export function parseDatabaseEnvironment(input: unknown) {
 export function parseCloudinaryEnvironment(input: unknown) {
   return parseEnvironment(cloudinaryEnvironmentSchema, input);
 }
+
+const authEnvironmentSchema = z.object({
+  BETTER_AUTH_SECRET: z.string().min(32).max(512).refine((value) => !/<[^>]+>/.test(value)),
+  BETTER_AUTH_URL: z.string().url().refine((value) => {
+    const url = new URL(value);
+    return !url.username && !url.password && !url.search && !url.hash &&
+      url.pathname === "/" && (url.protocol === "https:" ||
+        (url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)));
+  }).transform((value) => new URL(value).origin),
+});
+
+export function parseAuthEnvironment(input: unknown) {
+  return parseEnvironment(authEnvironmentSchema, input);
+}
+
+export function parseBootstrapEnvironment(input: unknown) {
+  return parseEnvironment(z.object({
+    BOOTSTRAP_OWNER_NAME: z.string().trim().min(1).max(120),
+    BOOTSTRAP_OWNER_EMAIL: z.email().max(254).transform((value) => value.toLowerCase()),
+    BOOTSTRAP_OWNER_PASSWORD: z.string().min(12).max(128).refine((value) => !/<[^>]+>/.test(value)),
+  }), input);
+}

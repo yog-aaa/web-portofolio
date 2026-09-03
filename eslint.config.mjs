@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
                 "cloudinary",
                 "**/database/**",
                 "**/services/media/cloudinary",
+                "**/scripts/**",
               ],
               message: "UI and route entry points must use application services, not database or provider adapters.",
             },

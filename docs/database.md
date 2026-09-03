@@ -1,7 +1,8 @@
 # Database schema and infrastructure
 
-Status: initial Drizzle schema and migration generated, not applied. No live
-database connection, owner provisioning, or application queries have been run. Follow the
+Status: initial schema plus an additive auth rate-limit migration generated.
+Migrations and auth flows are tested in ephemeral PGlite PostgreSQL. No configured
+Aiven database has been contacted, migrated, or provisioned. Follow the
 [architecture contract](architecture.md) and [logical PRD models](portfolio-prd.md#10-domaincontent-model).
 
 ## Installed packages
@@ -11,10 +12,13 @@ Better Auth 1.7.2, Zod 4.5.4, Cloudinary 2.11.0, react-markdown 10.1.0, and
 remark-gfm 4.0.1. Drizzle Kit 0.31.10 is a development dependency.
 `package-lock.json` records exact installed versions.
 
-The only additional direct package is `@next/env` 16.3.4, matching Next.js. It is
+`@next/env` 16.3.4 matches Next.js. It is
 a development dependency required by the architecture to load Next.js environment
 files from Drizzle Kit. No separate dotenv package, rich text editor, alternate
-database driver, auth provider, or schema-generation plugin was added.
+production database driver, auth provider, or schema-generation plugin was added.
+`server-only` enforces server import boundaries; `tsx` runs TypeScript operational
+scripts and tests. `@electric-sql/pglite` is development-only PostgreSQL for isolated
+auth integration tests, never an application persistence fallback.
 
 Use Node.js 22 or newer (the current workspace uses 24.15.0). Better Auth's
 Kysely dependency requires Node 22, above the original starter's minimum.
@@ -27,10 +31,11 @@ Kysely dependency requires Node 22, above the original starter's minimum.
 | `lib/domain/` | Pure JSON value/draft contracts; future public read models stay separate |
 | `lib/database/client.ts` | Lazy server-only Drizzle/postgres.js client |
 | `lib/database/schema/` | Initial tables/enums; `index.ts` is the explicit schema entry point |
-| `lib/repositories/` | Future server-only queries, transactions, and row-to-domain mappings |
+| `lib/repositories/` | Server-only owner binding lookup; future content queries and mappings |
 | `lib/services/` | Future application queries, orchestration, and revalidation |
 | `lib/services/media/cloudinary.ts` | Lazy server-only Cloudinary SDK configuration context |
-| `lib/auth/` | Future Better Auth/session/owner checks; no auth instance or permissive stub |
+| `lib/auth/` | Lazy Better Auth instance, HTTP boundary, server owner guards, client integration |
+| `scripts/auth/` | CLI-only transactional owner provisioning; never import into hosted code |
 | `lib/validation/environment.ts` | Pure Zod configuration parsers shared by server modules and CLI |
 | `drizzle.config.ts` | Standalone Drizzle Kit configuration, with environment loading |
 | `drizzle/` | Generated SQL, snapshot, and journal; commit all three together |
@@ -46,7 +51,7 @@ flowchart LR
   Domain -.-> Repository
 ```
 
-Future private entry points must authenticate, authorize the persisted owner, and
+Private entry points must authenticate, authorize the persisted owner, and
 validate input before these operations. Obtaining a database or provider client
 does not authorize an operation. ESLint restricts direct database/provider imports
 in `app/` and future `components/`; server-only markers prevent the current
@@ -57,7 +62,9 @@ imports only pure validation, never the Next.js runtime client.
 
 The initial migration is [0000_initial_schema.sql](../drizzle/0000_initial_schema.sql),
 with its snapshot and journal under `drizzle/meta/`. It creates 29 tables and six
-enums. No rows, personal facts, accounts, passwords, or bootstrap data are seeded.
+enums. [0001_auth_rate_limit.sql](../drizzle/0001_auth_rate_limit.sql) adds Better Auth's
+`rate_limit` table, bringing the total to 30. No rows, personal facts, accounts,
+passwords, or bootstrap data are seeded by migrations.
 UUIDs are database-generated for content/association records. Fixed singletons use
 `smallint` ID 1 with a check constraint; auth IDs remain Better Auth-managed text.
 This uses built-in `gen_random_uuid()` (PostgreSQL 13+), with no extension migration.
@@ -65,6 +72,7 @@ This uses built-in `gen_random_uuid()` (PostgreSQL 13+), with no extension migra
 | Tables | Purpose and principal relationships |
 | --- | --- |
 | `user`, `session`, `account`, `verification` | Better Auth core records; session/account reference user with cascading cleanup |
+| `rate_limit` | Better Auth request counters with unique key, count, and epoch-millisecond timestamp |
 | `owner_binding` | At most one server-controlled pointer to an existing Better Auth user; no duplicate user information |
 | `profile` | Public singleton identity, biography Markdown, optional portrait and resume |
 | `theme_settings` | Singleton with only four nullable hex overrides; null uses code defaults |
@@ -121,17 +129,18 @@ including `account.issuer` and uniqueness on `(issuer, account_id)`. Older examp
 that omit issuer are incompatible with this installed version. TypeScript exports
 retain adapter model/property names (`user`, `session`, `account`, `verification`,
 `emailVerified`, `userId`, etc.); SQL column names use snake_case. The runtime
-Drizzle client now receives the schema. The future Better Auth Drizzle adapter can
-use these four exports with provider `pg`; no auth instance or endpoint is created here.
+Drizzle client receives the schema. The Better Auth Drizzle adapter uses these
+exports plus `rateLimit`, with provider `pg` and transaction support enabled.
 
 `owner_binding.id = 1` allows at most one binding and restricts deletion of that
 user while bound. This is authorization configuration, not another admin-user
 table, role system, password store, or public Profile identity. Bootstrap must
 atomically create/bind the owner using Better Auth, reject conflicting existing
 state, and never silently reassign the pointer. It is not a CMS-editable setting.
-Tables alone do not disable signup or authenticate requests: those server checks,
-API-level `disableSignUp`, provisioning, recovery, and session policy remain pending.
-No optional plugin/rate-limit tables are added without a corresponding auth configuration.
+Runtime server checks, API-level `disableSignUp`, and CLI provisioning are now
+implemented. `rate_limit` accompanies the database-backed limiter. See the
+[authentication guide](authentication.md) for provisioning, password changes,
+session policy, independent authorization, recovery limits, and isolated tests.
 
 ### Editorial storage and publication
 
@@ -284,8 +293,8 @@ The current conservative pool limit is one connection per process, with a
 20-second idle timeout and 10-second connection timeout. Prepared statements are
 disabled until the deployment's pooler compatibility is established. Drizzle
 query logging, driver debugging, and automatic notice logging are disabled.
-Reuse clients across requests; do not close the pool after every query. A future
-isolated operational script should explicitly close its client when finished.
+Reuse clients across requests; do not close the pool after every query. The
+isolated bootstrap command explicitly closes its client when finished.
 The limit is not global: Vercel instances each have their own pool, so capacity
 and concurrency must be reviewed against Aiven before deployment.
 
@@ -329,7 +338,8 @@ SQL; it does not inspect or mutate a database. Review SQL plus journal/snapshot,
 and commit them together. `db:check` checks migration metadata consistency; it is
 not a SQL execution or database-drift test. Run the migration against a disposable
 development database only after verifying its identity, then test constraints and
-application behavior. This task generated and inspected SQL but did not apply it.
+application behavior. Automated auth tests execute these migrations only in
+ephemeral PGlite; no configured Aiven migration has been applied by this work.
 
 ```bash
 # These commands connect to the configured database. Verify the target first.
@@ -373,8 +383,8 @@ upload policy by itself. No upload, signing endpoint, asset persistence, deletio
 or delivery authorization exists yet. UI must eventually receive provider-neutral
 MediaAsset read models, not this context or SDK objects.
 
-Better Auth's core schema is present. No auth endpoint is exposed, no public sign-up is
-enabled, and no custom administrator model or owner has been created. The safe
+Better Auth's core schema and protected auth endpoints are implemented. Public signup
+is disabled; no production owner has been provisioned by this work. The safe
 Markdown packages are likewise installed only; their shared renderer still needs
 URL/media restrictions and raw-HTML-disabled preview/publication behavior.
 

@@ -14,10 +14,11 @@ The application still renders the Next.js starter homepage; its composition and
 utility classes have not yet been migrated to the design system.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and a Cloudinary configuration skeleton are in place.
-The initial schema and generated migration are present. Portfolio pages, repository
-queries, the owner CMS, authentication flows, media management, and deployment
-are not implemented. No migration has been applied and no live service connection
-has been attempted.
+The content/auth schema and migrations are present. Owner login/logout, server
+authorization, password change, database-backed rate limits, and a bootstrap CLI
+are implemented. Portfolio pages, content-management screens, media management,
+and deployment remain pending. Migrations/auth flows were tested only in ephemeral
+PostgreSQL; no configured Aiven database was contacted or provisioned.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -29,6 +30,8 @@ no source-code change, Git commit, or redeployment.
   Cloudinary, react-markdown, and remark-gfm.
 - **Environment tooling:** `@next/env` lets Drizzle Kit load the same local
   environment as Next.js; no separate dotenv dependency is needed.
+- **Auth tooling:** `server-only` enforces boundaries; development dependencies
+  `tsx` and PGlite support the TypeScript bootstrap CLI and isolated PostgreSQL tests.
 - **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; live
   integrations and deployment configuration remain pending.
 
@@ -46,8 +49,25 @@ npm ci
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The current starter does not require
-database, authentication, or Cloudinary credentials.
+Open [localhost:3000](http://localhost:3000). The public starter and login page render
+without service credentials. Functional authentication requires the database,
+auth environment, reviewed migrations, and provisioned owner described below.
+
+## Owner CMS access
+
+Read [authentication setup](docs/authentication.md) and verify the database target
+and TLS trust before running either command:
+
+```bash
+npm run db:migrate
+npm run auth:bootstrap-owner
+```
+
+The bootstrap command reads the three `BOOTSTRAP_OWNER_*` inputs from `.env.local`
+or securely injected environment values. It never overwrites an existing owner.
+After success, remove `BOOTSTRAP_OWNER_PASSWORD` from Vercel and local environment
+settings, sign in at `/admin/login`, and replace the temporary password at `/admin`.
+Public signup is disabled. There is no email reset flow.
 
 ## Environment configuration
 
@@ -66,7 +86,7 @@ injected environment values. Do not run it with `NODE_ENV=test`, which skips
 
 Database and Cloudinary configuration is lazy; it is validated only when used.
 Database TLS verification stays enabled. See [database infrastructure](docs/database.md)
-for connection limits, Aiven CA trust, schema relationships, migration safety, and pending auth work.
+for connection limits, Aiven CA trust, schema relationships, and migration safety.
 
 See [the environment contract](docs/architecture.md#11-environment-variables) for
 the full variable list and loading requirements.
@@ -81,10 +101,13 @@ npm exec -- tsc --noEmit
 npm run lint
 npm run build
 npm run db:check
+npm run test:auth
 ```
 
-`npm run start` serves a completed production build. No automated test suite is
-configured yet. The current `next/font/google` setup downloads Geist and Geist
+`npm run start` serves a completed production build. Auth tests use an isolated
+in-memory PostgreSQL engine and never load `.env.local`. They cover the real Better
+Auth adapter/handler, owner guards, bootstrap safety, sessions, and rate limits.
+The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,
 environment safety, and `git diff --check`.
@@ -107,6 +130,8 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
   [Foundational CSS](app/globals.css) implements the semantic tokens and base utilities.
 - [Database schema and infrastructure](docs/database.md): schema relationships,
   draft/public storage, migration workflows, environment loading, and verified TLS.
+- [Authentication](docs/authentication.md): owner provisioning, route/mutation
+  protection, session policy, password changes, tests, and recovery limitations.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
 The deployment document is planned under `docs/`; its responsibility is mapped

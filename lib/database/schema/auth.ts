@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, index, pgTable, smallint, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, index, integer, pgTable, smallint, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { timestamps } from "./shared";
 
 // Better Auth 1.7.2 core schema. Keep model/property names expected by its adapter.
@@ -55,3 +55,11 @@ export const ownerBinding = pgTable("owner_binding", {
   userId: text("user_id").notNull().unique().references(() => user.id, { onDelete: "restrict" }),
   ...timestamps(),
 }, (t) => [check("owner_binding_singleton", sql`${t.id} = 1`)]);
+
+// Better Auth's distributed rate limiter; shared across serverless instances.
+export const rateLimit = pgTable("rate_limit", {
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
+}, (t) => [index("rate_limit_last_request_idx").on(t.lastRequest)]);
