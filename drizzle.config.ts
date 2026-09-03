@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 
 import { parseDatabaseEnvironment } from "./lib/validation/environment";
 
-// Drizzle Kit loads this file through its CommonJS config loader. Resolve paths
-// from the config itself so --config also works outside the repository directory.
+// Drizzle Kit loads this file through its CommonJS config loader. Resolve the
+// environment and schema from this file; run npm scripts at the package root.
 const projectRoot = __dirname;
 
 if (process.env.NODE_ENV === "test") {
@@ -25,8 +25,9 @@ const { DATABASE_URL } = parseDatabaseEnvironment({
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: resolve(projectRoot, "lib/database/schema/**/*.ts").replaceAll("\\", "/"),
-  out: resolve(projectRoot, "drizzle"),
+  schema: resolve(projectRoot, "lib/database/schema/index.ts").replaceAll("\\", "/"),
+  // Keep output relative: drizzle-kit check currently joins its cwd to this path.
+  out: "./drizzle",
   dbCredentials: { url: DATABASE_URL },
   strict: true,
   verbose: false,

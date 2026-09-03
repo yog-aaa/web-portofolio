@@ -14,9 +14,10 @@ The application still renders the Next.js starter homepage; its composition and
 utility classes have not yet been migrated to the design system.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and a Cloudinary configuration skeleton are in place.
-Portfolio pages, schemas/migrations, the owner CMS, authentication flows, media
-management, and deployment are not implemented. No live service connection has
-been verified.
+The initial schema and generated migration are present. Portfolio pages, repository
+queries, the owner CMS, authentication flows, media management, and deployment
+are not implemented. No migration has been applied and no live service connection
+has been attempted.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -65,7 +66,7 @@ injected environment values. Do not run it with `NODE_ENV=test`, which skips
 
 Database and Cloudinary configuration is lazy; it is validated only when used.
 Database TLS verification stays enabled. See [database infrastructure](docs/database.md)
-for connection limits, Aiven CA trust, folder boundaries, and pending schema/auth work.
+for connection limits, Aiven CA trust, schema relationships, migration safety, and pending auth work.
 
 See [the environment contract](docs/architecture.md#11-environment-variables) for
 the full variable list and loading requirements.
@@ -79,6 +80,7 @@ npm exec -- next typegen
 npm exec -- tsc --noEmit
 npm run lint
 npm run build
+npm run db:check
 ```
 
 `npm run start` serves a completed production build. No automated test suite is
@@ -87,9 +89,10 @@ Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,
 environment safety, and `git diff --check`.
 
-`npm exec -- drizzle-kit --version` checks the installed CLI without connecting.
-No schema or migrations exist yet; do not generate migrations or push an empty
-schema. npm reports four moderate advisories through Drizzle Kit's tooling chain;
+Database scripts are `db:generate`, `db:check`, `db:migrate`, and `db:studio`.
+Generation and checking are local schema operations. Migration and Studio use the
+configured database and require deliberate target verification. npm reports four
+moderate advisories through Drizzle Kit's tooling chain;
 see [the audit notes](docs/database.md#dependency-audit) before changing versions.
 
 ## Project documentation
@@ -102,8 +105,8 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
 - [Design system](docs/design-system.md): palette/contrast, typography, responsive
   layout, interaction, media guidance, and the future CMS theme allowlist.
   [Foundational CSS](app/globals.css) implements the semantic tokens and base utilities.
-- [Database infrastructure](docs/database.md): installed backend packages, module
-  boundaries, environment loading, verified TLS, and pending persistence work.
+- [Database schema and infrastructure](docs/database.md): schema relationships,
+  draft/public storage, migration workflows, environment loading, and verified TLS.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
 The deployment document is planned under `docs/`; its responsibility is mapped

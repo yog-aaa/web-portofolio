@@ -1,7 +1,7 @@
 # Authentication boundary
 
-Better Auth is installed; an auth instance, adapter schema, route handler, owner
-binding, and provisioning flow are not implemented yet. This folder will hold
+Better Auth is installed and its initial adapter schema plus owner binding exist.
+An auth instance, route handler, and provisioning flow are not implemented. This folder will hold
 server-only session and owner-authorization helpers after that design is approved.
 
 Use Better Auth's own user/session/account structures and Drizzle adapter. Enable

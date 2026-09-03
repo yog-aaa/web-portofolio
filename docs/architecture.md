@@ -26,9 +26,9 @@ of editable information; code owns its safe delivery and presentation.
 | Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; starter homepage only |
 | Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, fonts, and foundational tokens present; final pages pending |
 | Package management | npm | Existing package-lock.json; retain it |
-| Database | Aiven PostgreSQL | Planned; not connected |
-| Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; lazy client and CLI config present; schema/migrations pending |
-| Authentication | Better Auth, email/password | Installed; auth instance, schema, routes, and provisioning pending |
+| Database | Aiven PostgreSQL | Initial schema/migration generated; not connected or applied |
+| Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
+| Authentication | Better Auth, email/password | Core adapter schema present; auth instance, routes, and provisioning pending |
 | Media | Cloudinary, server-authorized uploads | SDK and lazy configuration skeleton present; media flow pending |
 | Hosting | Vercel | Deployment target; not configured by this task |
 
@@ -41,7 +41,7 @@ Instructions, architecture, the environment template, and the [formal V1 PRD](po
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
 environment validation, database/Cloudinary foundations, and module boundaries.
-Live service connections, owner provisioning, schemas/migrations, pages/CMS, and
+Live service connections, owner provisioning, schema application, pages/CMS, and
 deployment remain unimplemented. The PRD supplies product behavior
 and logical models within this architecture; it does not define a database schema.
 
@@ -196,7 +196,7 @@ Use the Node.js runtime for the postgres.js database integration on Vercel. Boun
 and reuse connections appropriately for serverless concurrency; determine pool
 limits from the Aiven service and deployment model during implementation. Schema
 constraints, indexes, backup/restore procedures, and migration operations belong
-in `docs/database.md` and the planned `docs/deployment.md`; schema design is pending.
+in `docs/database.md` and the planned `docs/deployment.md`; deployment validation is pending.
 
 ## 7. Drizzle
 
@@ -213,8 +213,8 @@ schema, and therefore need no migration or redeployment.
 
 Drizzle Kit must load the same local `DATABASE_URL` as Next.js. Section 11 defines
 the loading contract; a separate credential-bearing `.env` file is not allowed.
-Dependencies, a lazy runtime client, and `drizzle.config.ts` are now present;
-schema definitions and migrations remain pending. See [database infrastructure](database.md).
+Dependencies, a typed runtime client, schema definitions, `drizzle.config.ts`, and
+the initial generated migration are present. See [database infrastructure](database.md).
 
 ## 8. Better Auth and owner identity
 
@@ -469,7 +469,7 @@ registration, and arbitrary CMS-controlled layouts remain outside V1.
 | `docs/architecture.md` | System boundaries and locked architecture | This document |
 | `docs/portfolio-prd.md` | Product requirements, IA, logical content models, scope, acceptance criteria | Present |
 | `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Present; foundational CSS implemented |
-| `docs/database.md` | Database infrastructure, then schema, owner binding, constraints, migrations, provisioning | Present; infrastructure only, schema design pending |
+| `docs/database.md` | Database infrastructure, schema, owner binding, constraints, migrations, provisioning | Present; initial schema/migration documented |
 | `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Planned |
 
 Read the relevant specialized document when it exists; until then this contract

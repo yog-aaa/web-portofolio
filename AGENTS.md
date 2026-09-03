@@ -38,8 +38,8 @@ Also read the relevant document when available:
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
 - `docs/deployment.md`: environment setup and deployment
 
-The PRD, design system, and database infrastructure guide are available. Schema
-design remains pending. The deployment document is planned; until created, follow
+The PRD, design system, and database guide are available. The initial schema and
+migration are present. The deployment document is planned; until created, follow
 the corresponding architecture and PRD sections.
 Keep all specialized documents consistent with the architecture contract.
 

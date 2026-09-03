@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { parseDatabaseEnvironment } from "@/lib/validation/environment";
+import * as schema from "@/lib/database/schema";
 
 function createDatabase() {
   const { DATABASE_URL } = parseDatabaseEnvironment({
@@ -21,7 +22,7 @@ function createDatabase() {
     onnotice: () => {},
   });
 
-  return drizzle({ client, logger: false });
+  return drizzle({ client, schema, logger: false });
 }
 
 type Database = ReturnType<typeof createDatabase>;
