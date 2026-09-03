@@ -3,7 +3,7 @@ import "server-only";
 import { createDatabaseConnection } from "./connection";
 
 function createDatabase() {
-  return createDatabaseConnection(process.env.DATABASE_URL).db;
+  return createDatabaseConnection(process.env).db;
 }
 
 type Database = ReturnType<typeof createDatabase>;

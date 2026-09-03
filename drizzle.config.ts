@@ -19,16 +19,26 @@ loadEnvConfig(projectRoot, process.env.NODE_ENV !== "production", {
   },
 });
 
-const { DATABASE_URL } = parseDatabaseEnvironment({
-  DATABASE_URL: process.env.DATABASE_URL,
-});
+const { DATABASE_URL, DATABASE_CA_CERT } = parseDatabaseEnvironment(process.env);
+const databaseUrl = new URL(DATABASE_URL);
 
 export default defineConfig({
   dialect: "postgresql",
   schema: resolve(projectRoot, "lib/database/schema/index.ts").replaceAll("\\", "/"),
   // Keep output relative: drizzle-kit check currently joins its cwd to this path.
   out: "./drizzle",
-  dbCredentials: { url: DATABASE_URL },
+  dbCredentials: {
+    host: databaseUrl.hostname,
+    port: Number(databaseUrl.port || "5432"),
+    user: decodeURIComponent(databaseUrl.username),
+    password: decodeURIComponent(databaseUrl.password),
+    database: decodeURIComponent(databaseUrl.pathname.slice(1)),
+    ssl: {
+      ca: DATABASE_CA_CERT,
+      rejectUnauthorized: true,
+      servername: databaseUrl.hostname,
+    },
+  },
   strict: true,
   verbose: false,
 });

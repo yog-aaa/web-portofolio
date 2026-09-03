@@ -1,8 +1,9 @@
 # Database schema and infrastructure
 
 Status: initial schema plus additive auth rate-limit and media-service migrations generated.
-Migrations, auth, media, public-query, and seed flows are tested in ephemeral PGlite PostgreSQL. No configured
-Aiven database has been contacted, migrated, or provisioned. Follow the
+Migrations, auth, media, public-query, and seed flows are tested in ephemeral PGlite PostgreSQL.
+Base64 CA trust is implemented; a successful verified Aiven connection, migration,
+and owner provisioning remain pending. Follow the
 [architecture contract](architecture.md) and [logical PRD models](portfolio-prd.md#10-domaincontent-model).
 
 ## Installed packages
@@ -265,14 +266,15 @@ into `.env`, another environment file, TypeScript, examples, or logs. The existi
 [.env.example](../.env.example) remains the placeholder contract.
 
 Next.js loads the application environment normally. Drizzle Kit's config calls
-`loadEnvConfig` from `@next/env` before reading `DATABASE_URL`. It resolves the
-repository from the config's own directory, including when invoked elsewhere
-with an absolute `--config` path. Injected process/deployment values take
-precedence, following Next.js's environment loader. Development is the default
-CLI mode; `NODE_ENV=production` selects production precedence. `NODE_ENV=test`
-is explicitly rejected because Next.js skips `.env.local` in test mode.
+`loadEnvConfig` from `@next/env` before reading `DATABASE_URL` and
+`DATABASE_CA_CERT_BASE64`. It resolves the repository from the config's own
+directory, including when invoked elsewhere with an absolute `--config` path.
+Injected process/deployment values take precedence, following Next.js's environment
+loader. Development is the default CLI mode; `NODE_ENV=production` selects production
+precedence. `NODE_ENV=test` is explicitly rejected because Next.js skips `.env.local`.
 
-Database validation requires a credentialed PostgreSQL URL with a database name.
+Database validation requires a credentialed PostgreSQL URL with a database name and
+a one-line Base64 value that decodes exclusively to valid X.509 PEM certificates.
 Cloudinary validation requires a credentialed `cloudinary://` URL and a nonempty
 folder root containing slash-separated letters, numbers, underscores, or hyphens.
 Cloudinary query/path configuration overrides are intentionally excluded from
@@ -303,20 +305,26 @@ The limit is not global: Vercel instances each have their own pool, so capacity
 and concurrency must be reviewed against Aiven before deployment.
 
 The shared validator normalizes the in-memory connection URL to
-`sslmode=verify-full`; it does not rewrite `.env.local`. Runtime options also
-set `ssl: { rejectUnauthorized: true }`. This is deliberate: the installed
+`sslmode=verify-full`; it does not rewrite `.env.local`. It decodes
+`DATABASE_CA_CERT_BASE64`, rejects malformed Base64, non-certificate content, and
+mixed PEM/private-key payloads, then passes only the validated certificate bundle
+to postgres.js and Drizzle Kit. Both set `rejectUnauthorized: true`; Drizzle Kit
+also receives the expected server name explicitly. This is deliberate: the installed
 postgres.js driver treats `sslmode=require` as encryption without certificate
-verification. Drizzle Kit uses the normalized URL and the installed postgres.js
-driver too. See [postgres.js connection/TLS documentation](https://github.com/porsager/postgres).
+verification. See [postgres.js connection/TLS documentation](https://github.com/porsager/postgres).
 
-Before the first real connection, establish trust in the actual Aiven certificate
-chain. If a service-specific CA is required, provide it through Node's trusted
-certificate configuration before process startup (for example, an approved CA
-file via `NODE_EXTRA_CA_CERTS`). Setting that Node startup variable inside
-`.env.local` is too late. Never work around a certificate error with
-`rejectUnauthorized: false` or `NODE_TLS_REJECT_UNAUTHORIZED=0`. Service trust,
-access rights, capacity, backups, and deployment remain to be verified; no live
-connection was attempted in this foundation task.
+Create the value locally without modifying the certificate file:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\ca.pem"))
+```
+
+Copy the one-line result into `DATABASE_CA_CERT_BASE64` in `.env.local`. For Vercel,
+store the same variable in the appropriate Preview and Production environment scopes
+and redeploy. The CA is public trust material, but keeping it server-only prevents it
+from becoming an accidental client-side contract. Never use `NEXT_PUBLIC_`,
+`rejectUnauthorized: false`, or `NODE_TLS_REJECT_UNAUTHORIZED=0`. Successful Aiven
+connectivity, access rights, capacity, backups, and deployment remain to be verified.
 
 ## Development migration workflow
 

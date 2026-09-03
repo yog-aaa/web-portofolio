@@ -29,7 +29,24 @@ export async function seedDevelopmentContent(db: Database): Promise<DevelopmentS
     }).onConflictDoNothing().returning({ id: profile.id });
     await tx.insert(themeSettings).values({ id: 1 }).onConflictDoNothing();
     await tx.insert(siteSettings).values({ id: 1, profileId: 1, themeSettingsId: 1,
-      brandName: "YOGAAA.", siteTitle: "YOGAAA." }).onConflictDoNothing();
+      brandName: "YOGAAA.", siteTitle: "YOGAAA.",
+      heroSupportingCopy: "SOFTWARE · AI · RESEARCH",
+      heroHeadline: "Building useful digital products with software & AI.",
+      heroIntro: "Exploring software, artificial intelligence, computer vision, research, product development, and agentic AI.",
+      heroExploreLabel: "Explore selected work",
+      contactCtaHeading: "Have a project or research idea worth exploring?",
+      contactCtaLabel: "Get in touch",
+      contactSupportingCopy: "Start with the context, the problem, and what you hope to build.",
+      footerCopy: "Software · AI · Research",
+      sectionCopy: {
+        selectedWork: { heading: "Selected Work", intro: "A focused view of projects and research shaped by practical questions.", actionLabel: "View all work" },
+        experienceHighlight: { heading: "Experience", actionLabel: "View experience" },
+        featuredResearch: { heading: "Featured Research", actionLabel: "View all research" },
+        latestThoughts: { heading: "Latest Thoughts", actionLabel: "Read all thoughts" },
+        shortAbout: { heading: "About", actionLabel: "More about Yoga" },
+        contact: { heading: "Contact" },
+      },
+    }).onConflictDoNothing();
 
     const [educationRow] = await tx.insert(education).values({
       id: developmentSeedIds.education,

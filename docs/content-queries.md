@@ -14,6 +14,7 @@ flowchart LR
 Pages import `lib/queries/public-content.ts`. That facade uses the lazy server-only
 database and exposes `getSiteSettings`, `getThemeSettings`, `getProfile`,
 `getFeaturedProjects`, `getPublishedProjects`, `getProjectBySlug`, `getExperiences`,
+`getExperienceHighlight`,
 `getPublishedResearch`, `getFeaturedResearch`, `getResearchBySlug`,
 `getLatestThoughts`, `getPublishedThoughts`, `getThoughtBySlug`, and
 `getCredentials`. Tests can create the same facade with an isolated database using
@@ -41,9 +42,10 @@ detail records where presentation/metadata needs them. Administrative reads and
 future mutations must use separate modules and still pass through authentication,
 owner authorization, and validation.
 
-No Next.js data cache is enabled at this stage. Adding `use cache`, cache lifetimes,
-and tags before publication mutations exist would leave no complete invalidation
-path. Introduce them with the publishing services described in the architecture.
+No persistent Next.js data cache is enabled at this stage. React request memoization
+deduplicates identical shell/page reads within one server render. Adding `use cache`,
+cache lifetimes, and tags before publication mutations exist would leave no complete
+invalidation path. Introduce them with the publishing services described in the architecture.
 
 ## Development seed
 

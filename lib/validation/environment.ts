@@ -1,3 +1,4 @@
+import { X509Certificate } from "node:crypto";
 import { z } from "zod";
 
 // Pure validation shared by Next.js server modules and the standalone Drizzle CLI.
@@ -23,22 +24,63 @@ function credentialUrl(value: string, protocols: string[]): URL | undefined {
   }
 }
 
-const databaseEnvironmentSchema = z.object({
-  DATABASE_URL: z
-    .string()
-    .trim()
-    .refine((value) => {
-      const url = credentialUrl(value, ["postgres:", "postgresql:"]);
-      return Boolean(url && url.pathname.length > 1);
-    })
-    .transform((value) => {
-      const url = new URL(value);
-      // postgres.js treats sslmode=require as encryption without verification.
-      // Both the runtime and Drizzle Kit must verify the server certificate.
-      url.searchParams.set("sslmode", "verify-full");
-      return url.toString();
-    }),
-});
+function decodeCertificateBundle(value: string): string | undefined {
+  try {
+    const normalized = value.trim();
+    const bytes = Buffer.from(normalized, "base64");
+
+    if (!normalized || bytes.toString("base64") !== normalized) return undefined;
+
+    const pem = bytes.toString("utf8").trim();
+    const blocks = pem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g);
+
+    if (!blocks?.length || pem.replaceAll(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g, "").trim()) {
+      return undefined;
+    }
+
+    for (const block of blocks) new X509Certificate(block);
+    return `${blocks.join("\n")}\n`;
+  } catch {
+    return undefined;
+  }
+}
+
+const databaseEnvironmentSchema = z
+  .object({
+    DATABASE_URL: z
+      .string()
+      .trim()
+      .refine((value) => {
+        const url = credentialUrl(value, ["postgres:", "postgresql:"]);
+        return Boolean(url && url.pathname.length > 1);
+      })
+      .transform((value) => {
+        const url = new URL(value);
+        // postgres.js treats sslmode=require as encryption without verification.
+        // Both the runtime and Drizzle Kit must verify the server certificate.
+        url.searchParams.set("sslmode", "verify-full");
+        return url.toString();
+      }),
+    DATABASE_CA_CERT_BASE64: z
+      .string()
+      .trim()
+      .min(1)
+      .max(65_536)
+      .transform((value, context) => {
+        const certificate = decodeCertificateBundle(value);
+
+        if (!certificate) {
+          context.addIssue({ code: "custom", message: "Must encode a valid PEM certificate bundle." });
+          return z.NEVER;
+        }
+
+        return certificate;
+      }),
+  })
+  .transform(({ DATABASE_URL, DATABASE_CA_CERT_BASE64 }) => ({
+    DATABASE_URL,
+    DATABASE_CA_CERT: DATABASE_CA_CERT_BASE64,
+  }));
 
 const cloudinaryEnvironmentSchema = z.object({
   CLOUDINARY_URL: z

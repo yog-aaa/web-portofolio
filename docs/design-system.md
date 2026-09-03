@@ -266,11 +266,14 @@ limits animations to one iteration, and restores automatic scrolling. It is a gu
 motion implementation. Future animated entrances must default to visible content
 and use `motion-safe:` for hidden/translated starting states. Behavior must not
 depend on an animation completing; JavaScript motion must respect the same
-preference. No scroll animation, smooth scrolling, or page entrance is added here.
+preference. The public shell uses native smooth anchor scrolling with that reduced-
+motion override, plus short header and mobile-dialog state transitions. It adds no
+parallax, perpetual motion, or animation-dependent behavior.
 
 ## 9. Composition and media patterns
 
-These are guidance for the next UI phase, not completed components or new routes.
+These patterns are implemented by the public shell/homepage primitives and remain
+the contract for archive and detail pages that follow.
 
 | Pattern | Anatomy and hierarchy |
 | --- | --- |

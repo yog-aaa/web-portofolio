@@ -140,10 +140,18 @@
 @layer base {
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
   }
 
   body {
     @apply bg-background font-sans text-body text-foreground;
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
   }
 
   *,
@@ -168,6 +176,28 @@
       outline-color: Highlight;
       box-shadow: none;
     }
+  }
+}
+
+#mobile-navigation {
+  opacity: 0;
+  transform: translateY(-0.75rem);
+  transition:
+    opacity var(--duration-normal) var(--ease-calm),
+    transform var(--duration-normal) var(--ease-calm),
+    display var(--duration-normal) allow-discrete,
+    overlay var(--duration-normal) allow-discrete;
+}
+
+#mobile-navigation[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #mobile-navigation[open] {
+    opacity: 0;
+    transform: translateY(-0.75rem);
   }
 }
 

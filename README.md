@@ -10,8 +10,9 @@ Planned domain: [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
 Repository guidance, the architecture contract, the formal V1 PRD, the design system,
 and the environment template are established. Foundational Calm Blue tokens,
 typography, responsive layout utilities, focus, and reduced-motion CSS are in place.
-The application still renders the Next.js starter homepage; its composition and
-utility classes have not yet been migrated to the design system.
+The public shell and CMS-driven homepage now implement the Calm Blue editorial
+system with sticky responsive navigation, reusable UI primitives, and the curated
+Hero → Work → Experience → Research → Thoughts → About → Contact hierarchy.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and an owner-authorized Cloudinary media service are in place.
 The content/auth schema and migrations are present. Owner login/logout, server
@@ -21,8 +22,8 @@ reference inspection, and retryable deletion are implemented without a media-lib
 UI. Typed public content queries now enforce publication, visibility, relationship-slot,
 and media-access rules. Portfolio pages, content-management screens, and deployment
 remain pending. Migrations/auth/media/content flows were tested only with
-ephemeral PostgreSQL and a mocked Cloudinary boundary; no configured Aiven database
-or Cloudinary account was contacted.
+ephemeral PostgreSQL and a mocked Cloudinary boundary; a successful verified Aiven
+connection, live migration, and Cloudinary account integration remain pending.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -33,7 +34,8 @@ no source-code change, Git commit, or redeployment.
   Geist Mono, npm, Drizzle ORM + Drizzle Kit, postgres.js, Better Auth, Zod,
   Cloudinary, Sharp, react-markdown, and remark-gfm.
 - **Environment tooling:** `@next/env` lets Drizzle Kit load the same local
-  environment as Next.js; no separate dotenv dependency is needed.
+  environment as Next.js; the Aiven CA is supplied as validated Base64 trust
+  material, with no separate dotenv dependency or deployed certificate file.
 - **Auth tooling:** `server-only` enforces boundaries; development dependencies
   `tsx` and PGlite support the TypeScript bootstrap CLI and isolated PostgreSQL tests.
 - **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; live
@@ -99,9 +101,11 @@ Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, and
 owner bootstrap credentials remain server-only. Remove `BOOTSTRAP_OWNER_PASSWORD`
 from the production environment after owner provisioning succeeds. Next.js and the
 Drizzle Kit configuration share `.env.local` without duplicated database
-credentials. Drizzle resolves the project root from its config file and preserves
-injected environment values. Do not run it with `NODE_ENV=test`, which skips
-`.env.local`. Validation errors identify variables without printing their values.
+credentials. Set `DATABASE_CA_CERT_BASE64` to the one-line Base64 encoding of the
+Aiven `ca.pem`; the runtime and Drizzle Kit validate and decode it without writing
+a certificate file. Drizzle resolves the project root from its config file and
+preserves injected environment values. Do not run it with `NODE_ENV=test`, which
+skips `.env.local`. Validation errors identify variables without printing values.
 
 Database and Cloudinary configuration is lazy; it is validated only when used.
 Database TLS verification stays enabled. See [database infrastructure](docs/database.md)
@@ -120,9 +124,11 @@ npm exec -- tsc --noEmit
 npm run lint
 npm run build
 npm run db:check
+npm run test:database
 npm run test:auth
 npm run test:media
 npm run test:content
+npm run test:ui
 ```
 
 `npm run start` serves a completed production build. Auth tests use an isolated
@@ -133,6 +139,9 @@ not consume configured Aiven or Cloudinary resources.
 Content tests cover every public query's draft/archive/visibility/media boundary and
 the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
 the target before using its required confirmation flag.
+The UI test verifies CMS copy injection and featured-research promotion into the
+Selected Work composition. The homepage is request-rendered and requires the current
+migrations plus configured public content at runtime.
 The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,

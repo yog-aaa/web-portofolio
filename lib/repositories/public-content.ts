@@ -109,6 +109,19 @@ export class PublicContentRepository {
     return rows.map((row) => ({ ...row, organizationImage: image(row.organizationImage) }));
   }
 
+  async getExperienceHighlight(): Promise<PublicExperience | null> {
+    const [row] = await this.db.select({ id: experiences.id, roleTitle: experiences.roleTitle,
+      organizationName: experiences.organizationName, description: experiences.description,
+      startDate: experiences.startDate, endDate: experiences.endDate, isCurrent: experiences.isCurrent,
+      contextLabel: experiences.contextLabel, location: experiences.location,
+      organizationUrl: experiences.organizationUrl, organizationImage: publicImageSelection,
+    }).from(experiences).leftJoin(mediaAssets,
+      and(eq(experiences.organizationMediaId, mediaAssets.id), publicReadyImage))
+      .where(and(eq(experiences.isVisible, true), eq(experiences.isFeatured, true)))
+      .orderBy(asc(experiences.featuredOrder), asc(experiences.id)).limit(1);
+    return row ? { ...row, organizationImage: image(row.organizationImage) } : null;
+  }
+
   async getPublishedResearch(): Promise<PublicResearch[]> {
     const rows = await this.researchRows().orderBy(asc(research.sortOrder), desc(research.publishedAt), asc(research.id));
     return this.hydrateResearch(rows);

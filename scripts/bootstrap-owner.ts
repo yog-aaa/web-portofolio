@@ -13,7 +13,7 @@ async function main() {
   });
   const environment = parseAuthEnvironment(process.env);
   const input = parseBootstrapEnvironment(process.env);
-  const { db, client } = createDatabaseConnection(process.env.DATABASE_URL);
+  const { db, client } = createDatabaseConnection(process.env);
   try {
     const result = await provisionOwner(db, environment, input);
     console.log(result === "created" ? "Owner provisioned successfully." : "Owner already provisioned. Nothing changed.");

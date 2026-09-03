@@ -176,6 +176,8 @@ test("development seed is idempotent, preserves rows, and keeps incomplete resea
   assert.equal((await f.db.select().from(schema.education).where(eq(schema.education.id, developmentSeedIds.education))).length, 1);
   const [research] = await f.db.select().from(schema.research).where(eq(schema.research.id, developmentSeedIds.research));
   assert.equal(research.status, "draft");
+  const [settings] = await f.db.select().from(schema.siteSettings);
+  assert.equal(settings.heroHeadline, "Building useful digital products with software & AI.");
   assert.equal((await f.queries.getFeaturedResearch()).length, 0);
   assert.equal((await f.db.select().from(schema.credentials)).length, 0);
   assert.equal((await f.db.select().from(schema.experiences)).length, 0);

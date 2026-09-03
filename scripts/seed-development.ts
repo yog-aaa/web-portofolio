@@ -15,7 +15,7 @@ async function main() {
   loadEnvConfig(resolve(__dirname, ".."), true, {
     info: () => {}, error: () => { throw new Error("Environment loading failed."); },
   });
-  const { db, client } = createDatabaseConnection(process.env.DATABASE_URL);
+  const { db, client } = createDatabaseConnection(process.env);
   try {
     const result = await seedDevelopmentContent(db);
     console.log(`Development seed complete: profile ${result.profile}, education ${result.education}, research ${result.research}.`);

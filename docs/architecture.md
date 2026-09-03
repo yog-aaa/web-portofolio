@@ -23,10 +23,10 @@ of editable information; code owns its safe delivery and presentation.
 
 | Responsibility | Locked choice | Current state |
 | --- | --- | --- |
-| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; starter homepage and owner authentication shell |
+| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; public shell/homepage and owner authentication shell |
 | Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, fonts, and foundational tokens present; final pages pending |
 | Package management | npm | Existing package-lock.json; retain it |
-| Database | Aiven PostgreSQL | Initial schema/migration generated; not connected or applied |
+| Database | Aiven PostgreSQL | Schema/migrations and Base64 CA trust support implemented; verified live connection and migration pending |
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
 | Authentication | Better Auth, email/password | Drizzle adapter, login/logout, owner guards, password change, and CLI bootstrap implemented; live provisioning pending |
 | Media | Cloudinary, server-authorized uploads | Owner-only upload/metadata/private-delivery/delete service implemented; media-library UI and live integration pending |
@@ -196,8 +196,9 @@ and Better Auth records. Cloudinary stores the media bytes. Runtime content must
 not depend on Vercel's local filesystem or a Git-backed content directory.
 
 Use the server-only `DATABASE_URL` with TLS. The example URL includes
-`sslmode=require`; verify the actual postgres.js TLS and Aiven CA configuration
-when connecting, retaining certificate verification rather than disabling it.
+`sslmode=require`; application validation upgrades it in memory to `verify-full`.
+`DATABASE_CA_CERT_BASE64` carries the Base64-encoded Aiven CA to postgres.js and
+Drizzle Kit, retaining certificate and hostname verification without a deployed file.
 Use scoped database access and separate development/preview resources from
 production. Never print connection strings, passwords, or sensitive query values.
 
@@ -220,8 +221,9 @@ operation against a verified environment, never a side effect of a request, owne
 login, or an ordinary Vercel application build. Routine CMS edits change data, not
 schema, and therefore need no migration or redeployment.
 
-Drizzle Kit must load the same local `DATABASE_URL` as Next.js. Section 11 defines
-the loading contract; a separate credential-bearing `.env` file is not allowed.
+Drizzle Kit must load the same local `DATABASE_URL` and
+`DATABASE_CA_CERT_BASE64` as Next.js. Section 11 defines the loading contract; a
+separate credential-bearing `.env` file is not allowed.
 Dependencies, a typed runtime client, schema definitions, `drizzle.config.ts`, and
 the initial generated migration are present. See [database infrastructure](database.md).
 
@@ -341,6 +343,7 @@ Do not put real credentials into documentation, generated artifacts, or example 
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Public | Local `http://localhost:3000`; planned production `https://yogaagustiansyah.my.id` |
 | `DATABASE_URL` | Server-only secret | Aiven PostgreSQL connection URL with TLS |
+| `DATABASE_CA_CERT_BASE64` | Server-only trust configuration | One-line Base64 encoding of the Aiven `ca.pem`; decoded and validated before use |
 | `BETTER_AUTH_SECRET` | Server-only secret | High-entropy secret of at least 32 characters |
 | `BETTER_AUTH_URL` | Server-side configuration | Local auth origin; production origin matches the deployed site |
 | `CLOUDINARY_URL` | Server-only secret | Cloudinary account URL containing API credentials |
@@ -358,8 +361,8 @@ protection: do not serialize secrets into props, HTML, responses, logs, or error
 
 Next.js loads root `.env.local` for local development. Drizzle Kit's configuration
 invokes `loadEnvConfig` from `@next/env` with the repository root before reading
-`DATABASE_URL`. The loader is now a direct development dependency, rather than a
-transitive import. Keep its installed version aligned with Next.js.
+`DATABASE_URL` and `DATABASE_CA_CERT_BASE64`. The loader is now a direct development
+dependency, rather than a transitive import. Keep its installed version aligned with Next.js.
 This follows the installed Next.js environment-variable guide for ORM tooling:
 `node_modules/next/dist/docs/01-app/02-guides/environment-variables.md`.
 

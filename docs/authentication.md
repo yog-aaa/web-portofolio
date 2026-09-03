@@ -75,9 +75,10 @@ Action without supplying equivalent protection. See the official
    SQL, then deliberately apply migrations as described in [database.md](database.md).
    Both `0000_initial_schema.sql` and `0001_auth_rate_limit.sql` are required.
    Bootstrap never creates tables or runs migrations.
-2. Set `DATABASE_URL`, `BETTER_AUTH_URL`, and `BETTER_AUTH_SECRET` through
-   `.env.local` or secure process injection. Set temporary `BOOTSTRAP_OWNER_NAME`,
-   `BOOTSTRAP_OWNER_EMAIL`, and `BOOTSTRAP_OWNER_PASSWORD` (12–128 characters).
+2. Set `DATABASE_URL`, `DATABASE_CA_CERT_BASE64`, `BETTER_AUTH_URL`, and
+   `BETTER_AUTH_SECRET` through `.env.local` or secure process injection. Set temporary
+   `BOOTSTRAP_OWNER_NAME`, `BOOTSTRAP_OWNER_EMAIL`, and `BOOTSTRAP_OWNER_PASSWORD`
+   (12–128 characters).
    Never pass passwords or connection strings as command-line arguments.
 3. Run from the repository:
 
