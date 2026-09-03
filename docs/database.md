@@ -1,14 +1,14 @@
 # Database schema and infrastructure
 
-Status: initial schema plus an additive auth rate-limit migration generated.
-Migrations and auth flows are tested in ephemeral PGlite PostgreSQL. No configured
+Status: initial schema plus additive auth rate-limit and media-service migrations generated.
+Migrations, auth, media, public-query, and seed flows are tested in ephemeral PGlite PostgreSQL. No configured
 Aiven database has been contacted, migrated, or provisioned. Follow the
 [architecture contract](architecture.md) and [logical PRD models](portfolio-prd.md#10-domaincontent-model).
 
 ## Installed packages
 
 Runtime dependencies are Drizzle ORM 0.45.2, postgres.js 3.4.9 (`postgres`),
-Better Auth 1.7.2, Zod 4.5.4, Cloudinary 2.11.0, react-markdown 10.1.0, and
+Better Auth 1.7.2, Zod 4.5.4, Cloudinary 2.11.0, Sharp 0.35.4, react-markdown 10.1.0, and
 remark-gfm 4.0.1. Drizzle Kit 0.31.10 is a development dependency.
 `package-lock.json` records exact installed versions.
 
@@ -27,15 +27,17 @@ Kysely dependency requires Node 22, above the original starter's minimum.
 
 | Location | Responsibility |
 | --- | --- |
-| `app/` | Existing Next.js routes and presentation; unchanged |
-| `lib/domain/` | Pure JSON value/draft contracts; future public read models stay separate |
+| `app/` | Next.js routes and presentation; no direct content SQL |
+| `lib/domain/` | Pure JSON values, private draft contracts, and separate public read models |
 | `lib/database/client.ts` | Lazy server-only Drizzle/postgres.js client |
 | `lib/database/schema/` | Initial tables/enums; `index.ts` is the explicit schema entry point |
-| `lib/repositories/` | Server-only owner binding lookup; future content queries and mappings |
-| `lib/services/` | Future application queries, orchestration, and revalidation |
+| `lib/repositories/public-content.ts` | Explicit public selections, visibility filters, domain mapping |
+| `lib/queries/public-content.ts` | Page-facing public query facade; no mutation/admin access |
+| `lib/services/` | Application orchestration, media service, and future revalidation |
 | `lib/services/media/cloudinary.ts` | Lazy server-only Cloudinary SDK configuration context |
 | `lib/auth/` | Lazy Better Auth instance, HTTP boundary, server owner guards, client integration |
 | `scripts/auth/` | CLI-only transactional owner provisioning; never import into hosted code |
+| `scripts/development/` | Non-destructive, explicitly confirmed development content seed |
 | `lib/validation/environment.ts` | Pure Zod configuration parsers shared by server modules and CLI |
 | `drizzle.config.ts` | Standalone Drizzle Kit configuration, with environment loading |
 | `drizzle/` | Generated SQL, snapshot, and journal; commit all three together |
@@ -63,8 +65,9 @@ imports only pure validation, never the Next.js runtime client.
 The initial migration is [0000_initial_schema.sql](../drizzle/0000_initial_schema.sql),
 with its snapshot and journal under `drizzle/meta/`. It creates 29 tables and six
 enums. [0001_auth_rate_limit.sql](../drizzle/0001_auth_rate_limit.sql) adds Better Auth's
-`rate_limit` table, bringing the total to 30. No rows, personal facts, accounts,
-passwords, or bootstrap data are seeded by migrations.
+`rate_limit` table, and [0002_media_service.sql](../drizzle/0002_media_service.sql)
+adds media deletion jobs/category constraints, bringing the total to 31. No rows,
+personal facts, accounts, passwords, or bootstrap data are seeded by migrations.
 UUIDs are database-generated for content/association records. Fixed singletons use
 `smallint` ID 1 with a check constraint; auth IDs remain Better Auth-managed text.
 This uses built-in `gen_random_uuid()` (PostgreSQL 13+), with no extension migration.

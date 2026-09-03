@@ -8,5 +8,9 @@ publication filters, and transactions as each use case requires.
 Public queries must exclude drafts, archived content, and private fields before
 returning domain/application data. Services own orchestration and cache refresh;
 pages compose their results. Do not add direct SQL to pages or a generic CRUD
-abstraction in advance of actual models. `owner.ts` currently supplies the persisted
-owner-ID lookup for authentication; content repositories remain pending.
+abstraction in advance of actual models. `owner.ts` supplies the persisted owner-ID
+lookup for authentication. `public-content.ts` supplies explicit public content
+selections and mappings; it is read-only and excludes hidden collections,
+private/unready media, draft relationship slots, and administrative fields. Future
+owner repositories and mutations stay separate and require authentication,
+authorization, and validation before repository access.

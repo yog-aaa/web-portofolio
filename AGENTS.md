@@ -36,6 +36,7 @@ Also read the relevant document when available:
 - `docs/portfolio-prd.md`: product requirements, information architecture, scope
 - `docs/design-system.md`: UI and design tokens
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
+- `docs/content-queries.md`: public read models, visibility filters, development seed
 - `docs/authentication.md`: owner login, guards, bootstrap, session policy, recovery limits
 - `docs/media.md`: upload policy, delivery, reconciliation, reference-safe deletion
 - `docs/deployment.md`: environment setup and deployment

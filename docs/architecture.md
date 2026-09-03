@@ -182,6 +182,13 @@ ordering, publication state, Markdown limits, and theme values. Use parameterize
 queries, explicit selected fields, and transactions for related database changes.
 Enforce publication filtering in public repositories/queries, not only in JSX.
 
+The public content repository and query facade are implemented with explicit
+presentation selections for site/theme/profile, projects, experience, research,
+Thoughts, and credentials. They filter editorial status, collection visibility,
+published relationship slots, and ready public media inside the repository. No
+query cache is enabled yet; add cache lifetimes and tags together with the future
+publication/revalidation services. See [public content queries](content-queries.md).
+
 ## 6. Aiven PostgreSQL
 
 PostgreSQL is the durable store for content, settings, media metadata/references,

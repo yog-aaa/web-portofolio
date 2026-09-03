@@ -10,7 +10,9 @@ from owner editing models. MediaAsset uses an application ID; provider identifie
 stay in infrastructure/persistence. Better Auth owns authentication models;
 there is no duplicate administrator domain/table.
 
-No speculative model or generic base repository is introduced in this phase.
+`content.ts` defines the public presentation contracts. These omit publication
+state, private drafts/revisions, provider metadata, visibility/order controls, and
+other administrative fields by construction.
 
 `content-values.ts` defines provider-neutral JSON values and private draft payloads
 used by persistence. These are not public DTOs or a substitute for input validation.

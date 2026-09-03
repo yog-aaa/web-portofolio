@@ -18,8 +18,9 @@ The content/auth schema and migrations are present. Owner login/logout, server
 authorization, password change, database-backed rate limits, and a bootstrap CLI
 are implemented. Secure image upload, metadata verification, private delivery,
 reference inspection, and retryable deletion are implemented without a media-library
-UI. Portfolio pages, content-management screens, and deployment remain pending.
-Migrations/auth/media flows were tested only with
+UI. Typed public content queries now enforce publication, visibility, relationship-slot,
+and media-access rules. Portfolio pages, content-management screens, and deployment
+remain pending. Migrations/auth/media/content flows were tested only with
 ephemeral PostgreSQL and a mocked Cloudinary boundary; no configured Aiven database
 or Cloudinary account was contacted.
 
@@ -72,6 +73,21 @@ After success, remove `BOOTSTRAP_OWNER_PASSWORD` from Vercel and local environme
 settings, sign in at `/admin/login`, and replace the temporary password at `/admin`.
 Public signup is disabled. There is no email reset flow.
 
+## Development content seed
+
+After reviewing and applying migrations to a verified development database, seed
+only the supplied known profile, education, interests, and draft research content:
+
+```bash
+npm run db:seed:development -- --confirm-development
+```
+
+The command is never run by startup or build. It refuses production/test mode,
+does not overwrite or delete existing rows, and is safe to rerun. The known
+fall-detection research remains a draft because publication facts such as the
+owner's role were not supplied. It does not create GPA, employment, credentials,
+awards, email addresses, or social URLs.
+
 ## Environment configuration
 
 [.env.example](.env.example) defines integration variables with explicit
@@ -106,6 +122,7 @@ npm run build
 npm run db:check
 npm run test:auth
 npm run test:media
+npm run test:content
 ```
 
 `npm run start` serves a completed production build. Auth tests use an isolated
@@ -113,6 +130,9 @@ in-memory PostgreSQL engine and never load `.env.local`. They cover the real Bet
 Auth adapter/handler, owner guards, bootstrap safety, sessions, and rate limits.
 Media tests use the same isolated database plus a mocked provider boundary; they do
 not consume configured Aiven or Cloudinary resources.
+Content tests cover every public query's draft/archive/visibility/media boundary and
+the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
+the target before using its required confirmation flag.
 The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,
@@ -140,6 +160,8 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
   protection, session policy, password changes, tests, and recovery limitations.
 - [Media service](docs/media.md): owner-only upload limits, Cloudinary delivery,
   persistence, reconciliation, references, deletion retries, and test boundaries.
+- [Public content queries](docs/content-queries.md): public DTOs, visibility rules,
+  ordering, query functions, and the guarded development seed.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
 The deployment document is planned under `docs/`; its responsibility is mapped

@@ -14,9 +14,11 @@
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts --host=127.0.0.1",
     "db:check": "drizzle-kit check --config=drizzle.config.ts",
+    "db:seed:development": "node --conditions=react-server --import tsx scripts/seed-development.ts",
     "auth:bootstrap-owner": "node --conditions=react-server --import tsx scripts/bootstrap-owner.ts",
     "test:auth": "node --conditions=react-server --import tsx --test tests/auth.test.ts",
-    "test:media": "node --conditions=react-server --import tsx --test tests/media.test.ts && node --import tsx --test tests/media-image.test.tsx"
+    "test:media": "node --conditions=react-server --import tsx --test tests/media.test.ts && node --import tsx --test tests/media-image.test.tsx",
+    "test:content": "node --conditions=react-server --import tsx --test tests/content.test.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.2",
