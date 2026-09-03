@@ -37,6 +37,7 @@ Also read the relevant document when available:
 - `docs/design-system.md`: UI and design tokens
 - `docs/database.md`: persistence, schema, migrations, owner provisioning
 - `docs/authentication.md`: owner login, guards, bootstrap, session policy, recovery limits
+- `docs/media.md`: upload policy, delivery, reconciliation, reference-safe deletion
 - `docs/deployment.md`: environment setup and deployment
 
 The PRD, design system, and database guide are available. The initial schema and

@@ -2,7 +2,7 @@ import "server-only";
 
 import { parseCloudinaryEnvironment } from "@/lib/validation/environment";
 
-/** Infrastructure context for future authorized media services; never UI props. */
+/** Infrastructure context for authorized media services; never UI props. */
 export async function getCloudinaryContext() {
   const environment = parseCloudinaryEnvironment({
     CLOUDINARY_URL: process.env.CLOUDINARY_URL,
@@ -19,5 +19,5 @@ export async function getCloudinaryContext() {
     secure: true,
   });
 
-  return { client, folderRoot: environment.CLOUDINARY_FOLDER_ROOT };
+  return { client, folderRoot: environment.CLOUDINARY_FOLDER_ROOT, cloudName: credentials.hostname };
 }

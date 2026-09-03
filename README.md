@@ -13,12 +13,15 @@ typography, responsive layout utilities, focus, and reduced-motion CSS are in pl
 The application still renders the Next.js starter homepage; its composition and
 utility classes have not yet been migrated to the design system.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
-environment validation, and a Cloudinary configuration skeleton are in place.
+environment validation, and an owner-authorized Cloudinary media service are in place.
 The content/auth schema and migrations are present. Owner login/logout, server
 authorization, password change, database-backed rate limits, and a bootstrap CLI
-are implemented. Portfolio pages, content-management screens, media management,
-and deployment remain pending. Migrations/auth flows were tested only in ephemeral
-PostgreSQL; no configured Aiven database was contacted or provisioned.
+are implemented. Secure image upload, metadata verification, private delivery,
+reference inspection, and retryable deletion are implemented without a media-library
+UI. Portfolio pages, content-management screens, and deployment remain pending.
+Migrations/auth/media flows were tested only with
+ephemeral PostgreSQL and a mocked Cloudinary boundary; no configured Aiven database
+or Cloudinary account was contacted.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -27,7 +30,7 @@ no source-code change, Git commit, or redeployment.
 
 - **Installed:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Geist,
   Geist Mono, npm, Drizzle ORM + Drizzle Kit, postgres.js, Better Auth, Zod,
-  Cloudinary, react-markdown, and remark-gfm.
+  Cloudinary, Sharp, react-markdown, and remark-gfm.
 - **Environment tooling:** `@next/env` lets Drizzle Kit load the same local
   environment as Next.js; no separate dotenv dependency is needed.
 - **Auth tooling:** `server-only` enforces boundaries; development dependencies
@@ -102,11 +105,14 @@ npm run lint
 npm run build
 npm run db:check
 npm run test:auth
+npm run test:media
 ```
 
 `npm run start` serves a completed production build. Auth tests use an isolated
 in-memory PostgreSQL engine and never load `.env.local`. They cover the real Better
 Auth adapter/handler, owner guards, bootstrap safety, sessions, and rate limits.
+Media tests use the same isolated database plus a mocked provider boundary; they do
+not consume configured Aiven or Cloudinary resources.
 The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.
 For documentation-only changes, check references, consistency,
@@ -132,6 +138,8 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
   draft/public storage, migration workflows, environment loading, and verified TLS.
 - [Authentication](docs/authentication.md): owner provisioning, route/mutation
   protection, session policy, password changes, tests, and recovery limitations.
+- [Media service](docs/media.md): owner-only upload limits, Cloudinary delivery,
+  persistence, reconciliation, references, deletion retries, and test boundaries.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
 The deployment document is planned under `docs/`; its responsibility is mapped

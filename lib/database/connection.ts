@@ -22,4 +22,5 @@ export function createDatabaseConnection(databaseUrl: string | undefined) {
 }
 
 // The auth adapter also accepts transaction-scoped and isolated PostgreSQL clients.
-export type AuthDatabase = PgDatabase<PgQueryResultHKT, typeof schema>;
+export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
+export type AuthDatabase = Database;

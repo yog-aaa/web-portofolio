@@ -85,6 +85,7 @@ This uses built-in `gen_random_uuid()` (PostgreSQL 13+), with no extension migra
 | `experiences`, `experience_projects` | Profile experience entries and related Projects; at most one visible featured Experience |
 | `credentials` | Visible/ordered Profile credentials, optional dates, verification URL and preview media |
 | `media_assets` | Provider-neutral asset identity, metadata, privacy and upload availability |
+| `media_deletions` | Durable Cloudinary deletion intent after an unreferenced asset row is removed |
 | `project_media`, `research_media`, `thought_media` | Slot-aware cover/gallery/figure/body/social references with local order and alternative text |
 | `project_slugs`, `research_slugs`, `thought_slugs` | Per-type ownership of both canonical and historical slugs |
 
@@ -376,12 +377,12 @@ approval system. Its presence does not authorize running it against any configur
 
 ## Cloudinary and authentication readiness
 
-`getCloudinaryContext()` returns a server-only SDK plus the validated folder root.
-It sets HTTPS delivery and configures credentials without making network calls.
-The folder is an input for a future authorized upload flow, not an enforced
-upload policy by itself. No upload, signing endpoint, asset persistence, deletion,
-or delivery authorization exists yet. UI must eventually receive provider-neutral
-MediaAsset read models, not this context or SDK objects.
+`getCloudinaryContext()` returns a server-only SDK plus the validated cloud/folder
+namespace. `CloudinaryMediaService` now owns authorized uploads, metadata checks,
+private byte delivery, persistence, reconciliation, and safe deletion. It exposes
+provider-neutral read models; UI code does not receive Cloudinary IDs, signed URLs,
+SDK objects, or credentials. Migration `0002_media_service.sql` adds the asset
+category and durable deletion jobs. See [media operations](media.md).
 
 Better Auth's core schema and protected auth endpoints are implemented. Public signup
 is disabled; no production owner has been provisioned by this work. The safe

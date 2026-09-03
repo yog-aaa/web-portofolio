@@ -15,7 +15,8 @@
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts --host=127.0.0.1",
     "db:check": "drizzle-kit check --config=drizzle.config.ts",
     "auth:bootstrap-owner": "node --conditions=react-server --import tsx scripts/bootstrap-owner.ts",
-    "test:auth": "node --conditions=react-server --import tsx --test tests/auth.test.ts"
+    "test:auth": "node --conditions=react-server --import tsx --test tests/auth.test.ts",
+    "test:media": "node --conditions=react-server --import tsx --test tests/media.test.ts && node --import tsx --test tests/media-image.test.tsx"
   },
   "dependencies": {
     "better-auth": "^1.7.2",
@@ -28,6 +29,7 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.4",
     "zod": "^4.5.4"
   },
   "devDependencies": {

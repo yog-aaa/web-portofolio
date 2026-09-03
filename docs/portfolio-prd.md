@@ -603,10 +603,10 @@ be able to upload, browse, reuse, caption, and inspect references to profile ima
 project covers/galleries, research figures, article images, credential previews,
 and social images. Optional media must not become a requirement to fabricate artwork.
 
-V1 accepts common raster image uploads through a code-owned MIME/extension allowlist,
-with a proposed 10 MB per-file input cap and validated image dimensions. Keep this
-limit explicit in upload feedback; verify it against the chosen upload path during
-integration. Arbitrary documents, SVG/HTML uploads, video hosting, and remote URL
+V1 accepts JPEG, PNG, and WebP uploads through a code-owned MIME/extension allowlist,
+with a 3 MiB per-file input cap, a 4 MiB multipart request cap, at most 8000 pixels
+per side, and at most 20 megapixels. These limits fit the chosen server upload path
+below Vercel's request-body ceiling and remain explicit in upload feedback. Arbitrary documents, SVG/HTML uploads, video hosting, and remote URL
 ingestion are not V1 media-library features. Existing external documents may be linked
 through validated HTTPS content links. Publish optimized derivatives rather than
 shipping original upload sizes to every visitor.

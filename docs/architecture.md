@@ -29,7 +29,7 @@ of editable information; code owns its safe delivery and presentation.
 | Database | Aiven PostgreSQL | Initial schema/migration generated; not connected or applied |
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
 | Authentication | Better Auth, email/password | Drizzle adapter, login/logout, owner guards, password change, and CLI bootstrap implemented; live provisioning pending |
-| Media | Cloudinary, server-authorized uploads | SDK and lazy configuration skeleton present; media flow pending |
+| Media | Cloudinary, server-authorized uploads | Owner-only upload/metadata/private-delivery/delete service implemented; media-library UI and live integration pending |
 | Hosting | Vercel | Deployment target; not configured by this task |
 
 Do not replace these choices without an explicit future requirement. Retain the
@@ -40,10 +40,11 @@ the npm lockfile.
 Instructions, architecture, the environment template, and the [formal V1 PRD](portfolio-prd.md)
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
-environment validation, database/Cloudinary foundations, and module boundaries.
+environment validation, database/Cloudinary services, and module boundaries.
 Live service connections, production schema application/provisioning, portfolio
-pages, content-management screens, and deployment remain pending. Auth tests use
-isolated PostgreSQL via PGlite. The PRD supplies product behavior
+pages, content-management screens, and deployment remain pending. Auth and media
+tests use isolated PostgreSQL via PGlite; Cloudinary behavior is verified at a
+mocked SDK boundary, not against the configured account. The PRD supplies product behavior
 and logical models within this architecture; it does not define a database schema.
 
 ### System flow
@@ -274,7 +275,7 @@ resolved URLs, but must not construct provider SDK calls or own upload logic.
 ### Authorized upload flow
 
 1. The admin requests upload authorization; the server verifies the session, owner, and allowed media intent.
-2. The media service authorizes a signed upload with server-controlled folder/type/size constraints, or performs the upload on the server. Do not enable public unsigned uploads.
+2. The current media service performs the upload on the server with server-controlled folder, delivery type, format, size, and ID. Do not enable public unsigned uploads.
 3. On completion, the server rechecks authorization and verifies the provider result and allowed asset properties before persisting a `MediaAsset`; do not trust a browser-submitted URL or MIME type alone.
 4. Content publication associates the asset with the appropriate public content and triggers revalidation.
 
@@ -286,7 +287,7 @@ Database transactions cannot roll back external uploads. Track incomplete upload
 and provide safe cleanup for unreferenced assets. Prevent deletion of referenced
 assets unless references are deliberately replaced/removed. A draft database flag
 does not make a public Cloudinary URL private: use authenticated delivery for media
-requiring confidentiality, and document delivery visibility before implementation.
+requiring confidentiality. The implemented policy is detailed in [docs/media.md](media.md).
 
 ## 10. Theme settings
 
@@ -477,6 +478,7 @@ registration, and arbitrary CMS-controlled layouts remain outside V1.
 | `docs/portfolio-prd.md` | Product requirements, IA, logical content models, scope, acceptance criteria | Present |
 | `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Present; foundational CSS implemented |
 | `docs/database.md` | Database infrastructure, schema, owner binding, constraints, migrations, provisioning | Present; initial schema/migration documented |
+| `docs/media.md` | Cloudinary upload, delivery, reconciliation, reference and deletion policy | Present; service implemented, live verification pending |
 | `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Planned |
 
 Read the relevant specialized document when it exists; until then this contract

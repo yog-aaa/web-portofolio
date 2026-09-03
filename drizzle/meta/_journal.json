@@ -15,6 +15,13 @@
       "when": 1788449292610,
       "tag": "0001_auth_rate_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788474471301,
+      "tag": "0002_media_service",
+      "breakpoints": true
     }
   ]
 }

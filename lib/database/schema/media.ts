@@ -1,11 +1,13 @@
 import { sql } from "drizzle-orm";
 import { bigint, boolean, check, index, integer, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { httpsUrl, mediaAccess, mediaAvailability, mediaKind, nonBlank, timestamps } from "./shared";
+import type { MediaCategory } from "../../domain/media";
 
 export const mediaAssets = pgTable("media_assets", {
   id: uuid("id").defaultRandom().primaryKey(),
   provider: text("provider").notNull(),
   providerId: text("provider_id"),
+  category: text("category").$type<MediaCategory>(),
   kind: mediaKind("kind").notNull(),
   access: mediaAccess("access").notNull().default("private"),
   availability: mediaAvailability("availability").notNull().default("pending"),
@@ -28,6 +30,7 @@ export const mediaAssets = pgTable("media_assets", {
 }, (t) => [
   uniqueIndex("media_provider_identity_unique").on(t.provider, t.providerId),
   index("media_library_idx").on(t.createdAt.desc(), t.id),
+  check("media_category_allowed", sql`${t.category} is null or ${t.category} in ('profile', 'project', 'research', 'thought', 'credential', 'social')`),
   nonBlank("media_provider_nonempty", t.provider), nonBlank("media_filename_nonempty", t.filename),
   nonBlank("media_provider_id_nonempty", t.providerId), nonBlank("media_mime_nonempty", t.mimeType),
   httpsUrl("media_secure_url_https", t.secureUrl), httpsUrl("media_source_https", t.sourceUrl),
@@ -41,3 +44,14 @@ export const mediaAssets = pgTable("media_assets", {
     and ${t.bytes} is not null and (${t.kind} <> 'image' or (${t.width} is not null and ${t.height} is not null))
   )`),
 ]);
+
+// Durable deletion intent: created in the transaction that removes an unreferenced
+// media row. No FK back to the removed row; provider deletion happens after commit.
+export const mediaDeletions = pgTable("media_deletions", {
+  id: uuid("id").primaryKey(),
+  provider: text("provider").notNull(),
+  providerId: text("provider_id").notNull(),
+  secureUrl: text("secure_url").notNull(),
+  access: mediaAccess("access").notNull(),
+  ...timestamps(),
+}, (t) => [uniqueIndex("media_deletion_provider_unique").on(t.provider, t.providerId)]);
