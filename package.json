@@ -20,6 +20,7 @@
     "test:database": "node --import tsx --test tests/database-environment.test.ts",
     "test:media": "node --conditions=react-server --import tsx --test tests/media.test.ts && node --import tsx --test tests/media-image.test.tsx",
     "test:content": "node --conditions=react-server --import tsx --test tests/content.test.ts",
+    "test:admin": "node --conditions=react-server --import tsx --test tests/admin-content.test.ts",
     "test:ui": "node --import tsx --test tests/homepage.test.tsx tests/public-pages.test.tsx"
   },
   "dependencies": {

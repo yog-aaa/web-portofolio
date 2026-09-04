@@ -39,6 +39,7 @@ Also read the relevant document when available:
 - `docs/content-queries.md`: public read models, visibility filters, development seed
 - `docs/authentication.md`: owner login, guards, bootstrap, session policy, recovery limits
 - `docs/media.md`: upload policy, delivery, reconciliation, reference-safe deletion
+- `docs/cms.md`: owner editing workflows, publication lifecycle, validation, revalidation
 - `docs/deployment.md`: environment setup and deployment
 
 The PRD, design system, and database guide are available. The initial schema and

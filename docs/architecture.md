@@ -23,8 +23,8 @@ of editable information; code owns its safe delivery and presentation.
 
 | Responsibility | Locked choice | Current state |
 | --- | --- | --- |
-| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; public shell/homepage and owner authentication shell |
-| Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, fonts, and foundational tokens present; final pages pending |
+| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; public website and core owner CMS routes implemented |
+| Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, tokens, public pages, and responsive owner workspace present |
 | Package management | npm | Existing package-lock.json; retain it |
 | Database | Aiven PostgreSQL | Schema/migrations and Base64 CA trust support implemented; verified live connection and migration pending |
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
@@ -41,9 +41,10 @@ Instructions, architecture, the environment template, and the [formal V1 PRD](po
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
 environment validation, database/Cloudinary services, and module boundaries.
-Live service connections, production schema application/provisioning, portfolio
-pages, content-management screens, and deployment remain pending. Auth and media
-tests use isolated PostgreSQL via PGlite; Cloudinary behavior is verified at a
+Production schema/provisioning verification, profile/settings, the media-library
+screen, and deployment remain pending. Core content-management screens are
+implemented as documented in [cms.md](cms.md). Auth and media tests use isolated
+PostgreSQL via PGlite; Cloudinary behavior is verified at a
 mocked SDK boundary, not against the configured account. The PRD supplies product behavior
 and logical models within this architecture; it does not define a database schema.
 

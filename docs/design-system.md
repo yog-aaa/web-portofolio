@@ -2,8 +2,8 @@
 
 Status: accepted visual foundation for V1. Token values and base utilities are
 implemented in [app/globals.css](../app/globals.css). Component patterns below
-guide future implementation; portfolio pages, CMS screens, theme persistence,
-and a component library are not implemented by this document.
+govern the implemented public pages and core CMS screens; theme persistence,
+settings screens, and a separately packaged component library remain pending.
 
 Follow [AGENTS.md](../AGENTS.md), the [architecture contract](architecture.md),
 and the [portfolio PRD](portfolio-prd.md). This document owns visual decisions,
@@ -272,8 +272,7 @@ parallax, perpetual motion, or animation-dependent behavior.
 
 ## 9. Composition and media patterns
 
-These patterns are implemented by the public shell/homepage primitives and remain
-the contract for archive and detail pages that follow.
+These patterns are implemented by the public site and owner workspace.
 
 | Pattern | Anatomy and hierarchy |
 | --- | --- |
@@ -288,13 +287,16 @@ the contract for archive and detail pages that follow.
 
 The homepage retains the PRD's curated hierarchy: Hero → Selected Work →
 Experience Highlight → Featured Research → Latest Thoughts → Short About →
-Contact CTA → Footer. Archives use editorial lists where appropriate. Primary
+Contact CTA → Footer. Archives use editorial lists where appropriate. The owner
+workspace reuses the same rules with a compact navigation rail, bordered lists,
+and a wide editing surface; sticky save controls remain restrained and never hide
+validation feedback. Primary
 navigation remains Work, Experience, Research, Thoughts, About, and Contact ↗;
-Credentials stays secondary through About/footer. Do not design full pages as
-part of the foundation or invent copy, dates, projects, or achievements.
+Credentials stays secondary through About/footer. Never invent copy, dates,
+projects, or achievements.
 
-Use real owner-provided media through the future provider-neutral MediaAsset
-contract. Prefer 16:10 project covers where cropping is appropriate, natural
+Use real owner-provided media through the provider-neutral MediaAsset contract.
+Prefer 16:10 project covers where cropping is appropriate, natural
 ratios for research figures and credentials, and intentional portrait crops.
 Preserve legibility of diagrams/documents with `object-contain` rather than
 blindly cropping them. Supply accurate alt text or empty alt for decoration,

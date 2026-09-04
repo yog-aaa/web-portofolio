@@ -34,7 +34,7 @@ Kysely dependency requires Node 22, above the original starter's minimum.
 | `lib/database/schema/` | Initial tables/enums; `index.ts` is the explicit schema entry point |
 | `lib/repositories/public-content.ts` | Explicit public selections, visibility filters, domain mapping |
 | `lib/queries/public-content.ts` | Page-facing public query facade; no mutation/admin access |
-| `lib/services/` | Application orchestration, media service, and future revalidation |
+| `lib/services/` | Application orchestration, media service, CMS lifecycle, and route revalidation |
 | `lib/services/media/cloudinary.ts` | Lazy server-only Cloudinary SDK configuration context |
 | `lib/auth/` | Lazy Better Auth instance, HTTP boundary, server owner guards, client integration |
 | `scripts/auth/` | CLI-only transactional owner provisioning; never import into hosted code |
@@ -187,8 +187,9 @@ parent status is published; never serialize `draft_content`. Draft updates chang
 `updated_at`/revision but not `public_updated_at`, `published_at`, public taxonomy,
 media, featured state, or order. Unpublish/archive changes visibility while
 retaining the last publication and reservations; restore sets draft, never published.
-These transaction/read behaviors are required service contracts, not implemented
-by the schema alone. This is two logical versions, not a full revision-history CMS.
+These transaction/read behaviors are implemented by the owner CMS service; the
+schema alone still cannot enforce the workflow. This is two logical versions, not
+a full revision-history CMS. See [cms.md](cms.md).
 
 Thoughts use `excerpt`, have no featured/manual-order columns, and sort by original
 publication date then ID. Project/Research indexes support public sort order and

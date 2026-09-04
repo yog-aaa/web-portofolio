@@ -25,8 +25,11 @@ reference inspection, and retryable deletion are implemented without a media-lib
 UI. Typed public content queries now enforce publication, visibility, relationship-slot,
 and media-access rules. Research and Thoughts now provide bounded archives,
 safe long-form detail views, managed figures, derived reading time, and private-state
-protection. Content-management screens and deployment remain pending. The configured
-local Aiven database now serves the public content layer. Auth/media/content behavior
+protection. The authenticated owner workspace now manages Projects, Experience,
+Research, Thoughts, and Credentials with private drafts, safe previews, publishing,
+withdrawal, visibility, media selection, taxonomy, validation, and stale-write
+protection. Profile/settings, the full media-library screen, and deployment remain
+pending. The configured local Aiven database now serves the public content layer. Auth/media/content behavior
 also has isolated PostgreSQL coverage;
 Cloudinary account integration and production deployment remain pending.
 
@@ -46,7 +49,7 @@ no source-code change, Git commit, or redeployment.
 - **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; live
   integrations and deployment configuration remain pending.
 
-The CMS will have one owner and no public registration. See the architecture
+The CMS has one owner and no public registration. See the architecture
 contract for system boundaries and planned capabilities.
 
 ## Local development
@@ -133,6 +136,7 @@ npm run test:database
 npm run test:auth
 npm run test:media
 npm run test:content
+npm run test:admin
 npm run test:ui
 ```
 
@@ -145,6 +149,8 @@ Content tests cover every public query's draft/archive/visibility/media boundary
 route-level settings, public GPA handling, and
 the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
 the target before using its required confirmation flag.
+Admin tests cover independent read/write authorization, private-draft isolation,
+publication and withdrawal, optimistic concurrency, media access, and collection CRUD.
 The UI tests verify CMS copy injection, featured-research promotion into the
 Selected Work composition, archive filtering, Project/Research section parsing,
 Thought metadata and reading-time derivation, managed Markdown media, and
@@ -182,6 +188,8 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
   persistence, reconciliation, references, deletion retries, and test boundaries.
 - [Public content queries](docs/content-queries.md): public DTOs, visibility rules,
   ordering, query functions, and the guarded development seed.
+- [Owner CMS](docs/cms.md): editing screens, draft/public lifecycle, validation,
+  media/taxonomy inputs, optimistic concurrency, and refresh behavior.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
 
 The deployment document is planned under `docs/`; its responsibility is mapped

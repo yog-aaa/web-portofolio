@@ -12,15 +12,16 @@ V1 has one owner and no public account system. Better Auth owns `user`, `account
 The ordinary Profile and CMS settings cannot grant or transfer ownership.
 
 `/admin/login` provides Email, Password, and Sign In. There are no social-login,
-signup, or password-reset links. `/admin` currently contains a small authenticated
-shell and password-change form; content-management screens remain future work.
+signup, or password-reset links. `/admin` contains the owner overview and password
+change form; its protected child routes provide the content workflows documented in
+[cms.md](cms.md).
 
 - `proxy.ts` checks a real session and owner binding for `/admin/:path*`, except
   exact `/admin/login`. Nested and unimplemented admin paths are covered. Missing,
   forged, expired, or revoked sessions redirect to login. Authenticated non-owners
   receive 403; infrastructure failures return 503 without serving private content.
 - Protected layouts/pages also call `requireOwnerPage()`. Layouts cannot protect
-  callable operations. Every future private service, Server Action, or Route
+  callable operations. Every private service, Server Action, or Route
   Handler must independently call `requireOwner("cms:read")` or
   `requireOwner("cms:write")` before private data access. Handle
   `AuthorizationError` as 401/403; never catch it and proceed with an operation.
