@@ -4,12 +4,14 @@ import { cache } from "react";
 import type { Database } from "../database/connection";
 import { getDatabase } from "../database/client";
 import { PublicContentRepository } from "../repositories/public-content";
+import type { PublicPageRoute } from "../domain/content";
 
 export function createPublicContentQueries(db: Database) {
   const repository = new PublicContentRepository(db);
   const latestLimit = (value: number) => Number.isFinite(value) ? Math.min(20, Math.max(1, Math.trunc(value))) : 3;
   return {
     getSiteSettings: () => repository.getSiteSettings(),
+    getPageSettings: (route: PublicPageRoute) => repository.getPageSettings(route),
     getThemeSettings: () => repository.getThemeSettings(),
     getProfile: () => repository.getProfile(),
     getFeaturedProjects: () => repository.getFeaturedProjects(),
@@ -31,6 +33,7 @@ function queries() { return createPublicContentQueries(getDatabase()); }
 
 // React cache only deduplicates a server render; it is not persistent content caching.
 export const getSiteSettings = cache(() => queries().getSiteSettings());
+export const getPageSettings = cache((route: PublicPageRoute) => queries().getPageSettings(route));
 export const getThemeSettings = cache(() => queries().getThemeSettings());
 export const getProfile = cache(() => queries().getProfile());
 export const getFeaturedProjects = cache(() => queries().getFeaturedProjects());

@@ -25,6 +25,27 @@ export type PublicThemeSettings = {
   accentSecondary: string | null;
 };
 
+export const publicPageRoutes = [
+  "/",
+  "/work",
+  "/experience",
+  "/research",
+  "/thoughts",
+  "/about",
+  "/credentials",
+] as const;
+
+export type PublicPageRoute = (typeof publicPageRoutes)[number];
+
+export type PublicPageSettings = {
+  route: PublicPageRoute;
+  intro: string | null;
+  emptyStateCopy: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  socialImage: MediaImageData | null;
+};
+
 export type PublicEducation = {
   id: string;
   institutionName: string;
@@ -35,6 +56,8 @@ export type PublicEducation = {
   isCurrent: boolean | null;
   description: string | null;
   institutionUrl: string | null;
+  gpaValue: string | null;
+  gpaScale: string | null;
   institutionImage: MediaImageData | null;
 };
 

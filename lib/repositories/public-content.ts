@@ -2,13 +2,13 @@ import "server-only";
 
 import { and, asc, desc, eq, inArray, type AnyColumn } from "drizzle-orm";
 import type { Database } from "../database/connection";
-import { credentials, education, profile, siteSettings, socialLinks, themeSettings } from "../database/schema/site";
+import { credentials, education, profile, sitePageSettings, siteSettings, socialLinks, themeSettings } from "../database/schema/site";
 import { projects, research, thoughts } from "../database/schema/editorial";
 import { experiences, projectCategories, projectCategoryAssignments, projectMedia,
   projectTechnologies, researchMedia, researchTechnologies, technologies, thoughtMedia } from "../database/schema/relationships";
 import { mediaAssets } from "../database/schema/media";
 import type { MediaImageData } from "../domain/media";
-import type { PublicCredential, PublicEducation, PublicExperience, PublicMediaReference,
+import type { PublicCredential, PublicEducation, PublicExperience, PublicMediaReference, PublicPageRoute, PublicPageSettings,
   PublicProfile, PublicProject, PublicProjectDetail, PublicResearch, PublicResearchDetail,
   PublicSiteSettings, PublicSocialLink, PublicTaxonomy, PublicThemeSettings,
   PublicThought, PublicThoughtDetail } from "../domain/content";
@@ -57,6 +57,17 @@ export class PublicContentRepository {
     }).from(siteSettings).leftJoin(mediaAssets,
       and(eq(siteSettings.defaultSocialImageId, mediaAssets.id), publicReadyImage)).where(eq(siteSettings.id, 1));
     return row ? { ...row, defaultSocialImage: image(row.defaultSocialImage) } : null;
+  }
+
+  async getPageSettings(route: PublicPageRoute): Promise<PublicPageSettings | null> {
+    const [row] = await this.db.select({ route: sitePageSettings.route,
+      intro: sitePageSettings.intro, emptyStateCopy: sitePageSettings.emptyStateCopy,
+      seoTitle: sitePageSettings.seoTitle, seoDescription: sitePageSettings.seoDescription,
+      socialImage: publicImageSelection,
+    }).from(sitePageSettings).leftJoin(mediaAssets,
+      and(eq(sitePageSettings.socialImageId, mediaAssets.id), publicReadyImage))
+      .where(eq(sitePageSettings.route, route));
+    return row ? { ...row, route: row.route as PublicPageRoute, socialImage: image(row.socialImage) } : null;
   }
 
   async getThemeSettings(): Promise<PublicThemeSettings | null> {
@@ -242,6 +253,7 @@ export class PublicContentRepository {
       qualificationOrProgram: education.qualificationOrProgram, fieldOfStudy: education.fieldOfStudy,
       startDate: education.startDate, endDate: education.endDate, isCurrent: education.isCurrent,
       description: education.description, institutionUrl: education.institutionUrl,
+      gpaValue: education.gpaValue, gpaScale: education.gpaScale,
       institutionImage: publicImageSelection }).from(education).leftJoin(mediaAssets,
       and(eq(education.institutionMediaId, mediaAssets.id), publicReadyImage))
       .where(eq(education.isVisible, true)).orderBy(asc(education.sortOrder), asc(education.id));

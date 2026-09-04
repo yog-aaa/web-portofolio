@@ -56,9 +56,11 @@ async function seedQueryFixture(db: Database) {
   await db.update(schema.profile).set({ portraitMediaId: ids.privateMedia }).where(eq(schema.profile.id, 1));
   await db.insert(schema.siteSettings).values({ id: 1, profileId: 1, themeSettingsId: 1, brandName: "Public Brand",
     siteTitle: "Public Site", heroHeadline: "Public headline", defaultSocialImageId: ids.privateMedia });
+  await db.insert(schema.sitePageSettings).values({ route: "/work", siteSettingsId: 1,
+    intro: "Public work introduction", emptyStateCopy: "Public empty state", socialImageId: ids.privateMedia });
   await db.insert(schema.education).values([
     { profileId: 1, institutionName: "Visible Institute", qualificationOrProgram: "Visible Program",
-      isVisible: true, sortOrder: 0, institutionMediaId: ids.privateMedia },
+      isVisible: true, sortOrder: 0, institutionMediaId: ids.privateMedia, gpaValue: "3.5", gpaScale: "4" },
     { profileId: 1, institutionName: "Hidden Institute", qualificationOrProgram: "Hidden Program",
       isVisible: false, sortOrder: 1 },
   ]);
@@ -132,10 +134,15 @@ test("public queries expose only published, visible, public presentation data", 
   await seedQueryFixture(f.db);
 
   assert.equal((await f.queries.getSiteSettings())?.defaultSocialImage, null);
+  assert.deepEqual(await f.queries.getPageSettings("/work"), { route: "/work",
+    intro: "Public work introduction", emptyStateCopy: "Public empty state", seoTitle: null,
+    seoDescription: null, socialImage: null });
   assert.equal((await f.queries.getThemeSettings())?.accent, "#526D82");
   const profile = await f.queries.getProfile();
   assert.equal(profile?.portrait, null);
   assert.deepEqual(profile?.education.map((item) => item.institutionName), ["Visible Institute"]);
+  assert.equal(profile?.education[0].gpaValue, "3.500");
+  assert.equal(profile?.education[0].gpaScale, "4.000");
   assert.deepEqual(profile?.socialLinks.map((item) => item.label), ["Visible contact"]);
 
   const projects = await f.queries.getPublishedProjects();

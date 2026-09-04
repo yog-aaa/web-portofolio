@@ -13,7 +13,8 @@ flowchart LR
 
 Pages import `lib/queries/public-content.ts`. That facade uses the lazy server-only
 database and exposes `getSiteSettings`, `getThemeSettings`, `getProfile`,
-`getFeaturedProjects`, `getPublishedProjects`, `getProjectBySlug`, `getExperiences`,
+`getPageSettings`, `getFeaturedProjects`, `getPublishedProjects`,
+`getProjectBySlug`, `getExperiences`,
 `getExperienceHighlight`,
 `getPublishedResearch`, `getFeaturedResearch`, `getResearchBySlug`,
 `getLatestThoughts`, `getPublishedThoughts`, `getThoughtBySlug`, and
@@ -35,6 +36,15 @@ queries do the same. Project categories, technologies, and media use only the
 private, pending, failed, or draft-slot media is excluded in SQL. Contextual media
 alt/caption/decorative values override asset defaults. Provider IDs and private
 delivery locators never enter public DTOs.
+
+`getPageSettings` accepts only the fixed public route union and exposes editable
+page introductions, empty-state copy, metadata, and public-ready social imagery.
+Visible education includes GPA only as the stored value-and-scale pair; presentation
+omits both when the pair is absent.
+
+Project detail pages interpret owner-authored level-two Markdown headings as
+case-study sections. Markdown remains data, is rendered without raw HTML or
+executable MDX, and media continues through `MediaAsset` relationships.
 
 Public types contain no status, draft payload, revision, internal sort/feature
 control, or hidden row. SEO values and safe Markdown are included only on published

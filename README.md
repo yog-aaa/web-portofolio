@@ -15,15 +15,18 @@ system with sticky responsive navigation, reusable UI primitives, and the curate
 Hero → Work → Experience → Research → Thoughts → About → Contact hierarchy.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and an owner-authorized Cloudinary media service are in place.
-The content/auth schema and migrations are present. Owner login/logout, server
-authorization, password change, database-backed rate limits, and a bootstrap CLI
+The content/auth schema and migrations are present. The Work archive and case-study,
+Experience, About, and Credentials public routes now use the typed content layer,
+editable route settings, safe Markdown, semantic tokens, and bounded URL-driven
+archive filters. Owner login/logout, server authorization, password change,
+database-backed rate limits, and a bootstrap CLI
 are implemented. Secure image upload, metadata verification, private delivery,
 reference inspection, and retryable deletion are implemented without a media-library
 UI. Typed public content queries now enforce publication, visibility, relationship-slot,
-and media-access rules. Portfolio pages, content-management screens, and deployment
-remain pending. Migrations/auth/media/content flows were tested only with
-ephemeral PostgreSQL and a mocked Cloudinary boundary; a successful verified Aiven
-connection, live migration, and Cloudinary account integration remain pending.
+and media-access rules. Research/Thoughts public pages, content-management screens,
+and deployment remain pending. The configured local Aiven database now serves the
+public content layer. Auth/media/content behavior also has isolated PostgreSQL coverage;
+Cloudinary account integration and production deployment remain pending.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -136,11 +139,13 @@ in-memory PostgreSQL engine and never load `.env.local`. They cover the real Bet
 Auth adapter/handler, owner guards, bootstrap safety, sessions, and rate limits.
 Media tests use the same isolated database plus a mocked provider boundary; they do
 not consume configured Aiven or Cloudinary resources.
-Content tests cover every public query's draft/archive/visibility/media boundary and
+Content tests cover every public query's draft/archive/visibility/media boundary,
+route-level settings, public GPA handling, and
 the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
 the target before using its required confirmation flag.
-The UI test verifies CMS copy injection and featured-research promotion into the
-Selected Work composition. The homepage is request-rendered and requires the current
+The UI tests verify CMS copy injection, featured-research promotion into the
+Selected Work composition, archive filtering, case-study parsing, and raw-HTML/unsafe-link
+rejection in Markdown. Public pages are request-rendered and require the current
 migrations plus configured public content at runtime.
 The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.
