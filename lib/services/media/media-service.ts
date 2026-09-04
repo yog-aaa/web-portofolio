@@ -1,8 +1,15 @@
 import type { MediaAsset, MediaDeletionResult, MediaImageData, MediaLibraryAsset, MediaReference } from "../../domain/media";
-import type { MediaUploadFields } from "../../validation/media";
+import type { DirectMediaUploadInput, MediaUploadFields } from "../../validation/media";
+
+export type DirectUploadAuthorization = {
+  mediaId: string;
+  uploadUrl: string;
+  fields: Record<string, string>;
+};
 
 export interface MediaService {
   list(): Promise<MediaLibraryAsset[]>;
+  authorizeDirectUpload(input: DirectMediaUploadInput): Promise<DirectUploadAuthorization>;
   upload(file: File, fields: MediaUploadFields): Promise<MediaAsset>;
   updateMetadata(id: string, input: MediaMetadataInput): Promise<MediaAsset>;
   retrieveMetadata(id: string): Promise<MediaAsset>;

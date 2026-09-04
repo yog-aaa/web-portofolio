@@ -107,6 +107,11 @@ export class MediaRepository {
     await this.db.update(mediaAssets).set({ availability: "failed" })
       .where(and(eq(mediaAssets.id, id), eq(mediaAssets.availability, "pending")));
   }
+  async discardIncomplete(id: string) {
+    const [row] = await this.db.delete(mediaAssets)
+      .where(and(eq(mediaAssets.id, id), ne(mediaAssets.availability, "ready"))).returning({ id: mediaAssets.id });
+    return Boolean(row);
+  }
   references(asset: MediaRecord) { return mediaReferences(this.db, asset); }
   async deletion(id: string) {
     const [job] = await this.db.select().from(mediaDeletions).where(eq(mediaDeletions.id, id));

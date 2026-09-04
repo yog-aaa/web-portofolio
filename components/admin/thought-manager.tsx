@@ -5,8 +5,9 @@ import { splitThoughtDraft } from "@/lib/services/admin-content";
 import { AdminActionForm, ConfirmSubmit, SubmitButton } from "./admin-action-form";
 import { AdminPageHeader } from "./admin-page-header";
 import { AdminEmpty, AdminNotice, StatusBadge } from "./admin-ui";
-import { LinksField, MediaSelect, TextAreaField, TextField } from "./editor-fields";
+import { LinksField, TextAreaField, TextField } from "./editor-fields";
 import { MarkdownEditor } from "./markdown-editor";
+import { DirectMediaSelect } from "./direct-media-select";
 
 function Lifecycle({ item }: { item: AdminThought }) {
   return <div className="flex flex-wrap gap-2">{item.status === "published" ? <AdminActionForm action={lifecycleAction} className=""><input type="hidden" name="type" value="thought" /><input type="hidden" name="id" value={item.id} /><input type="hidden" name="expectedRevision" value={item.revision} /><input type="hidden" name="operation" value="unpublish" /><ConfirmSubmit tone="secondary" message="Return this article to draft and remove it from the public website?">Unpublish</ConfirmSubmit></AdminActionForm> : null}
@@ -24,7 +25,7 @@ function ThoughtEditor({ item, media }: { item: AdminThought | null; media: Admi
       <TextField name="category" label="Category" value={draft?.category} placeholder="Systems" help="A short editorial label stored safely with the article." />
       <MarkdownEditor initialValue={draft?.bodyMarkdown} help="Preview uses the same raw-HTML-disabled renderer as the public article." />
       <LinksField name="references" label="References" links={draft?.references} />
-      <MediaSelect name="coverMediaId" label="Cover media" options={media} selected={item?.media.find((entry) => entry.role === "cover")?.id} />
+      <DirectMediaSelect name="coverMediaId" label="Cover media" category="thought" options={media} selected={item?.media.find((entry) => entry.role === "cover")?.id} />
       <fieldset className="border-t border-border pt-6"><legend className="type-metadata text-foreground-secondary">SEARCH METADATA</legend><div className="mt-4 space-y-5"><TextField name="seoTitle" label="SEO title" value={draft?.seoTitle} /><TextAreaField name="seoDescription" label="SEO description" value={draft?.seoDescription} rows={3} /></div></fieldset>
       <div className="sticky bottom-4 z-20 flex flex-wrap gap-3 border border-border-control bg-surface/95 p-3 shadow-sm backdrop-blur"><SubmitButton name="intent" value="save" tone="secondary">Save private draft</SubmitButton><SubmitButton name="intent" value="publish">{item?.status === "published" ? "Publish changes" : "Publish"}</SubmitButton>{item?.status === "published" && item.publicSlug ? <Link href={`/thoughts/${item.publicSlug}`} target="_blank" rel="noreferrer" aria-label="View published Thought (opens in a new tab)" className="inline-flex min-h-target items-center px-3 text-caption text-accent-deep underline underline-offset-4">View published ↗</Link> : null}</div>
     </AdminActionForm></section>;

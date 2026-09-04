@@ -1,7 +1,8 @@
 # YOGAAA. — Product Requirements Document
 
-Version: 1.0. Date: 2026-09-03. Status: V1 requirements baseline for planning;
-implementation and acceptance verification are pending.
+Version: 1.1. Date: 2026-09-03. Status: V1 product baseline implemented in the
+repository; live service integration, owner-approved content, and production
+acceptance verification remain release gates.
 
 **Owner:** Yoga Agustiansyah. **Brand:** YOGAAA.
 **Production domain:** [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
@@ -10,8 +11,9 @@ This is the intended production address, not a claim of a live deployment.
 [AGENTS.md](../AGENTS.md) is the canonical project guidance. The
 [architecture contract](architecture.md) governs technical boundaries; this PRD
 defines product behavior, content, and acceptance. CLAUDE.md is a compatibility
-pointer, not a source of independent requirements. This deliverable defines logical
-models only; it creates no database schema, dependencies, integrations, or production code.
+pointer, not a source of independent requirements. The logical product model remains
+authoritative while database and application implementations are documented in
+their specialized guides.
 
 ## 1. Product vision
 
@@ -321,7 +323,7 @@ remain subject to truthful owner input and the project identity contract.
 | --- | --- |
 | Purpose | Singleton holding validated overrides to the Calm Blue palette. |
 | Required fields | Identity; the effective palette must resolve all required semantic tokens from code defaults plus permitted overrides. |
-| Optional fields | Overrides for accent, accent-foreground, accent-soft, and accent-secondary; an empty override set means defaults. |
+| Optional fields | Overrides for background, surface, foreground, border, accent, accent-foreground, accent-soft, and accent-secondary; an empty override set means defaults. |
 | Relationships | Used by SiteSettings/public rendering; owned through the same owner authorization boundary. |
 | Slug | Not required. |
 | Status | Not required; preview is transient, save is explicit. |
@@ -604,9 +606,10 @@ project covers/galleries, research figures, article images, credential previews,
 and social images. Optional media must not become a requirement to fabricate artwork.
 
 V1 accepts JPEG, PNG, and WebP uploads through a code-owned MIME/extension allowlist,
-with a 3 MiB per-file input cap, a 4 MiB multipart request cap, at most 8000 pixels
-per side, and at most 20 megapixels. These limits fit the chosen server upload path
-below Vercel's request-body ceiling and remain explicit in upload feedback. Arbitrary documents, SVG/HTML uploads, video hosting, and remote URL
+with a 10 MiB per-file input cap, at most 8000 pixels per side, and at most 20
+megapixels. The browser uses owner-authorized signed direct uploads to Cloudinary
+so file bytes do not cross Vercel's smaller Function request-body boundary; server
+reconciliation is required before an asset becomes ready. Arbitrary documents, SVG/HTML uploads, video hosting, and remote URL
 ingestion are not V1 media-library features. Existing external documents may be linked
 through validated HTTPS content links. Publish optimized derivatives rather than
 shipping original upload sizes to every visitor.
@@ -639,7 +642,7 @@ the owner explicitly approves the redacted/public derivative before public use.
 | SEO | Site defaults, fixed-page overrides, and editorial detail overrides; no arbitrary scripts or head markup. |
 | Media | Authorized upload, library selection, alternatives/captions, usage inspection, safe deletion. |
 | Featured content | Select/order eligible Projects/Research and the Experience highlight; Latest Thoughts remains chronological. |
-| Theme | Preview/save/reset the four allowed accent overrides. |
+| Theme | Preview/save/reset the eight allowed semantic color overrides. |
 
 Long-form editing supports basic Markdown headings, paragraphs, lists, emphasis,
 links, blockquotes, fenced code, tables, and approved media references. Preview
@@ -667,11 +670,11 @@ comfortable reading width, restrained motion, and consistent semantic tokens.
 
 | Token | V1 CMS permission |
 | --- | --- |
-| `--background` | Code-owned default |
-| `--surface` | Code-owned default |
-| `--foreground` | Code-owned default |
+| `--background` | Editable validated color |
+| `--surface` | Editable validated color |
+| `--foreground` | Editable validated color |
 | `--muted` | Code-owned default |
-| `--border` | Code-owned default |
+| `--border` | Editable validated color |
 | `--accent` | Editable validated color |
 | `--accent-foreground` | Editable validated color |
 | `--accent-soft` | Editable validated color |
@@ -873,7 +876,7 @@ content. Test fixtures must never be published as Yoga's personal history.
 
 | ID | Acceptance criterion | Verification |
 | --- | --- | --- |
-| AC-30 | Only the four allowed theme overrides can be saved; invalid/low-contrast combinations fail, preview stays private until save, and reset restores defaults. | Theme-control and public rendering checks. |
+| AC-30 | Only the eight allowed theme overrides can be saved; invalid/low-contrast combinations fail, preview stays private until save, and reset restores defaults. | Theme-control and public rendering checks. |
 | AC-31 | Titles/descriptions/canonicals/social previews reflect published data; sitemap excludes private/withdrawn entries; filter and preview indexing policy is explicit. | Inspect rendered head, discovery files, and refresh behavior. |
 | AC-32 | Public pages and core owner flows meet section 16, including keyboard, focus, forms, image alternatives, and reduced motion. | Automated checks plus manual assistive-technology review. |
 | AC-33 | Section-17 QA widths, landscape, and zoom preserve content/actions without whole-page overflow or inaccessible editor controls. | Responsive browser walkthrough. |
@@ -953,12 +956,13 @@ otherwise have honest empty archives; do not fill them with fabricated material.
 Missing personal content does not block architecture/PRD planning, but required
 launch content and AC-36 remain pending until supplied.
 
-### Out of scope for this documentation delivery
+### Operational release boundary
 
-Production code, database schemas, migrations, dependency installation, account
-provisioning, external integrations, deployment, and claims of completed acceptance
-tests. The PRD is saved locally as requested; no issue-tracker publication is required
-for this deliverable.
+The repository contains the V1 application, schema, migrations, CMS, and automated
+acceptance coverage. External account provisioning, production migrations, owner
+bootstrap, DNS, deployment, recovery rehearsal, owner-approved content, and live
+acceptance checks remain deliberate operational work described in
+[deployment.md](deployment.md). No issue-tracker publication is required.
 
 ## 22. Future roadmap
 

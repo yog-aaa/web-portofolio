@@ -19,5 +19,6 @@ export async function getCloudinaryContext() {
     secure: true,
   });
 
-  return { client, folderRoot: environment.CLOUDINARY_FOLDER_ROOT, cloudName: credentials.hostname };
+  return { client, folderRoot: environment.CLOUDINARY_FOLDER_ROOT, cloudName: credentials.hostname,
+    apiKey: decodeURIComponent(credentials.username), apiSecret: decodeURIComponent(credentials.password) };
 }

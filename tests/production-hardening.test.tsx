@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { JsonLd } from "../components/seo/json-ld";
 import { SafeMarkdown } from "../components/content/safe-markdown";
 import { detailMetadata, homeMetadata } from "../lib/presentation/metadata";
-import { absoluteSiteUrl } from "../lib/presentation/site-url";
+import { absoluteSiteUrl, parseSiteUrl } from "../lib/presentation/site-url";
 import robots from "../app/robots";
 import nextConfig from "../next.config";
 
@@ -19,6 +19,13 @@ test("production metadata uses stable canonical and social URLs", () => {
   assert.equal(detail.alternates?.canonical, absoluteSiteUrl("/work/supplied-work"));
   assert.equal((detail.openGraph as { type?: string })?.type, "article");
   assert.equal((detail.twitter as { card?: string })?.card, "summary");
+});
+
+test("site URL environment accepts only an origin and is required on Vercel production", () => {
+  assert.equal(parseSiteUrl("http://localhost:3000", "development").origin, "http://localhost:3000");
+  assert.equal(parseSiteUrl("https://yogaagustiansyah.my.id", "production").origin, "https://yogaagustiansyah.my.id");
+  assert.throws(() => parseSiteUrl("https://user:secret@example.com/path", "production"), /NEXT_PUBLIC_SITE_URL/);
+  assert.throws(() => parseSiteUrl(undefined, "production"), /NEXT_PUBLIC_SITE_URL/);
 });
 
 test("robots permits public discovery while excluding private and API routes", () => {

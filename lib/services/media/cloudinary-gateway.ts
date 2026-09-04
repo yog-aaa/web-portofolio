@@ -7,11 +7,13 @@ import type { MediaRecord, VerifiedMedia } from "../../repositories/media";
 import { MAX_IMAGE_BYTES, MAX_IMAGE_PIXELS, imageMimeTypes, readBoundedBody } from "../../validation/media";
 import { MediaError } from "./errors";
 import type { getCloudinaryContext } from "./cloudinary";
+import type { DirectUploadAuthorization } from "./media-service";
 
 export type ProviderIdentity = Pick<MediaRecord, "id" | "provider" | "providerId" | "secureUrl" | "access">;
 export interface MediaGateway {
   identity(id: string, category: MediaCategory, access: MediaAccess, format: ImageFormat): { providerId: string; secureUrl: string };
   assertManaged(record: ProviderIdentity): void;
+  authorizeDirectUpload(record: ProviderIdentity, format: ImageFormat): DirectUploadAuthorization;
   upload(record: ProviderIdentity, bytes: Buffer, format: ImageFormat): Promise<VerifiedMedia>;
   metadata(record: ProviderIdentity): Promise<VerifiedMedia>;
   destroy(record: ProviderIdentity): Promise<void>;
@@ -50,6 +52,27 @@ export class CloudinaryGateway implements MediaGateway {
       !mediaCategories.includes(suffix[0] as MediaCategory) || suffix[1] !== record.id || !valid) {
       throw new MediaError("UNMANAGED_ASSET", "This asset does not belong to the configured media namespace.", 409);
     }
+  }
+  authorizeDirectUpload(record: ProviderIdentity, format: ImageFormat): DirectUploadAuthorization {
+    this.assertManaged(record);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const parameters = {
+      timestamp,
+      public_id: record.providerId!,
+      type: deliveryType(record.access),
+      format,
+      overwrite: false,
+      use_filename: false,
+      unique_filename: false,
+      transformation: "a_auto,fl_strip_profile",
+    };
+    const signature = this.context.client.utils.api_sign_request(parameters, this.context.apiSecret);
+    return {
+      mediaId: record.id,
+      uploadUrl: `https://api.cloudinary.com/v1_1/${this.context.cloudName}/image/upload`,
+      fields: Object.fromEntries(Object.entries({ ...parameters, api_key: this.context.apiKey, signature })
+        .map(([key, value]) => [key, String(value)])),
+    };
   }
   private normalize(record: ProviderIdentity, raw: unknown): VerifiedMedia {
     const result = providerMetadata.safeParse(raw);

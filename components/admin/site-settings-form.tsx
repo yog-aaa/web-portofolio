@@ -3,6 +3,8 @@ import type { AdminSiteSettings } from "@/lib/domain/settings";
 import { AdminActionForm, SubmitButton } from "./admin-action-form";
 import { fieldClass, helpClass, labelClass } from "./admin-ui";
 import { SocialLinksEditor } from "./social-links-editor";
+import { DirectMediaSelect } from "./direct-media-select";
+import type { AdminMediaOption } from "@/lib/repositories/admin-content";
 
 const sections = [
   ["selectedWork", "Selected Work"], ["experienceHighlight", "Experience Highlight"],
@@ -19,7 +21,7 @@ function Field({ name, label, value, help, multiline = false, required = false }
     {help ? <p className={helpClass}>{help}</p> : null}</div>;
 }
 
-export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings | null }) {
+export function SiteSettingsForm({ settings, media }: { settings: AdminSiteSettings | null; media: AdminMediaOption[] }) {
   const copy = settings?.sectionCopy ?? {};
   return <AdminActionForm action={saveSiteSettingsAction}>
     <input type="hidden" name="expectedUpdatedAt" value={settings?.updatedAt ?? ""} />
@@ -32,8 +34,8 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings | n
         <Field name="siteTitle" label="Site title" value={settings?.siteTitle} />
         <Field name="contentLanguage" label="Content language" value={settings?.contentLanguage ?? "en"} help="Use en, id, or a regional code such as id-ID." required />
         <Field name="location" label="Location" value={settings?.location} />
-        <Field name="portraitMediaId" label="Primary portrait Media ID" value={settings?.portraitMediaId}
-          help="Upload a public profile image in Media, copy its ID, and paste it here. Square and 3:4 portraits keep their natural ratio." />
+        <DirectMediaSelect name="portraitMediaId" label="Primary portrait" category="profile" options={media}
+          selected={settings?.portraitMediaId} help="Select an existing profile image or upload one here. Square and 3:4 portraits keep their natural ratio." />
         <div className="md:col-span-2"><Field name="defaultSeoDescription" label="Default SEO description" value={settings?.defaultSeoDescription} multiline /></div>
       </div>
     </section>

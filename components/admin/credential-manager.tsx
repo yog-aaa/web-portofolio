@@ -4,7 +4,8 @@ import type { AdminCredential, AdminMediaOption } from "@/lib/repositories/admin
 import { AdminActionForm, ConfirmSubmit, SubmitButton } from "./admin-action-form";
 import { AdminPageHeader } from "./admin-page-header";
 import { AdminEmpty, AdminNotice, fieldClass, labelClass, StatusBadge } from "./admin-ui";
-import { CheckboxField, MediaSelect, TextAreaField, TextField } from "./editor-fields";
+import { CheckboxField, TextAreaField, TextField } from "./editor-fields";
+import { DirectMediaSelect } from "./direct-media-select";
 
 const categories = ["AI", "Software", "Cloud", "Security", "Other"] as const;
 
@@ -17,7 +18,7 @@ function CredentialEditor({ item, media }: { item: AdminCredential | null; media
       <TextField name="publicIdentifier" label="Credential ID" value={item?.publicIdentifier} />
       <TextField name="verificationUrl" label="Credential URL" type="url" value={item?.verificationUrl} placeholder="https://…" />
       <TextAreaField name="description" label="Description" value={item?.description} rows={4} />
-      <MediaSelect name="previewMediaId" label="Preview media" options={media} selected={item?.previewMediaId} />
+      <DirectMediaSelect name="previewMediaId" label="Preview media" category="credential" options={media} selected={item?.previewMediaId} />
       <div className="grid gap-5 md:grid-cols-2"><TextField name="sortOrder" label="Sort order" type="number" value={item?.sortOrder ?? 0} /><CheckboxField name="isVisible" label="Visible publicly" checked={item?.isVisible} /></div>
       <div className="sticky bottom-4 z-20 flex flex-wrap gap-3 border border-border-control bg-surface/95 p-3 shadow-sm backdrop-blur"><SubmitButton>Save credential</SubmitButton></div>
     </AdminActionForm>

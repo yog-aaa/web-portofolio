@@ -23,18 +23,23 @@ because asset-level alternatives may be used by public references.
 
 ## Upload contract
 
-`POST /api/admin/media` accepts multipart form data only after a current Better Auth
-session is confirmed as the bound owner and the request origin matches
-`BETTER_AUTH_URL`. The accepted fields are `file`, `category`, `access`, `altText`,
-`caption`, and `isDecorative`; duplicate or unknown fields fail closed.
+The production UI first calls `POST /api/admin/media/direct` with a small JSON
+descriptor. After owner and same-origin checks, the server creates the application
+UUID and a pending database record, then returns constrained signed parameters.
+The browser sends file bytes directly to Cloudinary and calls the existing
+reconciliation endpoint. This avoids Vercel Functions' 4.5 MB body limit while
+keeping `CLOUDINARY_URL` and the API secret on the server.
 
 Categories are `profile`, `project`, `research`, `thought`, `credential`, and
 `social`. Access defaults to private. Public informative images require alt text;
 decorative images must be marked explicitly. The allowlist is JPEG, PNG, and WebP.
-Files are limited to 3 MiB, multipart requests to 4 MiB, dimensions to 8000 pixels
-per side, and decoded area to 20 megapixels. Sharp fully decodes, orients, and
-re-encodes the image, stripping metadata and rejecting animation, malformed input,
-and files whose declared MIME type, extension, and decoded format disagree.
+Files are limited to 10 MiB, dimensions to 8000 pixels per side, and decoded area
+to 20 megapixels. The signed request fixes the application-owned public ID,
+delivery type, format, overwrite policy, and incoming orientation/profile-stripping
+transformation. Cloudinary must decode the input as an image; reconciliation then
+reads authoritative provider metadata and rejects format, dimension, pixel-area,
+or byte-size violations. The legacy multipart parser remains bounded to 4 MiB and
+is not used by the production UI.
 
 The server creates the UUID and provider path beneath
 `CLOUDINARY_FOLDER_ROOT/<category>/<uuid>`. Callers cannot choose provider IDs,
@@ -43,6 +48,12 @@ use Cloudinary's `authenticated` delivery type; public images use `upload`. Uplo
 metadata must match the authorized provider ID, access type, canonical versioned
 URL, format, dimensions, and allowed provider byte count before the database row becomes
 `ready`. Authorization is checked again after upload and before readiness.
+
+The Media Library and the primary portrait, project cover, research cover, Thought
+cover, and credential preview fields use the same direct-upload helper. Every
+successful upload is therefore a normal `media_assets` record: it immediately
+appears in selectors and remains browsable, editable, reference-checked, and safely
+deletable from `/admin/media`.
 
 An interrupted or ambiguous upload remains `pending` or `failed` and cannot be
 attached as ready content. `POST /api/admin/media/[id]/reconcile` asks Cloudinary
@@ -73,7 +84,8 @@ for this authenticated proxy path.
 
 `DELETE /api/admin/media/[id]` checks the owner and same origin, accepts only an
 application UUID, verifies the record belongs to the configured Cloudinary namespace,
-and refuses non-ready or referenced assets. Reference checks cover every current
+and refuses referenced ready assets. Incomplete unreferenced records can be discarded
+after a provider deletion or confirmed not-found result. Reference checks cover every current
 media foreign key plus existing profile/editorial Markdown and draft JSON mentions.
 Foreign-key restrictions remain the final structural guard.
 

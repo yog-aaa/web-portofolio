@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { mediaCategories, type MediaLibraryAsset } from "@/lib/domain/media";
+import { uploadImageDirect } from "./direct-media-upload";
 import { fieldClass, helpClass, labelClass } from "./admin-ui";
 
 function bytes(value: number | null) {
@@ -89,7 +90,7 @@ function AssetEditor({ asset, onUpdate, onDelete }: { asset: MediaLibraryAsset;
       <div className="flex flex-wrap gap-3"><button disabled={pending || asset.availability !== "ready"} className="min-h-target rounded-control bg-accent px-5 py-3 font-medium text-accent-foreground disabled:opacity-60">{pending ? "Working…" : "Save metadata"}</button>
         <button type="button" onClick={verify} disabled={pending}
           className="min-h-target rounded-control border border-border-control bg-surface px-5 py-3 font-medium hover:border-accent disabled:opacity-60">{asset.availability === "ready" ? "Verify metadata" : "Reconcile upload"}</button>
-        <button type="button" onClick={remove} disabled={pending || referenceCount > 0 || asset.availability !== "ready"}
+        <button type="button" onClick={remove} disabled={pending || referenceCount > 0}
           className="min-h-target rounded-control border border-red-300 px-5 py-3 font-medium text-red-800 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40">Delete unused</button></div>
     </form>
   </aside>;
@@ -109,13 +110,17 @@ export function MediaLibraryManager({ initialAssets }: { initialAssets: MediaLib
   async function upload(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault(); setUploading(true); setUploadMessage("");
     const form = event.currentTarget; const data = new FormData(form);
-    data.set("isDecorative", String(data.get("isDecorative") === "on"));
     try {
-      const response = await fetch("/api/admin/media", { method: "POST", body: data });
-      const body = await responseMessage(response) as { asset: MediaLibraryAsset };
-      const uploaded = { ...body.asset, references: [] };
+      const file = data.get("file");
+      if (!(file instanceof File)) throw new Error("Choose an image to upload.");
+      const uploaded = { ...(await uploadImageDirect(file, {
+        category: String(data.get("category")) as (typeof mediaCategories)[number],
+        access: String(data.get("access")) as "public" | "private",
+        altText: String(data.get("altText") ?? ""), caption: String(data.get("caption") ?? ""),
+        isDecorative: data.get("isDecorative") === "on",
+      })), references: [] };
       setAssets((current) => [uploaded, ...current]); setSelectedId(uploaded.id);
-      setUploadMessage("Upload complete and metadata verified."); form.reset(); router.refresh();
+      setUploadMessage("Direct upload complete, verified, and added to the library."); form.reset(); router.refresh();
     } catch (error) { setUploadMessage(error instanceof Error ? error.message : "Upload failed."); }
     finally { setUploading(false); }
   }
@@ -123,7 +128,7 @@ export function MediaLibraryManager({ initialAssets }: { initialAssets: MediaLib
   return <div className="mt-10 space-y-12">
     <section aria-labelledby="upload-heading" className="border-y border-border bg-surface px-5 py-7 md:px-7">
       <h2 id="upload-heading" className="text-h3">Upload image</h2>
-      <p className={helpClass}>JPEG, PNG, or WebP up to 3 MiB. Files are decoded, metadata-stripped, and stored inside the managed Cloudinary namespace.</p>
+      <p className={helpClass}>JPEG, PNG, or WebP up to 10 MiB. Files upload directly to the managed Cloudinary namespace, then server verification adds them to this library.</p>
       <form onSubmit={upload} className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <div className="md:col-span-2"><label htmlFor="media-file" className={labelClass}>Image file</label><input id="media-file" name="file" type="file" accept="image/jpeg,image/png,image/webp" required className={`${fieldClass} file:mr-4 file:border-0 file:bg-transparent file:font-medium`} /></div>
         <div><label htmlFor="media-category" className={labelClass}>Category</label><select id="media-category" name="category" className={fieldClass}>{mediaCategories.map((category) => <option key={category}>{category}</option>)}</select></div>

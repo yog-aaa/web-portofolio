@@ -413,9 +413,9 @@ Migration `0003_theme_settings.sql` adds the four neutral theme overrides
 accent allowlist. All eight columns remain nullable so null restores code defaults.
 
 Better Auth's core schema and protected auth endpoints are implemented. Public signup
-is disabled; no production owner has been provisioned by this work. The safe
-Markdown packages are likewise installed only; their shared renderer still needs
-URL/media restrictions and raw-HTML-disabled preview/publication behavior.
+is disabled; no production owner has been provisioned by this work. The shared safe
+Markdown renderer is implemented with raw HTML disabled, unsafe URL rejection, and
+managed media references shared by owner preview and public delivery.
 
 ## Dependency audit
 

@@ -6,6 +6,7 @@ import { AdminPageHeader } from "./admin-page-header";
 import { CheckboxField, LinksField, MediaSelect, TaxonomyChoices, TextAreaField, TextField } from "./editor-fields";
 import { MarkdownEditor } from "./markdown-editor";
 import { TaxonomyCreator } from "./taxonomy-creator";
+import { DirectMediaSelect } from "./direct-media-select";
 import { lifecycleAction, saveProjectAction } from "@/app/admin/(protected)/actions";
 
 function Lifecycle({ item }: { item: AdminProject }) {
@@ -41,7 +42,7 @@ function ProjectEditor({ item, categories, technologies, media }: {
       <TaxonomyChoices name="technologyIds" label="Technologies" options={technologies} selected={item?.technologyIds ?? []} />
       <MarkdownEditor initialValue={draft?.bodyMarkdown} help="Use H2 headings such as Overview, Problem, Approach, Results, and What I Learned." />
       <LinksField name="links" label="Project links" links={draft?.links} />
-      <div className="grid gap-5 md:grid-cols-2"><MediaSelect name="coverMediaId" label="Cover media" options={media} selected={item?.media.find((entry) => entry.role === "cover")?.id} />
+      <div className="grid gap-5 md:grid-cols-2"><DirectMediaSelect name="coverMediaId" label="Cover media" category="project" options={media} selected={item?.media.find((entry) => entry.role === "cover")?.id} />
         <MediaSelect name="galleryMediaIds" label="Gallery media" options={media} multiple selected={item?.media.filter((entry) => entry.role === "gallery").map((entry) => entry.id)} /></div>
       <fieldset className="border-t border-border pt-6"><legend className="type-metadata text-foreground-secondary">CURATION</legend>
         <div className="mt-3 grid gap-5 md:grid-cols-3"><TextField name="sortOrder" label="Sort order" type="number" value={draft?.sortOrder ?? 0} />

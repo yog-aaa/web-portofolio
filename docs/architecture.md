@@ -1,7 +1,8 @@
 # YOGAAA. architecture contract
 
-Status: accepted direction for future implementation. This document is the primary
-architecture source of truth, not a claim that the planned integrations exist.
+Status: implemented application architecture and release contract. This document is
+the primary architecture source of truth, not a claim that external production
+services have been provisioned or verified.
 The repository-level operating map is [AGENTS.md](../AGENTS.md).
 
 ## 1. System overview
@@ -30,7 +31,7 @@ of editable information; code owns its safe delivery and presentation.
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
 | Authentication | Better Auth, email/password | Drizzle adapter, login/logout, owner guards, password change, and CLI bootstrap implemented; live provisioning pending |
 | Media | Cloudinary, server-authorized uploads | Owner-only upload/browse/metadata/private-delivery/reference-safe deletion and media-library UI implemented; live account verification pending |
-| Hosting | Vercel | Deployment target; not configured by this task |
+| Hosting | Vercel | Deployment target and runbook documented; live deployment pending |
 
 Do not replace these choices without an explicit future requirement. Retain the
 existing root `app/` structure and TypeScript/Tailwind setup. Add dependencies only
@@ -41,7 +42,7 @@ Instructions, architecture, the environment template, and the [formal V1 PRD](po
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
 environment validation, database/Cloudinary services, and module boundaries.
-Production schema/provisioning verification and deployment remain pending. Content,
+Production schema/provisioning verification and live deployment remain pending. Content,
 site settings, semantic theme, and media-management screens are
 implemented as documented in [cms.md](cms.md). Auth and media tests use isolated
 PostgreSQL via PGlite; Cloudinary behavior is verified at a
@@ -208,8 +209,8 @@ production. Never print connection strings, passwords, or sensitive query values
 Use the Node.js runtime for the postgres.js database integration on Vercel. Bound
 and reuse connections appropriately for serverless concurrency; determine pool
 limits from the Aiven service and deployment model during implementation. Schema
-constraints, indexes, backup/restore procedures, and migration operations belong
-in `docs/database.md` and the planned `docs/deployment.md`; deployment validation is pending.
+constraints, indexes, migration operations, and backup/restore requirements belong
+in `docs/database.md` and `docs/deployment.md`; live deployment validation is pending.
 
 ## 7. Drizzle
 
@@ -287,9 +288,10 @@ resolved URLs, but must not construct provider SDK calls or own upload logic.
 ### Authorized upload flow
 
 1. The admin requests upload authorization; the server verifies the session, owner, and allowed media intent.
-2. The current media service performs the upload on the server with server-controlled folder, delivery type, format, size, and ID. Do not enable public unsigned uploads.
-3. On completion, the server rechecks authorization and verifies the provider result and allowed asset properties before persisting a `MediaAsset`; do not trust a browser-submitted URL or MIME type alone.
-4. Content publication associates the asset with the appropriate public content and triggers revalidation.
+2. The media service creates a pending record and signs a short-lived, constrained Cloudinary request with a server-controlled folder, delivery type, format, transformation, overwrite policy, and ID. Do not enable public unsigned uploads.
+3. The authorized browser sends image bytes directly to Cloudinary, avoiding the Vercel Function body limit. It never receives the API secret.
+4. On completion, the server rechecks authorization, queries Cloudinary for authoritative metadata, and verifies the provider identity and allowed asset properties before marking the `MediaAsset` ready; do not trust a browser-submitted URL or MIME type alone.
+5. Content publication associates the asset with the appropriate public content and triggers revalidation.
 
 Only the necessary signed upload parameters may reach the authorized browser;
 `CLOUDINARY_URL` and its API secret never do. This follows Cloudinary's
@@ -493,7 +495,7 @@ registration, and arbitrary CMS-controlled layouts remain outside V1.
 | `docs/design-system.md` | Token values, component anatomy, accessibility, responsive/interaction rules | Present; foundational CSS implemented |
 | `docs/database.md` | Database infrastructure, schema, owner binding, constraints, migrations, provisioning | Present; initial schema/migration documented |
 | `docs/media.md` | Cloudinary upload, delivery, reconciliation, reference and deletion policy | Present; service implemented, live verification pending |
-| `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Planned |
+| `docs/deployment.md` | Vercel/Aiven/Cloudinary setup, environment loading, recovery, operations | Present; live execution pending |
 
 Read the relevant specialized document when it exists; until then this contract
 governs that area. Update architecture decisions here and keep specialized documents

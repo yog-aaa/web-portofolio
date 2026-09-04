@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     const securityHeaders = [
-      { key: "Content-Security-Policy", value: "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'" },
+      { key: "Content-Security-Policy", value: "base-uri 'self'; connect-src 'self' https://api.cloudinary.com; form-action 'self'; frame-ancestors 'none'; object-src 'none'" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
       { key: "Strict-Transport-Security", value: "max-age=31536000" },

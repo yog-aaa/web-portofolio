@@ -1,4 +1,5 @@
 export const mediaCategories = ["profile", "project", "research", "thought", "credential", "social"] as const;
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 export type MediaCategory = (typeof mediaCategories)[number];
 export type MediaAccess = "public" | "private";
 export type ImageFormat = "jpg" | "png" | "webp";

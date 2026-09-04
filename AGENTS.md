@@ -42,9 +42,8 @@ Also read the relevant document when available:
 - `docs/cms.md`: owner editing workflows, publication lifecycle, validation, revalidation
 - `docs/deployment.md`: environment setup and deployment
 
-The PRD, design system, and database guide are available. The initial schema and
-migration are present. The deployment document is planned; until created, follow
-the corresponding architecture and PRD sections.
+The PRD, design system, database guide, and deployment runbook are available. The
+initial schema and additive migrations are present.
 Keep all specialized documents consistent with the architecture contract.
 
 Before the final response for each task, check whether `README.md` needs updating.

@@ -20,8 +20,11 @@ Experience, About, and Credentials public routes now use the typed content layer
 editable route settings, safe Markdown, semantic tokens, and bounded URL-driven
 archive filters. Owner login/logout, server authorization, password change,
 database-backed rate limits, and a bootstrap CLI
-are implemented. Secure image upload, metadata verification, private delivery,
-reference inspection, retryable deletion, and the owner media library are implemented.
+are implemented. Owner-authorized signed image uploads now go directly to Cloudinary
+with a 10 MiB limit, followed by server metadata verification and normal
+`media_assets` persistence. Primary portrait, project/research/Thought covers, and
+credential previews support inline upload-and-select; the Media Library continues
+to provide metadata editing, reference inspection, and safe deletion.
 Typed public content queries now enforce publication, visibility, relationship-slot,
 and media-access rules. Research and Thoughts now provide bounded archives,
 safe long-form detail views, managed figures, derived reading time, and private-state
@@ -41,7 +44,7 @@ remains pending. Database integration is configured; apply every reviewed migrat
 including the current theme-settings migration, before running these public queries
 against an existing Aiven database. Auth, media, content, and settings
 behavior has isolated PostgreSQL coverage;
-Cloudinary account integration and production deployment remain pending.
+Live Aiven, Cloudinary, custom-domain, and production deployment verification remain pending.
 
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
@@ -56,8 +59,8 @@ no source-code change, Git commit, or redeployment.
   material, with no separate dotenv dependency or deployed certificate file.
 - **Auth tooling:** `server-only` enforces boundaries; development dependencies
   `tsx` and PGlite support the TypeScript bootstrap CLI and isolated PostgreSQL tests.
-- **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; live
-  integrations and deployment configuration remain pending.
+- **Deployment targets:** Aiven PostgreSQL, Cloudinary, and Vercel; the release
+  runbook is present while live integrations and deployment remain pending.
 
 The CMS has one owner and no public registration. See the architecture
 contract for system boundaries and planned capabilities.
@@ -131,6 +134,8 @@ for connection limits, Aiven CA trust, schema relationships, and migration safet
 
 See [the environment contract](docs/architecture.md#11-environment-variables) for
 the full variable list and loading requirements.
+See [the deployment runbook](docs/deployment.md) for Production/Preview scopes,
+migrations, Vercel configuration, Hostinger DNS, owner bootstrap, and live checks.
 
 ## Validation commands
 
@@ -202,7 +207,6 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
   ordering, query functions, and the guarded development seed.
 - [Owner CMS](docs/cms.md): content, media, settings/theme screens, draft/public
   lifecycle, validation, optimistic concurrency, and refresh behavior.
+- [Deployment runbook](docs/deployment.md): Aiven, migrations, Cloudinary, Vercel
+  environment scopes, Hostinger DNS, owner bootstrap, and production verification.
 - [CLAUDE.md](CLAUDE.md): compatibility pointer to the canonical instructions.
-
-The deployment document is planned under `docs/`; its responsibility is mapped
-in the architecture contract. Vercel is the deployment target; configuration is pending.

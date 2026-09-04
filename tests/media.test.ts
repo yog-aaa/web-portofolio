@@ -13,6 +13,7 @@ import { MediaRepository, type MediaRecord, type VerifiedMedia } from "../lib/re
 import { CloudinaryMediaService } from "../lib/services/media/cloudinary-media-service";
 import { CloudinaryGateway } from "../lib/services/media/cloudinary-gateway";
 import type { MediaGateway, ProviderIdentity } from "../lib/services/media/cloudinary-gateway";
+import type { DirectUploadAuthorization } from "../lib/services/media/media-service";
 import { MediaError } from "../lib/services/media/errors";
 import { AuthorizationError } from "../lib/auth/authorization";
 import type { ImageFormat, MediaAccess, MediaCategory } from "../lib/domain/media";
@@ -24,6 +25,7 @@ class FakeGateway implements MediaGateway {
   metadataReads = 0;
   deletes = 0;
   failDelete = false;
+  directAuthorizations = 0;
 
   identity(id: string, category: MediaCategory, access: MediaAccess, format: ImageFormat) {
     const providerId = `test-root/${category}/${id}`;
@@ -36,11 +38,16 @@ class FakeGateway implements MediaGateway {
       throw new MediaError("UNMANAGED_ASSET", "Unmanaged asset.", 409);
     }
   }
+  authorizeDirectUpload(record: ProviderIdentity): DirectUploadAuthorization {
+    this.assertManaged(record); this.directAuthorizations += 1;
+    return { mediaId: record.id, uploadUrl: "https://api.cloudinary.com/v1_1/test-cloud/image/upload",
+      fields: { api_key: "public-key", signature: "signed" } };
+  }
   private verified(record: ProviderIdentity): VerifiedMedia {
     const row = record as MediaRecord;
     const versioned = record.secureUrl!.replace(/\/(upload|authenticated)\//, "/$1/v1/");
     return { secureUrl: versioned, url: versioned, format: row.format, mimeType: row.mimeType,
-      width: row.width, height: row.height, bytes: row.bytes };
+      width: row.width ?? 8, height: row.height ?? 6, bytes: row.bytes ?? 128 };
   }
   async upload(record: ProviderIdentity) { this.uploads += 1; return this.verified(record); }
   async metadata(record: ProviderIdentity) { this.metadataReads += 1; return this.verified(record); }
@@ -126,6 +133,26 @@ test("validation rejects disguised, oversized and unbounded image input", async 
   await assert.rejects(readBoundedBody(stream, 10), denied("BODY_SIZE"));
 });
 
+test("direct upload authorization creates a managed pending asset and reconciliation verifies it", async (t) => {
+  const f = await fixture(); t.after(() => f.client.close());
+  const authorization = await f.service.authorizeDirectUpload({ filename: "portrait.jpg", mimeType: "image/jpeg",
+    bytes: 1024, category: "profile", access: "public", altText: "Owner portrait", caption: "", isDecorative: false });
+  assert.match(authorization.uploadUrl, /^https:\/\/api\.cloudinary\.com\//);
+  assert.equal(authorization.fields.api_key, "public-key");
+  assert.equal("api_secret" in authorization.fields, false);
+  assert.equal(f.gateway.directAuthorizations, 1);
+  const [pending] = await f.db.select().from(schema.mediaAssets).where(eq(schema.mediaAssets.id, authorization.mediaId));
+  assert.equal(pending.availability, "pending");
+  const ready = await f.service.reconcileUpload(authorization.mediaId);
+  assert.equal(ready.availability, "ready");
+  assert.equal(ready.width, 8);
+
+  const interrupted = await f.service.authorizeDirectUpload({ filename: "interrupted.webp", mimeType: "image/webp",
+    bytes: 2048, category: "project", access: "private", altText: "", caption: "", isDecorative: false });
+  assert.equal((await f.service.delete(interrupted.mediaId)).status, "deleted");
+  assert.equal((await f.db.select().from(schema.mediaAssets).where(eq(schema.mediaAssets.id, interrupted.mediaId))).length, 0);
+});
+
 test("referenced assets cannot be deleted and provider failures leave a durable retry", async (t) => {
   const f = await fixture();
   t.after(() => f.client.close());
@@ -174,11 +201,15 @@ test("Cloudinary gateway fixes provider identity, verifies metadata, and keeps s
       async destroy(_publicId: string, options: Record<string, unknown>) { destroyOptions = options; return { result: "ok" }; },
     },
     api: { async resource() { return providerResult; } },
-    utils: { private_download_url() {
-      return "https://api.cloudinary.com/v1_1/test-cloud/image/download?timestamp=1&signature=server-only";
-    } },
+    utils: {
+      api_sign_request() { return "signed-with-server-secret"; },
+      private_download_url() {
+        return "https://api.cloudinary.com/v1_1/test-cloud/image/download?timestamp=1&signature=server-only";
+      },
+    },
   };
-  const gateway = new CloudinaryGateway({ client, folderRoot: "test-root", cloudName: "test-cloud" } as never,
+  const gateway = new CloudinaryGateway({ client, folderRoot: "test-root", cloudName: "test-cloud",
+    apiKey: "public-key", apiSecret: "server-secret" } as never,
     (async (url: string | URL | Request) => {
       fetchedUrl = String(url);
       return new Response(Uint8Array.from([1, 2, 3]), { headers: { "content-type": "image/png" } });
@@ -186,6 +217,10 @@ test("Cloudinary gateway fixes provider identity, verifies metadata, and keeps s
   const identity = gateway.identity(id, "profile", "private", "png");
   const record = { id, provider: "cloudinary", providerId: identity.providerId,
     secureUrl: identity.secureUrl, access: "private" as const };
+  const authorization = gateway.authorizeDirectUpload(record, "png");
+  assert.equal(authorization.fields.api_key, "public-key");
+  assert.equal(authorization.fields.signature, "signed-with-server-secret");
+  assert.equal("api_secret" in authorization.fields, false);
   assert.equal((await gateway.upload(record, Buffer.from([1, 2, 3]), "png")).secureUrl, secureUrl);
   assert.equal(uploadOptions?.type, "authenticated");
   assert.equal(uploadOptions?.overwrite, false);

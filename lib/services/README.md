@@ -13,6 +13,6 @@ Context creation sends no provider request and grants no authorization. Do not
 serialize its configuration, provider IDs, signed URLs, or SDK objects to UI code.
 See `docs/media.md` for limits and lifecycle behavior.
 
-`react-markdown` and `remark-gfm` are installed for the future shared Markdown
-renderer. Keep raw HTML disabled, reject unsafe URLs, and enforce the media policy
-in both preview and publication. No editor, MDX execution, or renderer is added yet.
+The shared `react-markdown` + `remark-gfm` renderer keeps raw HTML disabled, rejects
+unsafe URLs, and resolves only managed media in both preview and publication. The
+owner editor stores Markdown text; executable MDX and arbitrary HTML remain disabled.

@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 import type { MediaAsset, MediaDeletionResult, MediaImageData } from "../../domain/media";
 import type { MediaDeletion, MediaRecord } from "../../repositories/media";
 import { MediaRepository } from "../../repositories/media";
-import { mediaMetadataInput, mediaUploadFields, parseMediaId, validateImage, type MediaUploadFields } from "../../validation/media";
+import { directMediaUploadInput, imageFormatFromFile, MAX_IMAGE_BYTES, mediaMetadataInput, mediaUploadFields,
+  parseMediaId, validateImage, type DirectMediaUploadInput, type MediaUploadFields } from "../../validation/media";
 import type { OwnerPermission } from "../../auth/authorization";
 import type { MediaGateway } from "./cloudinary-gateway";
 import { MediaError } from "./errors";
@@ -67,6 +68,26 @@ export class CloudinaryMediaService implements MediaService {
     await this.authorize("cms:read");
     const [rows, references] = await Promise.all([this.repository.list(), this.repository.referencesForAll()]);
     return rows.map((row) => ({ ...toDomain(row), references: references.get(row.id) ?? [] }));
+  }
+
+  async authorizeDirectUpload(input: DirectMediaUploadInput) {
+    await this.authorize("cms:write");
+    const parsed = directMediaUploadInput.safeParse(input);
+    if (!parsed.success) throw new MediaError("INVALID_FIELDS", "Choose a supported image up to 10 MiB and complete its metadata.");
+    const fields = parsed.data;
+    const format = imageFormatFromFile(fields.filename, fields.mimeType)!;
+    const id = randomUUID();
+    const identity = this.gateway.identity(id, fields.category, fields.access, format);
+    const filename = fields.filename.replace(/\.[^.]*$/, "").replace(/[^\p{L}\p{N} _-]/gu, "")
+      .trim().slice(0, 100) || "image";
+    const pending = await this.repository.createPending({
+      id, provider: "cloudinary", providerId: identity.providerId, category: fields.category,
+      kind: "image", access: fields.access, availability: "pending", url: identity.secureUrl,
+      secureUrl: identity.secureUrl, filename: `${filename}.${format}`, mimeType: fields.mimeType,
+      format, bytes: fields.bytes, altText: fields.isDecorative ? null : fields.altText || null,
+      caption: fields.caption || null, isDecorative: fields.isDecorative,
+    });
+    return this.gateway.authorizeDirectUpload(pending, format);
   }
 
   async upload(file: File, input: MediaUploadFields): Promise<MediaAsset> {
@@ -144,9 +165,21 @@ export class CloudinaryMediaService implements MediaService {
     await this.authorize("cms:write");
     const row = await this.required(id);
     if (row.availability === "ready") return toDomain(row);
-    const verified = await this.gateway.metadata(row);
-    await this.authorize("cms:write");
-    return toDomain(await this.repository.complete(row.id, verified));
+    try {
+      const verified = await this.gateway.metadata(row);
+      if (verified.format !== row.format || verified.mimeType !== row.mimeType ||
+        verified.bytes === null || verified.bytes > MAX_IMAGE_BYTES) {
+        throw new MediaError("UPLOAD_MISMATCH", "The uploaded image does not match the authorized file.", 409, row.id);
+      }
+      await this.authorize("cms:write");
+      return toDomain(await this.repository.complete(row.id, verified));
+    } catch (error) {
+      if (error instanceof MediaError && ["INVALID_PROVIDER_METADATA", "UPLOAD_MISMATCH"].includes(error.code)) {
+        await this.gateway.destroy(row).catch(() => undefined);
+        await this.repository.fail(row.id).catch(() => undefined);
+      }
+      throw error;
+    }
   }
 
   async references(id: string) {
@@ -162,6 +195,19 @@ export class CloudinaryMediaService implements MediaService {
       const row = await this.repository.find(mediaId);
       if (!row) return { id: mediaId, status: "deleted" };
       this.gateway.assertManaged(row);
+      if (row.availability !== "ready") {
+        try {
+          await this.gateway.destroy(row);
+          if (await this.repository.discardIncomplete(mediaId)) {
+            return { id: mediaId, status: "deleted" };
+          }
+          return await this.repository.find(mediaId)
+            ? { id: mediaId, status: "pending" }
+            : { id: mediaId, status: "deleted" };
+        } catch {
+          return { id: mediaId, status: "pending" };
+        }
+      }
       try {
         job = await this.repository.stageDeletion(mediaId);
       } catch (error) {

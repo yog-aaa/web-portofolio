@@ -99,6 +99,7 @@ export class AdminContentService {
   private async write() { await this.authorize("cms:write"); }
 
   async dashboard() { await this.read(); return this.repository().dashboard(); }
+  async mediaOptions(category?: string) { await this.read(); return this.repository().mediaOptions(category); }
   async projects(id?: string) { await this.read(); const repository = this.repository(); const [items, taxonomy, media, selected] = await Promise.all([
     repository.listProjects(), repository.taxonomy(), repository.mediaOptions("project"), id ? repository.getProject(id) : null]); return { items, taxonomy, media, selected }; }
   async research(id?: string) { await this.read(); const repository = this.repository(); const [items, taxonomy, media, selected] = await Promise.all([
