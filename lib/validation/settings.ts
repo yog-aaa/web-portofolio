@@ -1,15 +1,22 @@
 import { z } from "zod";
 import { defaultThemeColors } from "../domain/settings";
+import { socialIconOptions } from "../domain/social-icons";
 
 const optionalText = (maximum: number) => z.string().trim().max(maximum).transform((value) => value || null);
 const requiredText = (label: string, maximum: number) => z.string().trim().min(1, `${label} is required.`).max(maximum);
 const hex = z.string().trim().regex(/^#[0-9A-Fa-f]{6}$/, "Use a six-digit hex color such as #526D82.")
   .transform((value) => value.toUpperCase());
+const optionalUuid = z.string().trim().transform((value) => value || null).pipe(z.string().uuid().nullable());
+const socialIconKeys = socialIconOptions.map((option) => option.key) as [
+  (typeof socialIconOptions)[number]["key"],
+  ...(typeof socialIconOptions)[number]["key"][],
+];
 
 export const siteSettingsInputSchema = z.object({
   expectedUpdatedAt: z.string().datetime().nullable(),
   profileDisplayName: requiredText("Profile name", 120),
   location: optionalText(240),
+  portraitMediaId: optionalUuid,
   brandName: requiredText("Brand display", 120),
   siteTitle: optionalText(160),
   defaultSeoDescription: optionalText(320),
@@ -35,6 +42,7 @@ export const siteSettingsInputSchema = z.object({
   socialLinks: z.array(z.object({
     label: requiredText("Social link label", 120),
     destination: z.string().trim().url().startsWith("https://", "Social links must use HTTPS.").max(2048),
+    platformKey: z.enum(socialIconKeys),
   }).strict()).max(20),
 }).strict();
 

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HomePage } from "../components/home/home-page";
-import type { PublicResearch, PublicSiteSettings } from "../lib/domain/content";
+import type { PublicProfile, PublicResearch, PublicSiteSettings } from "../lib/domain/content";
 
 const settings: PublicSiteSettings = {
   brandName: "Test Brand", siteTitle: "Test Site", defaultSeoDescription: null,
@@ -37,4 +37,21 @@ test("homepage uses query-layer copy and promotes featured research into selecte
   assert.match(html, /href="\/research\/privacy-preserving-fall-detection"/);
   assert.doesNotMatch(html, /Hi, I/);
   assert.doesNotMatch(html, /Hello World/);
+});
+
+test("homepage preserves portrait dimensions and renders primary and secondary actions", () => {
+  const profile: PublicProfile = {
+    displayName: "Yoga Agustiansyah", focusLine: null, shortBiography: null,
+    biographyMarkdown: null, location: null, availabilityText: null, resumeUrl: null,
+    portrait: { id: "portrait", access: "public", src: "/portrait.jpg", width: 900, height: 1200, alt: "Owner portrait" },
+    education: [], socialLinks: [{ id: "email", label: "Email", destination: "mailto:owner@example.test",
+      purpose: "contact", platformKey: "email" }],
+  };
+  const html = renderToStaticMarkup(<HomePage settings={{ ...settings, contactCtaLabel: "Start a conversation" }}
+    profile={profile} projects={[]} experience={null} research={[]} thoughts={[]} />);
+  assert.match(html, /width="900"/);
+  assert.match(html, /height="1200"/);
+  assert.match(html, /href="\/work"/);
+  assert.match(html, /href="mailto:owner@example.test"/);
+  assert.match(html, /Start a conversation/);
 });

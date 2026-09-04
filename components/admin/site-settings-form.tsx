@@ -2,6 +2,7 @@ import { saveSiteSettingsAction } from "@/app/admin/(protected)/settings/actions
 import type { AdminSiteSettings } from "@/lib/domain/settings";
 import { AdminActionForm, SubmitButton } from "./admin-action-form";
 import { fieldClass, helpClass, labelClass } from "./admin-ui";
+import { SocialLinksEditor } from "./social-links-editor";
 
 const sections = [
   ["selectedWork", "Selected Work"], ["experienceHighlight", "Experience Highlight"],
@@ -31,6 +32,8 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings | n
         <Field name="siteTitle" label="Site title" value={settings?.siteTitle} />
         <Field name="contentLanguage" label="Content language" value={settings?.contentLanguage ?? "en"} help="Use en, id, or a regional code such as id-ID." required />
         <Field name="location" label="Location" value={settings?.location} />
+        <Field name="portraitMediaId" label="Primary portrait Media ID" value={settings?.portraitMediaId}
+          help="Upload a public profile image in Media, copy its ID, and paste it here. Square and 3:4 portraits keep their natural ratio." />
         <div className="md:col-span-2"><Field name="defaultSeoDescription" label="Default SEO description" value={settings?.defaultSeoDescription} multiline /></div>
       </div>
     </section>
@@ -67,9 +70,7 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings | n
         <Field name="contactHeading" label="Contact heading" value={settings?.contactHeading} multiline />
         <Field name="contactLabel" label="Contact action label" value={settings?.contactLabel} />
         <div className="md:col-span-2"><Field name="contactText" label="Contact supporting text" value={settings?.contactText} multiline /></div>
-        <div className="md:col-span-2"><Field name="socialLinks" label="Social links" multiline
-          value={settings?.socialLinks.map((item) => `${item.label} | ${item.destination}`).join("\n")}
-          help="One per line: Label | https://example.com. Saving replaces the current visible social-link list." /></div>
+        <div className="md:col-span-2"><SocialLinksEditor initialLinks={settings?.socialLinks ?? []} /></div>
         <div className="md:col-span-2"><Field name="footerContent" label="Footer content" value={settings?.footerContent} multiline /></div>
       </div>
     </section>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PublicSocialLink } from "@/lib/domain/content";
 import { Container } from "@/components/ui/container";
 import { Divider } from "@/components/ui/divider";
+import { SocialLinks } from "@/components/ui/social-links";
 
 const secondaryNavigation = [
   { label: "Work", href: "/work" }, { label: "Research", href: "/research" },
@@ -24,11 +25,7 @@ export function Footer({ brand, copy, location, socialLinks }:
           </li>)}</ul>
         </nav>
         {socialLinks.length ? <nav className="col-span-full mt-8 md:col-span-2 md:mt-0 lg:col-span-4" aria-label="Social and contact links">
-          <ul className="space-y-2 md:text-right">{socialLinks.map((item) => <li key={item.id}>
-            <a className="transition-interactive text-caption text-foreground-secondary hover:text-foreground" href={item.destination}>
-              {item.label}<span aria-hidden="true" className="ml-1">↗</span>
-            </a>
-          </li>)}</ul>
+          <div className="md:flex md:justify-end"><SocialLinks links={socialLinks} compact /></div>
         </nav> : null}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">

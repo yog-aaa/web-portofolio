@@ -24,13 +24,13 @@ async function fixture() {
 
 function siteInput(expectedUpdatedAt: string | null = null) {
   return siteSettingsInputSchema.parse({ expectedUpdatedAt, profileDisplayName: "Yoga Agustiansyah",
-    location: "Indonesia", brandName: "YOGAAA.", siteTitle: "YOGAAA.",
+    location: "Indonesia", portraitMediaId: "", brandName: "YOGAAA.", siteTitle: "YOGAAA.",
     defaultSeoDescription: "A personal digital hub.", contentLanguage: "en",
     heroEyebrow: "SOFTWARE · AI · RESEARCH", heroHeadline: "Build useful things.",
     heroDescription: "A calm description.", heroExploreLabel: "Explore work",
     contactHeading: "Start a conversation.", contactLabel: "Contact", contactText: "Share the context.",
     contactEmail: "owner@example.test", footerContent: "Software · AI · Research",
-    socialLinks: [{ label: "GitHub", destination: "https://github.com/example" }],
+    socialLinks: [{ label: "GitHub", destination: "https://github.com/example", platformKey: "github" }],
     sectionCopy: {
       selectedWork: { heading: "Selected Work", intro: "", actionLabel: "View work" },
       experienceHighlight: { heading: "Experience", intro: "", actionLabel: "View experience" },
@@ -54,6 +54,7 @@ test("site settings require owner access, persist managed links, and reject stal
   assert.equal(saved?.brandName, "YOGAAA.");
   assert.equal(saved?.contactEmail, "owner@example.test");
   assert.equal(saved?.socialLinks[0].destination, "https://github.com/example");
+  assert.equal(saved?.socialLinks[0].platformKey, "github");
   assert.equal((await f.publicQueries.getProfile())?.socialLinks.length, 2);
   assert.equal((await f.publicQueries.getSiteSettings())?.heroHeadline, "Build useful things.");
   await assert.rejects(f.service.saveSite(siteInput(null)), /SETTINGS_STALE/);

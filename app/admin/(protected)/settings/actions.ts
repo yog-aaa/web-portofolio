@@ -6,17 +6,20 @@ import { getAdminSettingsService } from "@/lib/services/admin-settings-server";
 import { publicContentTags } from "@/lib/queries/content-cache";
 import { actionError, type AdminActionState } from "@/lib/validation/admin-content";
 import { siteSettingsInputSchema, themeSettingsInputSchema } from "@/lib/validation/settings";
+import { inferSocialIconKey } from "@/lib/domain/social-icons";
 
 const value = (form: FormData, name: string) => String(form.get(name) ?? "");
 const nullable = (form: FormData, name: string) => value(form, name) || null;
 
-function socialLinks(input: string) {
-  if (!input.trim()) return [];
-  return input.split(/\r?\n/).filter((line) => line.trim()).map((line, index) => {
-    const separator = line.indexOf("|");
-    if (separator < 1) throw new Error(`SETTINGS_SOCIAL_FORMAT:${index + 1}`);
-    return { label: line.slice(0, separator).trim(), destination: line.slice(separator + 1).trim() };
-  });
+function socialLinks(form: FormData) {
+  const labels = form.getAll("socialLabel").map(String);
+  const destinations = form.getAll("socialDestination").map(String);
+  const icons = form.getAll("socialIcon").map(String);
+  return labels.map((label, index) => ({
+    label,
+    destination: destinations[index] ?? "",
+    platformKey: icons[index] || inferSocialIconKey(label, destinations[index] ?? ""),
+  }));
 }
 
 function refreshPublic() {
@@ -33,13 +36,14 @@ export async function saveSiteSettingsAction(_state: AdminActionState, form: For
     const input = siteSettingsInputSchema.parse({
       expectedUpdatedAt: nullable(form, "expectedUpdatedAt"),
       profileDisplayName: value(form, "profileDisplayName"), location: value(form, "location"),
+      portraitMediaId: value(form, "portraitMediaId"),
       brandName: value(form, "brandName"), siteTitle: value(form, "siteTitle"),
       defaultSeoDescription: value(form, "defaultSeoDescription"), contentLanguage: value(form, "contentLanguage"),
       heroEyebrow: value(form, "heroEyebrow"), heroHeadline: value(form, "heroHeadline"),
       heroDescription: value(form, "heroDescription"), heroExploreLabel: value(form, "heroExploreLabel"),
       contactHeading: value(form, "contactHeading"), contactLabel: value(form, "contactLabel"),
       contactText: value(form, "contactText"), contactEmail: value(form, "contactEmail"),
-      footerContent: value(form, "footerContent"), socialLinks: socialLinks(value(form, "socialLinks")),
+      footerContent: value(form, "footerContent"), socialLinks: socialLinks(form),
       sectionCopy: { selectedWork: section("selectedWork"), experienceHighlight: section("experienceHighlight"),
         featuredResearch: section("featuredResearch"), latestThoughts: section("latestThoughts"),
         shortAbout: section("shortAbout"), contact: { heading: value(form, "contactSectionHeading") } },

@@ -1,15 +1,18 @@
 import type { SectionCopy } from "./content-values";
+import type { SocialIconKey } from "./social-icons";
 
 export type AdminSocialLink = {
   id: string;
   label: string;
   destination: string;
+  platformKey: SocialIconKey | null;
   sortOrder: number;
 };
 
 export type AdminSiteSettings = {
   profileDisplayName: string;
   location: string | null;
+  portraitMediaId: string | null;
   brandName: string;
   siteTitle: string | null;
   defaultSeoDescription: string | null;

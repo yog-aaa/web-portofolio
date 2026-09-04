@@ -299,12 +299,24 @@ projects, or achievements.
 Use real owner-provided media through the provider-neutral MediaAsset contract.
 Prefer 16:10 project covers where cropping is appropriate, natural
 ratios for research figures and credentials, and intentional portrait crops.
+The homepage portrait uses its stored intrinsic ratio, with square and 3:4 images
+supported without a forced crop. Its thin border, offset accent plane, corner marks,
+and dimension label form one editorial frame pattern; components must use semantic
+tokens for every layer. When a portrait is unavailable, the existing abstract
+technical field remains the non-personal fallback.
 Preserve legibility of diagrams/documents with `object-contain` rather than
 blindly cropping them. Supply accurate alt text or empty alt for decoration,
 reserve dimensions to avoid layout shifts, and provide responsive image sizes.
 Do not use invented certificates, fake project screenshots, or stock people
 as identity content. Missing media should omit the region or use an explicit
 editorial placeholder in private previews.
+
+Homepage actions follow a two-level hierarchy: the solid accent action leads to
+selected work (or the Work archive when no feature exists), and the outlined
+secondary action uses the configured primary contact destination. Public social
+links use a small, code-owned icon catalogue plus a visible text label; unknown
+networks fall back to the generic link icon. The CMS never accepts arbitrary SVG,
+icon markup, or CSS.
 
 ## 10. CMS theme integration
 

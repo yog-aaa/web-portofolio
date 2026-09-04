@@ -1,18 +1,20 @@
 import "server-only";
 
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { Database } from "../database/connection";
+import { mediaAssets } from "../database/schema/media";
 import { profile, siteSettings, socialLinks, themeSettings } from "../database/schema/site";
 import type { SectionCopy } from "../domain/content-values";
 import type { AdminSiteSettings, AdminThemeSettings } from "../domain/settings";
 import type { SiteSettingsInput, ThemeSettingsInput } from "../validation/settings";
+import { isSocialIconKey } from "../domain/social-icons";
 
 export class AdminSettingsRepository {
   constructor(private readonly db: Database) {}
 
   async site(): Promise<AdminSiteSettings | null> {
     const [row] = await this.db.select({
-      profileDisplayName: profile.displayName, location: profile.location,
+      profileDisplayName: profile.displayName, location: profile.location, portraitMediaId: profile.portraitMediaId,
       brandName: siteSettings.brandName, siteTitle: siteSettings.siteTitle,
       defaultSeoDescription: siteSettings.defaultSeoDescription, contentLanguage: siteSettings.contentLanguage,
       heroEyebrow: siteSettings.heroSupportingCopy, heroHeadline: siteSettings.heroHeadline,
@@ -27,7 +29,8 @@ export class AdminSettingsRepository {
     const contact = links.find((item) => item.purpose === "contact" && item.destination.startsWith("mailto:"));
     return { ...row, updatedAt: row.updatedAt.toISOString(), contactEmail: contact?.destination.slice(7) ?? null,
       socialLinks: links.filter((item) => item.purpose === "social").map((item) => ({ id: item.id,
-        label: item.label, destination: item.destination, sortOrder: item.sortOrder })) };
+        label: item.label, destination: item.destination,
+        platformKey: isSocialIconKey(item.platformKey) ? item.platformKey : null, sortOrder: item.sortOrder })) };
   }
 
   async theme(): Promise<AdminThemeSettings | null> {
@@ -44,9 +47,16 @@ export class AdminSettingsRepository {
       if (current && (!input.expectedUpdatedAt || current.updatedAt.toISOString() !== input.expectedUpdatedAt)) {
         throw new Error("SETTINGS_STALE");
       }
-      await tx.insert(profile).values({ id: 1, displayName: input.profileDisplayName, location: input.location })
+      if (input.portraitMediaId) {
+        const [portrait] = await tx.select({ id: mediaAssets.id, altText: mediaAssets.altText })
+          .from(mediaAssets).where(and(eq(mediaAssets.id, input.portraitMediaId), eq(mediaAssets.category, "profile"),
+            eq(mediaAssets.kind, "image"), eq(mediaAssets.access, "public"), eq(mediaAssets.availability, "ready")));
+        if (!portrait?.altText?.trim()) throw new Error("SETTINGS_PORTRAIT_INVALID");
+      }
+      await tx.insert(profile).values({ id: 1, displayName: input.profileDisplayName, location: input.location,
+        portraitMediaId: input.portraitMediaId })
         .onConflictDoUpdate({ target: profile.id, set: { displayName: input.profileDisplayName,
-          location: input.location, updatedAt: new Date() } });
+          location: input.location, portraitMediaId: input.portraitMediaId, updatedAt: new Date() } });
       await tx.insert(themeSettings).values({ id: 1 }).onConflictDoNothing();
       if (current) await tx.update(siteSettings).set({ primaryContactLinkId: null }).where(eq(siteSettings.id, 1));
       await tx.delete(socialLinks).where(eq(socialLinks.profileId, 1));
@@ -59,7 +69,7 @@ export class AdminSettingsRepository {
       }
       if (input.socialLinks.length) await tx.insert(socialLinks).values(input.socialLinks.map((item, index) => ({
         profileId: 1, label: item.label, destination: item.destination, purpose: "social" as const,
-        platformKey: null, isVisible: true, sortOrder: index + 1,
+        platformKey: item.platformKey, isVisible: true, sortOrder: index + 1,
       })));
       const sectionCopy = Object.fromEntries(Object.entries(input.sectionCopy).map(([key, value]) => [key, {
         ...(value.heading ? { heading: value.heading } : {}),

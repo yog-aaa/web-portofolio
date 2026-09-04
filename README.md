@@ -29,7 +29,10 @@ protection. The authenticated owner workspace now manages Projects, Experience,
 Research, Thoughts, and Credentials with private drafts, safe previews, publishing,
 withdrawal, visibility, media selection, taxonomy, validation, and stale-write
 protection. Site settings, contact/social management, and the safe semantic theme
-editor are implemented. Production SEO now includes stable canonicals, Open Graph
+editor are implemented. The homepage hero supports a CMS-selected square or 3:4
+portrait in an adaptive editorial frame, plus primary Work and secondary Contact
+actions. Site settings provide repeatable social-profile rows with a searchable,
+code-owned icon catalogue, and those icons appear in public contact areas. Production SEO now includes stable canonicals, Open Graph
 and social metadata, published-only sitemap entries, robots policy, and escaped
 structured data for identity, work, research, and Thoughts. Public read models use
 persistent tagged caching with immediate CMS invalidation, and production responses

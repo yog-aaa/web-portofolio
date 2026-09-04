@@ -193,6 +193,9 @@ export function actionError(error: unknown): AdminActionState {
   if (error instanceof Error && error.message === "SETTINGS_STALE") {
     return { status: "error", message: "These settings changed in another tab. Reload before saving again." };
   }
+  if (error instanceof Error && error.message === "SETTINGS_PORTRAIT_INVALID") {
+    return { status: "error", message: "Choose a ready, public profile image with alt text from the Media library." };
+  }
   if (error instanceof Error && error.message.startsWith("SETTINGS_SOCIAL_FORMAT:")) {
     const line = error.message.split(":")[1];
     return { status: "error", message: `Social link line ${line} must use Label | https://example.com.` };

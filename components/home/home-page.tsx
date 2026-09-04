@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MediaImage } from "@/components/media-image";
 import type { PublicExperience, PublicProfile, PublicProject, PublicResearch,
   PublicSiteSettings, PublicThought } from "@/lib/domain/content";
 import { ArrowLink } from "@/components/ui/arrow-link";
@@ -7,6 +8,7 @@ import { Divider } from "@/components/ui/divider";
 import { MediaRenderer } from "@/components/ui/media-renderer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Tag } from "@/components/ui/tag";
+import { SocialLinks } from "@/components/ui/social-links";
 
 type WorkFeature = { kind: "project"; item: PublicProject } | { kind: "research"; item: PublicResearch };
 const period = (start: string | null, end: string | null) => [start, end].filter(Boolean).join(" — ");
@@ -22,6 +24,38 @@ function TechnicalField() {
     <span className="type-metadata absolute right-0 top-1/2 -translate-y-1/2 text-muted">01</span>
     <span className="type-metadata absolute bottom-0 left-1/2 -translate-x-1/2 text-muted">Y/A</span>
   </div>;
+}
+
+function HeroAction({ href, children, secondary = false }: {
+  href: string;
+  children: React.ReactNode;
+  secondary?: boolean;
+}) {
+  const className = `group transition-interactive inline-flex min-h-target items-center justify-center gap-3 rounded-control border px-5 py-3 font-medium ${secondary
+    ? "border-border-control bg-transparent text-foreground hover:border-accent-deep hover:bg-surface"
+    : "border-accent bg-accent text-accent-foreground hover:border-accent-deep hover:bg-accent-deep"}`;
+  const content = <>{children}<span aria-hidden="true" className="transition-transform duration-(--duration-fast) ease-calm group-hover:translate-x-0.5">{href.startsWith("#") ? "↓" : "↗"}</span></>;
+  return /^(https?:|mailto:)/.test(href) ? <a href={href} className={className} rel={href.startsWith("http") ? "noreferrer" : undefined}>{content}</a>
+    : <Link href={href} className={className}>{content}</Link>;
+}
+
+function HeroPortrait({ image }: { image: NonNullable<PublicProfile["portrait"]> }) {
+  const portrait = image.height / image.width > 1.12;
+  return <figure className={`relative mx-auto w-full ${portrait ? "max-w-[22rem]" : "max-w-[27rem]"}`}>
+    <div aria-hidden="true" className="absolute -inset-x-3 inset-y-6 border border-accent-soft" />
+    <div aria-hidden="true" className="absolute -bottom-3 left-6 right-0 top-6 bg-accent-soft" />
+    <div className="relative border border-border-control bg-surface p-2.5">
+      <div className="relative overflow-hidden bg-accent-very-soft">
+        <MediaImage image={image} sizes="(min-width: 1280px) 28vw, (min-width: 768px) 34vw, 86vw"
+          priority className="h-auto w-full object-cover" />
+        <span aria-hidden="true" className="absolute left-3 top-3 size-4 border-l border-t border-accent-foreground/80" />
+        <span aria-hidden="true" className="absolute bottom-3 right-3 size-4 border-b border-r border-accent-foreground/80" />
+      </div>
+    </div>
+    <figcaption className="type-metadata relative mt-4 flex items-center justify-between gap-4 text-foreground-secondary">
+      <span>PORTRAIT / YOGAAA.</span><span>{image.width} × {image.height}</span>
+    </figcaption>
+  </figure>;
 }
 
 function WorkSection({ feature, settings }: { feature: WorkFeature; settings: PublicSiteSettings }) {
@@ -63,17 +97,23 @@ export function HomePage({ settings, profile, projects, experience, research, th
     : research[0] ? { kind: "research", item: research[0] } : null;
   const remainingResearch = feature?.kind === "research" ? research.slice(1) : research;
   const contact = profile?.socialLinks.find((item) => item.purpose === "contact");
+  const socialProfiles = profile?.socialLinks.filter((item) => item.purpose === "social") ?? [];
 
   return <main id="main-content" className="flex-1">
     <section className="relative overflow-hidden pb-section pt-8 md:pt-14 lg:min-h-[calc(100svh-5rem)] lg:pt-16" aria-labelledby="home-title">
-      <Container className="editorial-grid min-h-full items-end">
-        <div className="col-span-full pb-12 md:col-span-6 lg:col-span-8 lg:pb-20">
+      <Container className="editorial-grid min-h-full items-center">
+        <div className="col-span-full pb-12 md:col-span-5 lg:col-span-7 lg:pb-20">
           {settings?.heroSupportingCopy || profile?.focusLine ? <p className="type-metadata mb-7 text-accent-deep">{settings?.heroSupportingCopy ?? profile?.focusLine}</p> : null}
           <h1 id="home-title" className="max-w-[13ch] text-display uppercase text-balance">{settings?.heroHeadline ?? profile?.displayName}</h1>
           {settings?.heroIntro || profile?.shortBiography ? <p className="mt-8 max-w-reading text-body-lg text-foreground-secondary">{settings?.heroIntro ?? profile?.shortBiography}</p> : null}
-          {feature && settings?.heroExploreLabel ? <div className="mt-8"><ArrowLink href="#selected-work">{settings.heroExploreLabel}</ArrowLink></div> : null}
+          {settings?.heroExploreLabel || (contact && settings?.contactCtaLabel) ? <div className="mt-9 flex flex-wrap gap-3">
+            {settings?.heroExploreLabel ? <HeroAction href={feature ? "#selected-work" : "/work"}>{settings.heroExploreLabel}</HeroAction> : null}
+            {contact && settings?.contactCtaLabel ? <HeroAction href={contact.destination} secondary>{settings.contactCtaLabel}</HeroAction> : null}
+          </div> : null}
         </div>
-        <div className="col-span-full pb-8 md:col-span-2 lg:col-span-4 lg:pb-14"><TechnicalField /></div>
+        <div className="col-span-full pb-10 md:col-span-3 lg:col-span-5 lg:pb-14">
+          {profile?.portrait ? <HeroPortrait image={profile.portrait} /> : <TechnicalField />}
+        </div>
       </Container>
       <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-border" />
     </section>
@@ -134,6 +174,7 @@ export function HomePage({ settings, profile, projects, experience, research, th
         <p className="type-metadata col-span-full text-accent-soft lg:col-span-3">06 / {settings.sectionCopy.contact?.heading ?? settings.contactCtaLabel}</p>
         <div className="col-span-full mt-8 lg:col-span-7 lg:mt-0"><h2 id="contact-title" className="text-h2 text-balance">{settings.contactCtaHeading}</h2>{settings.contactSupportingCopy ? <p className="mt-5 max-w-reading text-body-lg text-accent-soft">{settings.contactSupportingCopy}</p> : null}</div>
         <div className="col-span-full mt-8 lg:col-span-2 lg:text-right"><a href={contact.destination} className="inline-flex min-h-target items-center border-b border-accent-soft font-medium">{settings.contactCtaLabel}<span className="ml-2" aria-hidden="true">↗</span></a></div>
+        {socialProfiles.length ? <div className="col-span-full mt-7 lg:col-start-4"><SocialLinks links={socialProfiles} tone="inverse" /></div> : null}
       </Container>
     </section> : null}
   </main>;

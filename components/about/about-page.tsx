@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/container";
 import { MediaRenderer } from "@/components/ui/media-renderer";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tag } from "@/components/ui/tag";
+import { SocialLinks } from "@/components/ui/social-links";
 import type { PublicCredential, PublicPageSettings, PublicProfile, PublicProject } from "@/lib/domain/content";
 import { formatDateRange, formatDecimal, formatPreciseDate, uniqueByKey } from "@/lib/presentation/content";
 
@@ -73,8 +74,8 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
 
         <AboutSection index="08" title={sections[7]}>
           {contactLinks.length || socialLinks.length ? <div className="grid gap-8 md:grid-cols-2">
-            {contactLinks.length ? <div><p className="type-metadata mb-3 text-foreground-secondary">CONTACT</p><ul>{contactLinks.map((item) => <li key={item.id}><ArrowLink href={item.destination}>{item.label}</ArrowLink></li>)}</ul></div> : null}
-            {socialLinks.length ? <div><p className="type-metadata mb-3 text-foreground-secondary">ELSEWHERE</p><ul>{socialLinks.map((item) => <li key={item.id}><ArrowLink href={item.destination}>{item.label}</ArrowLink></li>)}</ul></div> : null}
+            {contactLinks.length ? <div><p className="type-metadata mb-3 text-foreground-secondary">CONTACT</p><SocialLinks links={contactLinks} /></div> : null}
+            {socialLinks.length ? <div><p className="type-metadata mb-3 text-foreground-secondary">ELSEWHERE</p><SocialLinks links={socialLinks} /></div> : null}
           </div> : <p className="text-foreground-secondary">Public contact details have not been added yet.</p>}
         </AboutSection>
       </>}
