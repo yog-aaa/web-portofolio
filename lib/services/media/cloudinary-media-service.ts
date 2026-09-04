@@ -4,11 +4,12 @@ import { randomUUID } from "node:crypto";
 import type { MediaAsset, MediaDeletionResult, MediaImageData } from "../../domain/media";
 import type { MediaDeletion, MediaRecord } from "../../repositories/media";
 import { MediaRepository } from "../../repositories/media";
-import { mediaUploadFields, parseMediaId, validateImage, type MediaUploadFields } from "../../validation/media";
+import { mediaMetadataInput, mediaUploadFields, parseMediaId, validateImage, type MediaUploadFields } from "../../validation/media";
 import type { OwnerPermission } from "../../auth/authorization";
 import type { MediaGateway } from "./cloudinary-gateway";
 import { MediaError } from "./errors";
 import type { MediaService } from "./media-service";
+import type { MediaMetadataInput } from "./media-service";
 
 type Authorize = (permission: OwnerPermission) => Promise<unknown>;
 
@@ -62,6 +63,12 @@ export class CloudinaryMediaService implements MediaService {
     private readonly authorize: Authorize,
   ) {}
 
+  async list() {
+    await this.authorize("cms:read");
+    const [rows, references] = await Promise.all([this.repository.list(), this.repository.referencesForAll()]);
+    return rows.map((row) => ({ ...toDomain(row), references: references.get(row.id) ?? [] }));
+  }
+
   async upload(file: File, input: MediaUploadFields): Promise<MediaAsset> {
     await this.authorize("cms:write");
     const parsed = mediaUploadFields.safeParse(input);
@@ -106,6 +113,24 @@ export class CloudinaryMediaService implements MediaService {
       if (error instanceof MediaError) throw error;
       throw new MediaError("UPLOAD_FAILED", "Image upload failed. Check its status before retrying.", 502, id);
     }
+  }
+
+  async updateMetadata(id: string, input: MediaMetadataInput): Promise<MediaAsset> {
+    await this.authorize("cms:write");
+    const mediaId = parseMediaId(id);
+    const parsed = mediaMetadataInput.safeParse(input);
+    if (!parsed.success) throw new MediaError("INVALID_FIELDS", "Check the alt text and caption.");
+    const current = await this.required(mediaId);
+    if (current.access === "public" && !parsed.data.isDecorative && !parsed.data.altText) {
+      throw new MediaError("ALT_REQUIRED", "Public informative images require alt text.");
+    }
+    const updated = await this.repository.updateMetadata(mediaId, {
+      altText: parsed.data.isDecorative ? null : parsed.data.altText || null,
+      caption: parsed.data.caption || null,
+      isDecorative: parsed.data.isDecorative,
+      expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
+    });
+    return toDomain(updated);
   }
 
   async retrieveMetadata(id: string): Promise<MediaAsset> {

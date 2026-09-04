@@ -2,20 +2,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { ThoughtArticle } from "@/components/thoughts/thought-article";
+import { JsonLd } from "@/components/seo/json-ld";
+import { detailMetadata, unavailableMetadata } from "@/lib/presentation/metadata";
+import { thoughtStructuredData } from "@/lib/presentation/structured-data";
 import { getProfile, getPublishedThoughts, getSiteSettings, getThoughtBySlug } from "@/lib/queries/public-content";
 
 export async function generateMetadata({ params }: PageProps<"/thoughts/[slug]">): Promise<Metadata> {
   await connection();
   const { slug } = await params;
   const [thought, settings] = await Promise.all([getThoughtBySlug(slug), getSiteSettings()]);
-  if (!thought) return {};
+  if (!thought) return unavailableMetadata;
   const title = thought.seoTitle ?? `${thought.title} — ${settings?.brandName ?? "YOGAAA."}`;
   const description = thought.seoDescription ?? thought.excerpt;
   const social = thought.media.find((item) => item.role === "social") ?? thought.cover;
-  return { title, description, openGraph: social ? { title, description, type: "article",
-    publishedTime: thought.publishedAt, modifiedTime: thought.publicUpdatedAt,
-    images: [{ url: social.image.src, width: social.image.width, height: social.image.height, alt: social.image.alt }] }
-    : { title, description, type: "article", publishedTime: thought.publishedAt, modifiedTime: thought.publicUpdatedAt } };
+  return detailMetadata({ title, description, canonicalPath: `/thoughts/${thought.slug}`,
+    socialImage: social?.image, publishedAt: thought.publishedAt, modifiedAt: thought.publicUpdatedAt });
 }
 
 export default async function ThoughtRoute({ params }: PageProps<"/thoughts/[slug]">) {
@@ -26,5 +27,8 @@ export default async function ThoughtRoute({ params }: PageProps<"/thoughts/[slu
   const index = thoughts.findIndex((item) => item.id === thought.id);
   const previous = index >= 0 ? thoughts[index + 1] ?? null : null;
   const next = index > 0 ? thoughts[index - 1] : null;
-  return <ThoughtArticle thought={thought} profile={profile} previous={previous} next={next} />;
+  return <>
+    <JsonLd data={thoughtStructuredData(thought, profile)} />
+    <ThoughtArticle thought={thought} profile={profile} previous={previous} next={next} />
+  </>;
 }

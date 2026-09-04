@@ -21,6 +21,13 @@ export const mediaUploadFields = z.object({
 }).strict().refine((value) => value.access !== "public" || value.isDecorative || value.altText.length > 0);
 export type MediaUploadFields = z.input<typeof mediaUploadFields>;
 
+export const mediaMetadataInput = z.object({
+  altText: z.string().trim().max(500),
+  caption: z.string().trim().max(2000),
+  isDecorative: z.boolean(),
+  expectedUpdatedAt: z.string().datetime(),
+}).strict();
+
 export function parseMediaId(id: unknown): string {
   const result = z.uuid().safeParse(id);
   if (!result.success) throw new MediaError("INVALID_ID", "Invalid media ID.");

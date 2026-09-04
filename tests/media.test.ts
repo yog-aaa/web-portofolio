@@ -89,6 +89,22 @@ test("media uploads are authorized, sanitized, persisted, rendered and metadata-
   assert.equal(stored.availability, "ready");
   assert.equal(stored.bytes! < source.length, true, "sanitization strips metadata before persistence");
   assert.equal((await f.service.getPublicImage(asset.id))?.alt, "Portrait");
+  const library = await f.service.list();
+  assert.equal(library[0].id, asset.id);
+  assert.deepEqual(library[0].references, []);
+  f.deny();
+  await assert.rejects(f.service.list(), (error: unknown) => error instanceof AuthorizationError);
+  await assert.rejects(f.service.updateMetadata(asset.id, { altText: "Denied", caption: "",
+    isDecorative: false, expectedUpdatedAt: asset.updatedAt }), (error: unknown) => error instanceof AuthorizationError);
+  f.allow();
+  const updated = await f.service.updateMetadata(asset.id, { altText: "Updated portrait", caption: "Owner portrait",
+    isDecorative: false, expectedUpdatedAt: asset.updatedAt });
+  assert.equal(updated.altText, "Updated portrait");
+  assert.equal(updated.caption, "Owner portrait");
+  await assert.rejects(f.service.updateMetadata(asset.id, { altText: "Stale", caption: "",
+    isDecorative: false, expectedUpdatedAt: asset.updatedAt }), denied("STALE_MEDIA"));
+  await assert.rejects(f.service.updateMetadata(asset.id, { altText: "", caption: "",
+    isDecorative: false, expectedUpdatedAt: updated.updatedAt }), denied("ALT_REQUIRED"));
   await f.service.retrieveMetadata(asset.id);
   assert.equal(f.gateway.metadataReads, 1);
 

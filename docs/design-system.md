@@ -2,8 +2,9 @@
 
 Status: accepted visual foundation for V1. Token values and base utilities are
 implemented in [app/globals.css](../app/globals.css). Component patterns below
-govern the implemented public pages and core CMS screens; theme persistence,
-settings screens, and a separately packaged component library remain pending.
+govern the implemented public pages and owner CMS; server-rendered theme
+persistence and settings screens are implemented. A separately packaged component
+library remains pending.
 
 Follow [AGENTS.md](../AGENTS.md), the [architecture contract](architecture.md),
 and the [portfolio PRD](portfolio-prd.md). This document owns visual decisions,
@@ -34,7 +35,7 @@ Experimental work belongs in real projects and media, not invented decoration.
 ```mermaid
 flowchart TD
   A[Code-owned Calm Blue defaults] --> C[Semantic CSS variables]
-  B[Future validated ThemeSettings allowlist] --> C
+  B[Validated ThemeSettings allowlist] --> C
   C --> D[Tailwind 4 inline color aliases]
   D --> E[Public and owner UI]
   F[Code-owned type, layout, focus and motion] --> E
@@ -305,29 +306,30 @@ Do not use invented certificates, fake project screenshots, or stock people
 as identity content. Missing media should omit the region or use an explicit
 editorial placeholder in private previews.
 
-## 10. Future CMS theme integration
+## 10. CMS theme integration
 
 V1 is a single light Calm Blue theme. No OS-driven dark palette or theme-mode
-switcher is defined. The old root dark-color override has been removed; starter
-page utility classes remain untouched until page implementation.
+switcher is defined.
 
-The PRD permits exactly these CMS color keys in V1: `--accent`,
-`--accent-foreground`, `--accent-soft`, and `--accent-secondary`. All other
-colors, type, spacing, grid, breakpoints, focus, radii, and motion remain
-code-owned. This task supplies the CSS contract only; it adds no database,
-API, theme editor, client provider, or persistence.
+The CMS permits these color keys in V1: `--background`, `--surface`,
+`--foreground`, `--border`, `--accent`, `--accent-foreground`, `--accent-soft`,
+and `--accent-secondary`. All other colors, type, spacing, grid, breakpoints,
+focus, radii, and motion remain code-owned. When an override is active, code maps
+the validated foreground to secondary text, control borders, and focus treatment;
+it maps the validated accent to deep-accent text and the soft accent to very-soft
+surfaces. This keeps non-editable semantic roles coherent with the selected palette.
 
-The future flow is owner authentication and authorization → validate an exact
+The implemented flow is owner authentication and authorization → validate an exact
 allowlist of six-digit hex values → verify supported contrast pairs → save the
 validated settings → revalidate affected public output. Serialize approved
 values into server-rendered root CSS variables. Invalid or absent settings use
 the complete safe defaults. Do not accept arbitrary CSS, selectors, URLs,
 Tailwind classes, JavaScript, or layout values.
 
-Validation must include accent-foreground on accent (4.5:1), foreground and
-secondary foreground on accent-soft (4.5:1), and any essential accent-colored
-control against each supported surrounding surface (3:1). Accent-secondary is
-decorative only. Check every additional pairing introduced by a component,
+Validation includes accent-foreground on accent (4.5:1), foreground on the page,
+surface, and accent-soft backgrounds (4.5:1), accent against page and surface
+backgrounds (4.5:1 because it is also link text), and accent-secondary against
+page and surface backgrounds (3:1 for non-text emphasis). Check every additional pairing introduced by a component,
 including its hover/active states. Keep focus colors code-owned and do not
 introduce opacity modifiers that bypass these checks. A preview must use the
 same semantic variables as the public UI, without changing published settings

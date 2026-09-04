@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { productionSiteUrl } from "@/lib/presentation/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,10 +14,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: (() => {
-    try { return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"); }
-    catch { return new URL("http://localhost:3000"); }
-  })(),
+  metadataBase: productionSiteUrl,
+  title: { default: "Yoga Agustiansyah — Software, AI & Research", template: "%s — YOGAAA." },
+  description: "The personal website of Yoga Agustiansyah, featuring software, artificial intelligence, and research work.",
+  applicationName: "YOGAAA.",
+  authors: [{ name: "Yoga Agustiansyah", url: productionSiteUrl }],
+  creator: "Yoga Agustiansyah",
+  publisher: "Yoga Agustiansyah",
+  alternates: { canonical: productionSiteUrl },
+  openGraph: {
+    type: "website",
+    url: productionSiteUrl,
+    siteName: "YOGAAA.",
+    title: "Yoga Agustiansyah — Software, AI & Research",
+    description: "The personal website of Yoga Agustiansyah, featuring software, artificial intelligence, and research work.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Yoga Agustiansyah — Software, AI & Research",
+    description: "The personal website of Yoga Agustiansyah, featuring software, artificial intelligence, and research work.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

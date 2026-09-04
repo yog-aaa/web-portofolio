@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { initialAdminActionState, type AdminActionState } from "@/lib/validation/admin-content";
 
@@ -10,8 +10,12 @@ export function AdminActionForm({ action, children, className = "space-y-8" }: {
   action: Action; children: React.ReactNode; className?: string;
 }) {
   const [state, formAction] = useActionState(action, initialAdminActionState);
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (state.status === "error") errorRef.current?.focus();
+  }, [state]);
   return <form action={formAction} className={className}>
-    {state.status === "error" ? <div role="alert" className="border-l-2 border-red-700 bg-red-50 px-4 py-3 text-caption text-red-900">
+    {state.status === "error" ? <div ref={errorRef} tabIndex={-1} role="alert" className="border-l-2 border-red-700 bg-red-50 px-4 py-3 text-caption text-red-900">
       <p className="font-medium">Could not save</p><p className="mt-1">{state.message}</p>
       {state.fields ? <ul className="mt-2 list-disc pl-5">{Object.entries(state.fields).flatMap(([field, messages]) => messages.map((message) => <li key={`${field}-${message}`}>{message}</li>))}</ul> : null}
     </div> : null}

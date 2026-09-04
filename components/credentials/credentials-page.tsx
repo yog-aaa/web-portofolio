@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PublicCredential, PublicPageSettings } from "@/lib/domain/content";
 import { formatPreciseDate, normalizeLabel } from "@/lib/presentation/content";
 import { ArchiveFilter, type FilterOption } from "@/components/ui/archive-filter";
@@ -73,7 +74,7 @@ export function CredentialsPage({ credentials, pageSettings, activeFilter, curre
       </li>)}</ol> : <div className="border-b border-border py-16 md:py-24">
         <p className="max-w-reading text-body-lg text-foreground-secondary">{pageSettings?.emptyStateCopy ??
           (activeFilter === "all" ? "No public credentials are available yet." : "No public credentials match this filter.")}</p>
-        {activeFilter !== "all" ? <a href="/credentials" className="mt-5 inline-flex min-h-target items-center font-medium text-accent-deep underline underline-offset-4">Clear filter</a> : null}
+        {activeFilter !== "all" ? <Link href="/credentials" className="mt-5 inline-flex min-h-target items-center font-medium text-accent-deep underline underline-offset-4">Clear filter</Link> : null}
       </div>}
       <ArchivePagination pathname="/credentials" currentPage={page} totalPages={totalPages} filter={activeFilter} />
     </Container>

@@ -12,6 +12,7 @@ const notices: Record<string, string> = {
   restore: "Content restored to a private draft.", unpublish: "Content returned to draft.",
   feature: "Content added to the featured selection.", unfeature: "Content removed from the featured selection.",
   saved: "Changes saved.", deleted: "Entry deleted.",
+  "theme-reset": "Theme reset to the Calm Blue defaults.",
   "taxonomy-saved": "Taxonomy option added.",
 };
 

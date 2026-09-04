@@ -34,4 +34,5 @@ export type MediaAsset = {
 };
 
 export type MediaReference = { source: string; count: number };
+export type MediaLibraryAsset = MediaAsset & { references: MediaReference[] };
 export type MediaDeletionResult = { id: string; status: "deleted" | "pending" };

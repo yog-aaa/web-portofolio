@@ -190,5 +190,12 @@ export function actionError(error: unknown): AdminActionState {
     };
     return { status: "error", message: messages[error.message] ?? "The content could not be saved." };
   }
+  if (error instanceof Error && error.message === "SETTINGS_STALE") {
+    return { status: "error", message: "These settings changed in another tab. Reload before saving again." };
+  }
+  if (error instanceof Error && error.message.startsWith("SETTINGS_SOCIAL_FORMAT:")) {
+    const line = error.message.split(":")[1];
+    return { status: "error", message: `Social link line ${line} must use Label | https://example.com.` };
+  }
   return { status: "error", message: "The content could not be saved. Please try again." };
 }

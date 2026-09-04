@@ -7,7 +7,7 @@ import { getPageSettings, getPublishedResearch, getSiteSettings } from "@/lib/qu
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const [page, settings] = await Promise.all([getPageSettings("/research"), getSiteSettings()]);
-  return pageMetadata(page, settings, "Research");
+  return pageMetadata(page, settings, "Research", "/research");
 }
 
 export default async function ResearchRoute({ searchParams }: PageProps<"/research">) {

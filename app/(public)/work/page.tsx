@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/presentation/metadata";
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const [page, settings] = await Promise.all([getPageSettings("/work"), getSiteSettings()]);
-  return pageMetadata(page, settings, "Work");
+  return pageMetadata(page, settings, "Work", "/work");
 }
 
 export default async function WorkPage({ searchParams }: PageProps<"/work">) {

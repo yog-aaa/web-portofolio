@@ -3,8 +3,23 @@
 The provider-neutral `MediaService` is the only application boundary for managed
 media. `CloudinaryMediaService` coordinates authorization, validation, persistence,
 and the server-only `CloudinaryGateway`. Public/domain UI imports neither the
-Cloudinary SDK nor provider IDs. The full `/admin/media` library interface remains
-future work.
+Cloudinary SDK nor provider IDs. The owner library at `/admin/media` uses this
+service for every read and mutation.
+
+## Owner media library
+
+The responsive media workspace uploads, filters, browses, selects, and previews
+managed images. It displays category, access, readiness, dimensions, MIME type,
+and byte size. Selecting an asset exposes its application UUID and current
+reference summary; Cloudinary public IDs and signed private URLs never enter the
+client DTO.
+
+`GET /api/admin/media` returns the provider-neutral library. `PATCH
+/api/admin/media/[id]` updates alt text, caption, and the decorative flag with a
+previously read `updatedAt` value, refusing stale tabs. Public informative images
+must retain alt text. Metadata requests are same-origin, JSON-only, size-bounded,
+strictly validated, and owner-authorized. Changes invalidate the public layout
+because asset-level alternatives may be used by public references.
 
 ## Upload contract
 

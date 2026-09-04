@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/presentation/metadata";
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const [page, settings] = await Promise.all([getPageSettings("/credentials"), getSiteSettings()]);
-  return pageMetadata(page, settings, "Credentials");
+  return pageMetadata(page, settings, "Credentials", "/credentials");
 }
 
 export default async function CredentialsRoute({ searchParams }: PageProps<"/credentials">) {

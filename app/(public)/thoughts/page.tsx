@@ -7,7 +7,7 @@ import { getPageSettings, getPublishedThoughts, getSiteSettings } from "@/lib/qu
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const [page, settings] = await Promise.all([getPageSettings("/thoughts"), getSiteSettings()]);
-  return pageMetadata(page, settings, "Thoughts");
+  return pageMetadata(page, settings, "Thoughts", "/thoughts");
 }
 
 export default async function ThoughtsRoute({ searchParams }: PageProps<"/thoughts">) {

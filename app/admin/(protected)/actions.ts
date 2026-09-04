@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { publicContentTags } from "@/lib/queries/content-cache";
 import type { AdminContentService } from "@/lib/services/admin-content";
 import { getAdminContentService } from "@/lib/services/admin-content-server";
 import { actionError, checkbox, credentialInputSchema, deleteCollectionInputSchema,
@@ -15,6 +16,7 @@ const nullableNumber = (input: string) => input.trim() ? Number(input) : null;
 const unique = (values: string[]) => [...new Set(values)];
 
 function refresh(type: "projects" | "research" | "thoughts" | "experience" | "credentials", slug?: string | null) {
+  updateTag(publicContentTags[type]);
   revalidatePath("/");
   revalidatePath(`/admin/${type}`);
   const publicPath = type === "projects" ? "/work" : `/${type}`;

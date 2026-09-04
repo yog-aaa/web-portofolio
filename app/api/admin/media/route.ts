@@ -3,6 +3,15 @@ import { mediaFailure, mediaResponse, parseUploadRequest, requireSameOrigin } fr
 
 export const runtime = "nodejs";
 
+export async function GET(request: Request) {
+  try {
+    const service = await getMediaService(request.headers);
+    return mediaResponse({ assets: await service.list() });
+  } catch (error) {
+    return mediaFailure(error);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const service = await getMediaService(request.headers);

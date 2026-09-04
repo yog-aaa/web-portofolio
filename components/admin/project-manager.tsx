@@ -51,7 +51,7 @@ function ProjectEditor({ item, categories, technologies, media }: {
         <div className="mt-4 space-y-5"><TextField name="seoTitle" label="SEO title" value={draft?.seoTitle} /><TextAreaField name="seoDescription" label="SEO description" value={draft?.seoDescription} rows={3} /></div></fieldset>
       <div className="sticky bottom-4 z-20 flex flex-wrap gap-3 border border-border-control bg-surface/95 p-3 shadow-sm backdrop-blur">
         <SubmitButton name="intent" value="save" tone="secondary">Save private draft</SubmitButton><SubmitButton name="intent" value="publish">{item?.status === "published" ? "Publish changes" : "Publish"}</SubmitButton>
-        {item?.status === "published" && item.publicSlug ? <Link href={`/work/${item.publicSlug}`} target="_blank" className="inline-flex min-h-target items-center px-3 text-caption text-accent-deep underline underline-offset-4">View published ↗</Link> : null}
+        {item?.status === "published" && item.publicSlug ? <Link href={`/work/${item.publicSlug}`} target="_blank" rel="noreferrer" aria-label="View published project (opens in a new tab)" className="inline-flex min-h-target items-center px-3 text-caption text-accent-deep underline underline-offset-4">View published ↗</Link> : null}
       </div>
     </AdminActionForm>
   </section>;

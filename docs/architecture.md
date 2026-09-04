@@ -23,13 +23,13 @@ of editable information; code owns its safe delivery and presentation.
 
 | Responsibility | Locked choice | Current state |
 | --- | --- | --- |
-| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; public website and core owner CMS routes implemented |
-| Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, tokens, public pages, and responsive owner workspace present |
+| Application | Next.js 16 App Router, React 19, TypeScript | Installed: Next.js 16.3.4, React 19.2.8, TypeScript 5.9.3; public website and owner CMS routes implemented |
+| Styling and fonts | Tailwind CSS 4, Geist, Geist Mono | Tailwind 4.3.3, tokens, public pages, responsive owner workspace, and server-rendered theme overrides present |
 | Package management | npm | Existing package-lock.json; retain it |
 | Database | Aiven PostgreSQL | Schema/migrations and Base64 CA trust support implemented; verified live connection and migration pending |
 | Persistence | Drizzle ORM, Drizzle Kit, postgres.js (`postgres` package) | Installed; typed schema, lazy client, CLI config, and initial migration present |
 | Authentication | Better Auth, email/password | Drizzle adapter, login/logout, owner guards, password change, and CLI bootstrap implemented; live provisioning pending |
-| Media | Cloudinary, server-authorized uploads | Owner-only upload/metadata/private-delivery/delete service implemented; media-library UI and live integration pending |
+| Media | Cloudinary, server-authorized uploads | Owner-only upload/browse/metadata/private-delivery/reference-safe deletion and media-library UI implemented; live account verification pending |
 | Hosting | Vercel | Deployment target; not configured by this task |
 
 Do not replace these choices without an explicit future requirement. Retain the
@@ -41,8 +41,8 @@ Instructions, architecture, the environment template, and the [formal V1 PRD](po
 are documented. The [design system](design-system.md) and foundational CSS tokens
 are also in place. [Backend infrastructure](database.md) now supplies dependencies,
 environment validation, database/Cloudinary services, and module boundaries.
-Production schema/provisioning verification, profile/settings, the media-library
-screen, and deployment remain pending. Core content-management screens are
+Production schema/provisioning verification and deployment remain pending. Content,
+site settings, semantic theme, and media-management screens are
 implemented as documented in [cms.md](cms.md). Auth and media tests use isolated
 PostgreSQL via PGlite; Cloudinary behavior is verified at a
 mocked SDK boundary, not against the configured account. The PRD supplies product behavior
@@ -186,9 +186,11 @@ Enforce publication filtering in public repositories/queries, not only in JSX.
 The public content repository and query facade are implemented with explicit
 presentation selections for site/theme/profile, projects, experience, research,
 Thoughts, and credentials. They filter editorial status, collection visibility,
-published relationship slots, and ready public media inside the repository. No
-query cache is enabled yet; add cache lifetimes and tags together with the future
-publication/revalidation services. See [public content queries](content-queries.md).
+published relationship slots, and ready public media inside the repository. The
+query facade now persists public read models in the Next.js Data Cache with bounded
+freshness and content-specific tags. Admin mutations expire the corresponding tags
+and invalidate affected route paths after a successful database commit. See
+[public content queries](content-queries.md).
 
 ## 6. Aiven PostgreSQL
 
@@ -446,9 +448,10 @@ or unresolved placeholders; omit optional unknowns from public views.
 
 Cache published public read models at deliberate query/service boundaries. Never
 place session checks, admin data, or private previews in a shared public cache.
-Drizzle queries are not assumed to become persistently cached automatically.
-Select and document the Next.js cache mode during implementation; the starter does
-not currently enable Cache Components.
+The application currently uses `unstable_cache` because Cache Components are not
+enabled. React `cache` additionally deduplicates calls within a server render. Each
+public query has a 24-hour safety revalidation and a content-specific invalidation
+tag; routine CMS mutations expire relevant tags immediately.
 
 Associate caches with content identity, collection, and site-settings dependencies.
 After a successful mutation, invalidate the affected detail/collection caches and
@@ -470,7 +473,7 @@ actual Vercel cache configuration, including failure behavior.
 
 Read `node_modules/next/dist/docs/01-app/01-getting-started/09-revalidating.md`,
 the `updateTag`/`revalidateTag` API guides, and the guide for the selected cache mode
-before implementing this policy. Environment/public URL changes and code changes
+when changing this policy. Environment/public URL changes and code changes
 may still require deployment; the no-redeployment promise concerns routine CMS data.
 
 ## 15. Future extensibility and documentation ownership

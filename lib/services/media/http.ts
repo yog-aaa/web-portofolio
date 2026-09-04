@@ -3,7 +3,7 @@ import "server-only";
 import { AuthorizationError } from "../../auth/authorization";
 import { privateResponse } from "../../auth/http";
 import { parseAuthEnvironment } from "../../validation/environment";
-import { MAX_MULTIPART_BYTES, mediaUploadFields, readBoundedBody } from "../../validation/media";
+import { MAX_MULTIPART_BYTES, mediaMetadataInput, mediaUploadFields, readBoundedBody } from "../../validation/media";
 import { MediaError } from "./errors";
 
 export function mediaResponse(body: unknown, init?: ResponseInit) {
@@ -66,4 +66,17 @@ export async function parseUploadRequest(request: Request) {
   });
   if (!parsed.success) throw new MediaError("INVALID_FIELDS", "Check the asset category, access, alt text, and caption.");
   return { file, fields: parsed.data };
+}
+
+export async function parseMetadataRequest(request: Request) {
+  if (request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
+    throw new MediaError("CONTENT_TYPE", "Use application/json.", 415);
+  }
+  const body = await readBoundedBody(request.body, 8 * 1024);
+  let input: unknown;
+  try { input = JSON.parse(body.toString("utf8")); }
+  catch { throw new MediaError("INVALID_FORM", "The metadata form is invalid."); }
+  const parsed = mediaMetadataInput.safeParse(input);
+  if (!parsed.success) throw new MediaError("INVALID_FIELDS", "Check the alt text and caption.");
+  return parsed.data;
 }

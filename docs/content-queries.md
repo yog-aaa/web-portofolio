@@ -65,10 +65,14 @@ detail records where presentation/metadata needs them. Administrative reads and
 future mutations must use separate modules and still pass through authentication,
 owner authorization, and validation.
 
-No persistent Next.js data cache is enabled at this stage. React request memoization
-deduplicates identical shell/page reads within one server render. Adding `use cache`,
-cache lifetimes, and tags before publication mutations exist would leave no complete
-invalidation path. Introduce them with the publishing services described in the architecture.
+The production query exports use Next.js `unstable_cache` because Cache Components
+are not enabled. Published DTOs persist across requests for up to 24 hours and use
+separate tags for site copy, page settings, theme, profile, Projects, Experience,
+Research, Thoughts, and Credentials. React request memoization also deduplicates
+identical shell/page/metadata reads within one render. Successful Server Actions use
+`updateTag`; media metadata Route Handlers use immediate `revalidateTag` expiry.
+Path invalidation remains in place for affected archives, details, the homepage,
+metadata, and sitemap output. Private/admin reads never enter these shared caches.
 
 ## Development seed
 

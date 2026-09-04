@@ -66,8 +66,10 @@ imports only pure validation, never the Next.js runtime client.
 The initial migration is [0000_initial_schema.sql](../drizzle/0000_initial_schema.sql),
 with its snapshot and journal under `drizzle/meta/`. It creates 29 tables and six
 enums. [0001_auth_rate_limit.sql](../drizzle/0001_auth_rate_limit.sql) adds Better Auth's
-`rate_limit` table, and [0002_media_service.sql](../drizzle/0002_media_service.sql)
-adds media deletion jobs/category constraints, bringing the total to 31. No rows,
+`rate_limit` table, [0002_media_service.sql](../drizzle/0002_media_service.sql)
+adds media deletion jobs/category constraints, and
+[0003_theme_settings.sql](../drizzle/0003_theme_settings.sql) adds the
+approved neutral theme override columns. The total remains 31 tables. No rows,
 personal facts, accounts, passwords, or bootstrap data are seeded by migrations.
 UUIDs are database-generated for content/association records. Fixed singletons use
 `smallint` ID 1 with a check constraint; auth IDs remain Better Auth-managed text.
@@ -79,7 +81,7 @@ This uses built-in `gen_random_uuid()` (PostgreSQL 13+), with no extension migra
 | `rate_limit` | Better Auth request counters with unique key, count, and epoch-millisecond timestamp |
 | `owner_binding` | At most one server-controlled pointer to an existing Better Auth user; no duplicate user information |
 | `profile` | Public singleton identity, biography Markdown, optional portrait and resume |
-| `theme_settings` | Singleton with only four nullable hex overrides; null uses code defaults |
+| `theme_settings` | Singleton with eight nullable, validated semantic color overrides; null uses code defaults |
 | `site_settings` | Singleton referencing Profile, ThemeSettings, primary SocialLink, and default social image |
 | `site_page_settings` | At most seven fixed public route overrides with concrete intro/empty/SEO fields and a media FK |
 | `education`, `social_links` | Profile collections with visibility/order; education stores paired GPA value/scale |
@@ -405,6 +407,10 @@ private byte delivery, persistence, reconciliation, and safe deletion. It expose
 provider-neutral read models; UI code does not receive Cloudinary IDs, signed URLs,
 SDK objects, or credentials. Migration `0002_media_service.sql` adds the asset
 category and durable deletion jobs. See [media operations](media.md).
+
+Migration `0003_theme_settings.sql` adds the four neutral theme overrides
+(`background`, `surface`, `foreground`, and `border`) alongside the existing
+accent allowlist. All eight columns remain nullable so null restores code defaults.
 
 Better Auth's core schema and protected auth endpoints are implemented. Public signup
 is disabled; no production owner has been provisioned by this work. The safe

@@ -1,8 +1,8 @@
 # Owner CMS
 
 The authenticated YOGAAA. CMS is a single-owner workspace at `/admin`. It covers
-Projects, Experience, Research, Thoughts, and Credentials. Profile/site/theme and
-the full media-library screens remain separate planned surfaces. Authentication,
+editorial content, credentials, media, site copy, contact details, and approved
+theme colors. Authentication,
 authorization, and database boundaries continue to follow
 [architecture.md](architecture.md), [authentication.md](authentication.md), and
 [database.md](database.md).
@@ -17,6 +17,9 @@ authorization, and database boundaries continue to follow
 | `/admin/research` | Draft, preview, publish, archive, feature, attach technologies/figures/resources, and SEO |
 | `/admin/thoughts` | Draft, preview, publish, archive, category, cover, references, and SEO |
 | `/admin/credentials` | Create, edit, order, show/hide, attach previews, verify, and delete credentials |
+| `/admin/media` | Upload, browse, select, describe, inspect references, and safely delete Cloudinary assets |
+| `/admin/settings` | Manage identity, homepage copy, location, contact email, social links, SEO default, and footer |
+| `/admin/settings/theme` | Preview, save, and reset validated semantic color overrides |
 
 Collection pages use a compact editorial list beside the active editor on wide
 screens and a single flow on smaller screens. `?new=1` opens a blank editor;
@@ -28,7 +31,16 @@ Forms use Server Actions. Each mutation authenticates and authorizes `cms:write`
 parses server-owned Zod schemas, and calls the application service. Client state is
 used only for feedback and Markdown preview; hidden status or IDs never grant
 permission. Validation returns a private, non-sensitive message. Successful writes
-refresh the affected admin collection, public archive/detail pattern, and homepage.
+expire the affected public content tag and refresh the admin collection, public
+archive/detail pattern, homepage, metadata, and sitemap dependencies.
+
+Site and theme writes follow the same boundaries and reject stale forms. Site
+settings replace the owner-managed visible contact/social list transactionally;
+links are HTTPS-only and an explicit contact email becomes a `mailto:` contact
+record. Theme writes accept only eight six-digit hex tokens and validate AA
+contrast for primary text and accent-button text. Resetting stores null overrides
+so the code-owned Calm Blue defaults remain authoritative. The public layout
+receives the selected values during server rendering, avoiding a client theme flash.
 
 ## Editorial lifecycle
 
@@ -66,12 +78,12 @@ dates remain `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`. Structured link fields use one
 in the documented strict Markdown frontmatter convention; the editor strips it
 from the body field and recreates it safely.
 
-Editors list only ready image assets from the provider-neutral media store. Drafts
+Editors list only ready image assets from the provider-neutral media store. The
+Media workspace uses the same abstraction for uploads, metadata, and deletion. Drafts
 may reference ready private assets, but publication and visible Credentials reject
 private media. Project galleries, Research figures, covers, and body Markdown media
 are indexed through real foreign-key relationships. Uploading and deleting assets
-continues through the authenticated MediaService API; a full `/admin/media` library
-screen is outside this implementation.
+continues through the authenticated MediaService API.
 
 ## Validation
 
@@ -80,3 +92,8 @@ loads `.env.local`. It verifies denied reads/writes, draft/public isolation,
 publication, stale-write rejection, withdrawal, private-media rejection, and
 visible collection CRUD. Run it together with `npm run test:auth`, TypeScript,
 ESLint, and the production build after CMS changes.
+
+`npm run test:settings` covers owner authorization, initial singleton creation,
+managed contact/social persistence, public delivery, stale-write refusal, theme
+contrast, and reset behavior. `npm run test:media` also covers the library read
+model and stale metadata editing.

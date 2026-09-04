@@ -31,7 +31,8 @@ export function SafeMarkdown({ markdown, className = "", media = [], measure = "
         ? `${codeClass} font-mono text-caption`
         : "rounded-control bg-accent-very-soft px-1.5 py-0.5 font-mono text-caption text-foreground"}>{children}</code>,
       pre: ({ children }) => <pre className="my-7 overflow-x-auto rounded-media bg-accent-deep p-5 text-accent-foreground">{children}</pre>,
-      table: ({ children }) => <div className="my-7 overflow-x-auto border-t border-border-control"><table className="w-full min-w-[32rem] border-collapse text-left text-caption">{children}</table></div>,
+      table: ({ children }) => <div tabIndex={0} role="region" aria-label="Scrollable data table"
+        className="my-7 overflow-x-auto border-t border-border-control"><table className="w-full min-w-[32rem] border-collapse text-left text-caption">{children}</table></div>,
       th: ({ children }) => <th className="bg-accent-very-soft border-b border-border-control px-3 py-2 font-medium text-foreground">{children}</th>,
       td: ({ children }) => <td className="border-b border-border px-3 py-3 align-top">{children}</td>,
       img: ({ src }) => {

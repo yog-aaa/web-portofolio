@@ -17,6 +17,15 @@ import type { PublicCredential, PublicEducation, PublicExperience, PublicMediaRe
 const published = (column: AnyColumn) => eq(column, "published");
 const iso = (value: Date) => value.toISOString();
 const validSlug = (value: string) => value.length <= 160 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+const validHttps = (value: string | null) => {
+  if (!value) return false;
+  try { return new URL(value).protocol === "https:"; }
+  catch { return false; }
+};
+const validPublicDestination = (value: string, purpose: PublicSocialLink["purpose"]) => {
+  if (purpose === "contact" && /^mailto:[^@\s?]+@[^@\s?]+\.[^@\s?]+$/i.test(value)) return true;
+  return validHttps(value);
+};
 
 const publicImageSelection = {
   id: mediaAssets.id,
@@ -72,7 +81,9 @@ export class PublicContentRepository {
   }
 
   async getThemeSettings(): Promise<PublicThemeSettings | null> {
-    const [row] = await this.db.select({ accent: themeSettings.accent,
+    const [row] = await this.db.select({ background: themeSettings.background,
+      surface: themeSettings.surface, foreground: themeSettings.foreground, border: themeSettings.border,
+      accent: themeSettings.accent,
       accentForeground: themeSettings.accentForeground, accentSoft: themeSettings.accentSoft,
       accentSecondary: themeSettings.accentSecondary }).from(themeSettings).where(eq(themeSettings.id, 1));
     return row ?? null;
@@ -86,7 +97,8 @@ export class PublicContentRepository {
       and(eq(profile.portraitMediaId, mediaAssets.id), publicReadyImage)).where(eq(profile.id, 1));
     if (!row) return null;
     const [educationRows, linkRows] = await Promise.all([this.publicEducation(), this.publicSocialLinks()]);
-    return { ...row, portrait: image(row.portrait), education: educationRows, socialLinks: linkRows };
+    return { ...row, resumeUrl: validHttps(row.resumeUrl) ? row.resumeUrl : null,
+      portrait: image(row.portrait), education: educationRows, socialLinks: linkRows };
   }
 
   async getPublishedProjects(): Promise<PublicProject[]> {
@@ -104,9 +116,10 @@ export class PublicContentRepository {
     if (!validSlug(slug)) return null;
     const [row] = await this.projectRows(and(published(projects.status), eq(projects.slug, slug)));
     if (!row) return null;
-    const [base] = await this.hydrateProjects([row]);
+    const media = this.media("project", [row.id]);
+    const [base] = await this.hydrateProjects([row], media);
     return { ...base, bodyMarkdown: row.bodyMarkdown!, seoTitle: row.seoTitle,
-      seoDescription: row.seoDescription, media: await this.media("project", [row.id]).then((map) => map.get(row.id) ?? []) };
+      seoDescription: row.seoDescription, media: (await media).get(row.id) ?? [] };
   }
 
   async getExperiences(): Promise<PublicExperience[]> {
@@ -118,7 +131,8 @@ export class PublicContentRepository {
     }).from(experiences).leftJoin(mediaAssets,
       and(eq(experiences.organizationMediaId, mediaAssets.id), publicReadyImage))
       .where(eq(experiences.isVisible, true)).orderBy(asc(experiences.sortOrder), asc(experiences.id));
-    return rows.map((row) => ({ ...row, organizationImage: image(row.organizationImage) }));
+    return rows.map((row) => ({ ...row, organizationUrl: validHttps(row.organizationUrl) ? row.organizationUrl : null,
+      organizationImage: image(row.organizationImage) }));
   }
 
   async getExperienceHighlight(): Promise<PublicExperience | null> {
@@ -131,7 +145,8 @@ export class PublicContentRepository {
       and(eq(experiences.organizationMediaId, mediaAssets.id), publicReadyImage))
       .where(and(eq(experiences.isVisible, true), eq(experiences.isFeatured, true)))
       .orderBy(asc(experiences.featuredOrder), asc(experiences.id)).limit(1);
-    return row ? { ...row, organizationImage: image(row.organizationImage) } : null;
+    return row ? { ...row, organizationUrl: validHttps(row.organizationUrl) ? row.organizationUrl : null,
+      organizationImage: image(row.organizationImage) } : null;
   }
 
   async getPublishedResearch(): Promise<PublicResearch[]> {
@@ -149,9 +164,10 @@ export class PublicContentRepository {
     if (!validSlug(slug)) return null;
     const [row] = await this.researchRows(and(published(research.status), eq(research.slug, slug)));
     if (!row) return null;
-    const [base] = await this.hydrateResearch([row]);
+    const media = this.media("research", [row.id]);
+    const [base] = await this.hydrateResearch([row], media);
     return { ...base, bodyMarkdown: row.bodyMarkdown!, seoTitle: row.seoTitle,
-      seoDescription: row.seoDescription, media: await this.media("research", [row.id]).then((map) => map.get(row.id) ?? []) };
+      seoDescription: row.seoDescription, media: (await media).get(row.id) ?? [] };
   }
 
   async getPublishedThoughts(): Promise<PublicThought[]> {
@@ -170,10 +186,11 @@ export class PublicContentRepository {
     if (!row) return null;
     const document = parseThoughtDocument(row.bodyMarkdown!);
     if (!document.bodyMarkdown.trim()) return null;
-    const [base] = await this.hydrateThoughts([row]);
+    const media = this.media("thought", [row.id]);
+    const [base] = await this.hydrateThoughts([row], media);
     return { ...base, bodyMarkdown: document.bodyMarkdown, seoTitle: row.seoTitle,
       seoDescription: row.seoDescription, references: row.references,
-      media: await this.media("thought", [row.id]).then((map) => map.get(row.id) ?? []) };
+      media: (await media).get(row.id) ?? [] };
   }
 
   async getCredentials(): Promise<PublicCredential[]> {
@@ -185,7 +202,8 @@ export class PublicContentRepository {
     }).from(credentials).leftJoin(mediaAssets,
       and(eq(credentials.previewMediaId, mediaAssets.id), publicReadyImage))
       .where(eq(credentials.isVisible, true)).orderBy(asc(credentials.sortOrder), asc(credentials.id));
-    return rows.map((row) => ({ ...row, previewImage: image(row.previewImage) }));
+    return rows.map((row) => ({ ...row, verificationUrl: validHttps(row.verificationUrl) ? row.verificationUrl : null,
+      previewImage: image(row.previewImage) }));
   }
 
   private projectRows(where = published(projects.status)) {
@@ -217,11 +235,12 @@ export class PublicContentRepository {
     }).from(thoughts).where(where);
   }
 
-  private async hydrateProjects(rows: Awaited<ReturnType<PublicContentRepository["projectRows"]>>): Promise<PublicProject[]> {
+  private async hydrateProjects(rows: Awaited<ReturnType<PublicContentRepository["projectRows"]>>,
+    suppliedMedia?: Promise<Map<string, PublicMediaReference[]>>): Promise<PublicProject[]> {
     if (!rows.length) return [];
     const ids = rows.map((row) => row.id);
     const [categoryMap, technologyMap, mediaMap] = await Promise.all([
-      this.projectTaxonomies(ids), this.technologyTaxonomies("project", ids), this.media("project", ids),
+      this.projectTaxonomies(ids), this.technologyTaxonomies("project", ids), suppliedMedia ?? this.media("project", ids),
     ]);
     return rows.map((row) => ({ id: row.id, slug: row.slug!, title: row.title, summary: row.summary!,
       roleOrContribution: row.roleOrContribution!, startDate: row.startDate, endDate: row.endDate,
@@ -230,10 +249,11 @@ export class PublicContentRepository {
       technologies: technologyMap.get(row.id) ?? [], cover: (mediaMap.get(row.id) ?? []).find((item) => item.role === "cover") ?? null }));
   }
 
-  private async hydrateResearch(rows: Awaited<ReturnType<PublicContentRepository["researchRows"]>>): Promise<PublicResearch[]> {
+  private async hydrateResearch(rows: Awaited<ReturnType<PublicContentRepository["researchRows"]>>,
+    suppliedMedia?: Promise<Map<string, PublicMediaReference[]>>): Promise<PublicResearch[]> {
     if (!rows.length) return [];
     const ids = rows.map((row) => row.id);
-    const [technologyMap, mediaMap] = await Promise.all([this.technologyTaxonomies("research", ids), this.media("research", ids)]);
+    const [technologyMap, mediaMap] = await Promise.all([this.technologyTaxonomies("research", ids), suppliedMedia ?? this.media("research", ids)]);
     return rows.map((row) => ({ id: row.id, slug: row.slug!, title: row.title, summary: row.summary!,
       researchType: row.researchType!, researchStage: row.researchStage,
       roleOrContribution: row.roleOrContribution!, researchDate: row.researchDate,
@@ -243,9 +263,10 @@ export class PublicContentRepository {
       technologies: technologyMap.get(row.id) ?? [], cover: (mediaMap.get(row.id) ?? []).find((item) => item.role === "cover") ?? null }));
   }
 
-  private async hydrateThoughts(rows: Awaited<ReturnType<PublicContentRepository["thoughtRows"]>>): Promise<PublicThought[]> {
+  private async hydrateThoughts(rows: Awaited<ReturnType<PublicContentRepository["thoughtRows"]>>,
+    suppliedMedia?: Promise<Map<string, PublicMediaReference[]>>): Promise<PublicThought[]> {
     if (!rows.length) return [];
-    const mediaMap = await this.media("thought", rows.map((row) => row.id));
+    const mediaMap = await (suppliedMedia ?? this.media("thought", rows.map((row) => row.id)));
     return rows.flatMap((row) => {
       const document = parseThoughtDocument(row.bodyMarkdown!);
       if (!document.bodyMarkdown.trim()) return [];
@@ -273,14 +294,16 @@ export class PublicContentRepository {
       institutionImage: publicImageSelection }).from(education).leftJoin(mediaAssets,
       and(eq(education.institutionMediaId, mediaAssets.id), publicReadyImage))
       .where(eq(education.isVisible, true)).orderBy(asc(education.sortOrder), asc(education.id));
-    return rows.map((row) => ({ ...row, institutionImage: image(row.institutionImage) }));
+    return rows.map((row) => ({ ...row, institutionUrl: validHttps(row.institutionUrl) ? row.institutionUrl : null,
+      institutionImage: image(row.institutionImage) }));
   }
 
   private async publicSocialLinks(): Promise<PublicSocialLink[]> {
-    return this.db.select({ id: socialLinks.id, label: socialLinks.label,
+    const rows = await this.db.select({ id: socialLinks.id, label: socialLinks.label,
       destination: socialLinks.destination, purpose: socialLinks.purpose,
       platformKey: socialLinks.platformKey }).from(socialLinks)
       .where(eq(socialLinks.isVisible, true)).orderBy(asc(socialLinks.sortOrder), asc(socialLinks.id));
+    return rows.filter((row) => validPublicDestination(row.destination, row.purpose));
   }
 
   private async projectTaxonomies(ids: string[]) {

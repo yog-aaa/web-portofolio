@@ -19,6 +19,10 @@ export type PublicSiteSettings = {
 };
 
 export type PublicThemeSettings = {
+  background: string | null;
+  surface: string | null;
+  foreground: string | null;
+  border: string | null;
   accent: string | null;
   accentForeground: string | null;
   accentSoft: string | null;

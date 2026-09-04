@@ -10,7 +10,7 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
       <header className="border-b border-border bg-surface">
         <div className="container-site flex min-h-20 items-center justify-between gap-4">
           <Link href="/admin" className="text-h3 font-medium tracking-tight">YOGAAA. <span className="type-metadata ml-2 text-foreground-secondary">OWNER</span></Link>
-          <div className="flex items-center gap-4"><Link href="/" target="_blank" className="type-metadata min-h-target items-center text-foreground-secondary underline underline-offset-4 sm:inline-flex">VIEW SITE ↗</Link><SignOutButton /></div>
+          <div className="flex items-center gap-4"><Link href="/" target="_blank" rel="noreferrer" aria-label="View site (opens in a new tab)" className="type-metadata min-h-target items-center text-foreground-secondary underline underline-offset-4 sm:inline-flex">VIEW SITE ↗</Link><SignOutButton /></div>
         </div>
       </header>
       <div className="container-site py-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-12 lg:py-10">

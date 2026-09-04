@@ -22,6 +22,13 @@
       "when": 1788474471301,
       "tag": "0002_media_service",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788501999388,
+      "tag": "0003_theme_settings",
+      "breakpoints": true
     }
   ]
 }

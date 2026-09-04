@@ -27,7 +27,7 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
     <Container>
       {!profile ? <div className="border-y border-border py-16 md:py-24"><p className="max-w-reading text-body-lg text-foreground-secondary">
         {pageSettings?.emptyStateCopy ?? "The public profile is not configured yet."}</p></div> : <>
-        <div className="editorial-grid border-y border-border py-10 md:py-14" aria-labelledby="about-profile">
+        <section className="editorial-grid border-y border-border py-10 md:py-14" aria-labelledby="about-profile">
           <div className="col-span-full lg:col-span-3"><p className="type-metadata text-foreground-secondary">01 / PROFILE</p><h2 id="about-profile" className="mt-3 text-h3">{sections[0]}</h2></div>
           <div className="col-span-full mt-8 lg:col-span-5 lg:col-start-5 lg:mt-0">
             {profile.focusLine ? <p className="text-h2 text-balance">{profile.focusLine}</p> : null}
@@ -36,7 +36,7 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
           </div>
           {profile.portrait ? <MediaRenderer className="col-span-full mt-8 lg:col-span-3 lg:col-start-10 lg:mt-0"
             image={profile.portrait} sizes="(min-width: 1024px) 22vw, 80vw" priority /> : null}
-        </div>
+        </section>
 
         {profile.availabilityText ? <AboutSection index="02" title={sections[1]}><p className="max-w-reading text-body-lg text-foreground-secondary">{profile.availabilityText}</p></AboutSection> : null}
 

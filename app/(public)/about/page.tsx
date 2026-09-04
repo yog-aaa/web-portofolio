@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/presentation/metadata";
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
   const [page, settings] = await Promise.all([getPageSettings("/about"), getSiteSettings()]);
-  return pageMetadata(page, settings, "About");
+  return pageMetadata(page, settings, "About", "/about");
 }
 
 export default async function AboutRoute() {

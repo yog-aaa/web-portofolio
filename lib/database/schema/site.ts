@@ -19,6 +19,10 @@ export const profile = pgTable("profile", {
 
 export const themeSettings = pgTable("theme_settings", {
   id: smallint("id").primaryKey().default(1),
+  background: text("background"),
+  surface: text("surface"),
+  foreground: text("foreground"),
+  border: text("border"),
   accent: text("accent"),
   accentForeground: text("accent_foreground"),
   accentSoft: text("accent_soft"),
@@ -26,7 +30,8 @@ export const themeSettings = pgTable("theme_settings", {
   ...timestamps(),
 }, (t) => [
   check("theme_singleton", sql`${t.id} = 1`),
-  ...[t.accent, t.accentForeground, t.accentSoft, t.accentSecondary].map((column) =>
+  ...[t.background, t.surface, t.foreground, t.border, t.accent,
+    t.accentForeground, t.accentSoft, t.accentSecondary].map((column) =>
     check(`theme_${column.name}_hex`, sql`${column} is null or ${column} ~ '^#[0-9A-Fa-f]{6}$'`)),
 ]);
 

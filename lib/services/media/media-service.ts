@@ -1,8 +1,10 @@
-import type { MediaAsset, MediaDeletionResult, MediaImageData, MediaReference } from "../../domain/media";
+import type { MediaAsset, MediaDeletionResult, MediaImageData, MediaLibraryAsset, MediaReference } from "../../domain/media";
 import type { MediaUploadFields } from "../../validation/media";
 
 export interface MediaService {
+  list(): Promise<MediaLibraryAsset[]>;
   upload(file: File, fields: MediaUploadFields): Promise<MediaAsset>;
+  updateMetadata(id: string, input: MediaMetadataInput): Promise<MediaAsset>;
   retrieveMetadata(id: string): Promise<MediaAsset>;
   reconcileUpload(id: string): Promise<MediaAsset>;
   references(id: string): Promise<MediaReference[]>;
@@ -10,3 +12,10 @@ export interface MediaService {
   getPublicImage(id: string): Promise<MediaImageData | null>;
   readPrivateImage(id: string): Promise<{ bytes: Uint8Array; mimeType: string }>;
 }
+
+export type MediaMetadataInput = {
+  altText: string;
+  caption: string;
+  isDecorative: boolean;
+  expectedUpdatedAt: string;
+};
