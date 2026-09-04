@@ -13,7 +13,8 @@ const notices: Record<string, string> = {
   feature: "Content added to the featured selection.", unfeature: "Content removed from the featured selection.",
   saved: "Changes saved.", deleted: "Entry deleted.",
   "theme-reset": "Theme reset to the Calm Blue defaults.",
-  "taxonomy-saved": "Taxonomy option added.",
+  "taxonomy-saved": "Master data saved.",
+  "taxonomy-deleted": "Taxonomy item deleted.",
 };
 
 export function AdminNotice({ notice }: { notice?: string }) {

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Database } from "../database/connection";
 import { projects, research, thoughts } from "../database/schema/editorial";
 import { mediaAssets } from "../database/schema/media";
@@ -12,6 +12,16 @@ import type { ProjectDraft, ResearchDraft, ThoughtDraft } from "../domain/conten
 export type AdminEditorialStatus = "draft" | "published" | "archived";
 export type AdminMediaOption = { id: string; filename: string; category: string | null; access: "public" | "private"; width: number | null; height: number | null };
 export type AdminTaxonomyOption = { id: string; name: string; key: string };
+export type AdminTaxonomyRecord = AdminTaxonomyOption & {
+  kind: "category" | "technology";
+  description: string | null;
+  referenceUrl: string | null;
+  iconKey: string | null;
+  sortOrder: number;
+  updatedAt: Date;
+  projectCount: number;
+  researchCount: number;
+};
 export type AdminMediaSelection = { id: string; role: "cover" | "gallery" | "figure" | "body" | "social"; sortOrder: number };
 
 export type AdminProject = {
@@ -85,6 +95,33 @@ export class AdminContentRepository {
         .from(technologies).orderBy(asc(technologies.sortOrder), asc(technologies.name)),
     ]);
     return { categories, technologies: technologyRows };
+  }
+
+  async taxonomyMaster(): Promise<{ categories: AdminTaxonomyRecord[]; technologies: AdminTaxonomyRecord[] }> {
+    const [categoryRows, technologyRows, categoryUsage, projectTechnologyUsage, researchTechnologyUsage] = await Promise.all([
+      this.db.select().from(projectCategories).orderBy(asc(projectCategories.sortOrder), asc(projectCategories.name)),
+      this.db.select().from(technologies).orderBy(asc(technologies.sortOrder), asc(technologies.name)),
+      this.db.select({ id: projectCategoryAssignments.categoryId,
+        count: sql<number>`count(distinct ${projectCategoryAssignments.projectId})::int` })
+        .from(projectCategoryAssignments).groupBy(projectCategoryAssignments.categoryId),
+      this.db.select({ id: projectTechnologies.technologyId,
+        count: sql<number>`count(distinct ${projectTechnologies.projectId})::int` })
+        .from(projectTechnologies).groupBy(projectTechnologies.technologyId),
+      this.db.select({ id: researchTechnologies.technologyId,
+        count: sql<number>`count(distinct ${researchTechnologies.researchId})::int` })
+        .from(researchTechnologies).groupBy(researchTechnologies.technologyId),
+    ]);
+    const counts = (rows: { id: string; count: number }[]) => new Map(rows.map((row) => [row.id, Number(row.count)]));
+    const categoryProjectCounts = counts(categoryUsage);
+    const technologyProjectCounts = counts(projectTechnologyUsage);
+    const technologyResearchCounts = counts(researchTechnologyUsage);
+    return {
+      categories: categoryRows.map((row) => ({ ...row, kind: "category" as const,
+        referenceUrl: null, iconKey: null, projectCount: categoryProjectCounts.get(row.id) ?? 0, researchCount: 0 })),
+      technologies: technologyRows.map((row) => ({ ...row, kind: "technology" as const,
+        description: null, projectCount: technologyProjectCounts.get(row.id) ?? 0,
+        researchCount: technologyResearchCounts.get(row.id) ?? 0 })),
+    };
   }
 
   async mediaOptions(category?: string): Promise<AdminMediaOption[]> {

@@ -38,7 +38,7 @@ Kysely dependency requires Node 22, above the original starter's minimum.
 | `lib/services/media/cloudinary.ts` | Lazy server-only Cloudinary SDK configuration context |
 | `lib/auth/` | Lazy Better Auth instance, HTTP boundary, server owner guards, client integration |
 | `scripts/auth/` | CLI-only transactional owner provisioning; never import into hosted code |
-| `scripts/development/` | Non-destructive, explicitly confirmed development content seed |
+| `scripts/development/` | Non-destructive, explicitly confirmed development content and master-data seed |
 | `lib/validation/environment.ts` | Pure Zod configuration parsers shared by server modules and CLI |
 | `drizzle.config.ts` | Standalone Drizzle Kit configuration, with environment loading |
 | `drizzle/` | Generated SQL, snapshot, and journal; commit all three together |
@@ -220,6 +220,12 @@ contact links, and the bound auth user. Slot-aware reference tables protect both
 working and published asset/taxonomy usage. Association rows may cascade when an
 explicitly permitted parent deletion occurs; catalog/media targets do not cascade.
 The media provider's deletion operation must run through the same reference checks.
+
+The owner Master data service also checks draft and published taxonomy usage before
+deletion and reports the reference count in the UI. Database foreign keys remain the
+final race-safe guard. Renaming or reordering a taxonomy record preserves assignments
+because relationships use UUIDs; changing its stable key should be deliberate because
+public Work filters use that key.
 
 ### Data accuracy and validation boundaries
 

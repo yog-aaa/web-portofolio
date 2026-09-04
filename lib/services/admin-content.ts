@@ -12,7 +12,7 @@ import { AdminContentRepository } from "../repositories/admin-content";
 import type { OwnerPermission } from "../auth/authorization";
 import type { z } from "zod";
 import type { credentialInputSchema, experienceInputSchema, lifecycleInputSchema,
-  projectInputSchema, researchInputSchema, thoughtInputSchema } from "../validation/admin-content";
+  masterTaxonomyInputSchema, projectInputSchema, researchInputSchema, thoughtInputSchema } from "../validation/admin-content";
 
 type Authorize = (permission: OwnerPermission) => Promise<unknown>;
 type ProjectInput = z.infer<typeof projectInputSchema>;
@@ -21,6 +21,7 @@ type ThoughtInput = z.infer<typeof thoughtInputSchema>;
 type LifecycleInput = z.infer<typeof lifecycleInputSchema>;
 type ExperienceInput = z.infer<typeof experienceInputSchema>;
 type CredentialInput = z.infer<typeof credentialInputSchema>;
+type MasterTaxonomyInput = z.infer<typeof masterTaxonomyInputSchema>;
 type EditorialDatabase = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 const markdownMediaIds = (markdown: string | null) => [...new Set([...(markdown ?? "").matchAll(/(?:^|[^a-z0-9-])media:([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?![a-z0-9-])/gi)]
@@ -100,6 +101,7 @@ export class AdminContentService {
 
   async dashboard() { await this.read(); return this.repository().dashboard(); }
   async mediaOptions(category?: string) { await this.read(); return this.repository().mediaOptions(category); }
+  async masterData() { await this.read(); return this.repository().taxonomyMaster(); }
   async projects(id?: string) { await this.read(); const repository = this.repository(); const [items, taxonomy, media, selected] = await Promise.all([
     repository.listProjects(), repository.taxonomy(), repository.mediaOptions("project"), id ? repository.getProject(id) : null]); return { items, taxonomy, media, selected }; }
   async research(id?: string) { await this.read(); const repository = this.repository(); const [items, taxonomy, media, selected] = await Promise.all([
@@ -400,6 +402,56 @@ export class AdminContentService {
       const [order] = await tx.select({ value: sql<number>`coalesce(max(${table.sortOrder}), -1) + 1` }).from(table);
       const [created] = await tx.insert(table).values({ name, key, sortOrder: Number(order.value) } as never).returning({ id: table.id });
       return created;
+    });
+  }
+
+  async saveTaxonomy(input: MasterTaxonomyInput) {
+    await this.write();
+    return this.db.transaction(async (tx) => {
+      const table = input.kind === "category" ? projectCategories : technologies;
+      const [duplicate] = await tx.select({ id: table.id }).from(table)
+        .where(input.id ? and(eq(table.key, input.key), ne(table.id, input.id)) : eq(table.key, input.key)).limit(1);
+      if (duplicate) throw new Error("CMS_TAXONOMY_KEY_TAKEN");
+      if (!input.id) {
+        const values = input.kind === "category"
+          ? { name: input.name, key: input.key, description: input.description, sortOrder: input.sortOrder }
+          : { name: input.name, key: input.key, referenceUrl: input.referenceUrl,
+            iconKey: input.iconKey, sortOrder: input.sortOrder };
+        const [created] = await tx.insert(table).values(values as never).returning({ id: table.id });
+        return created;
+      }
+      const [current] = await tx.select({ updatedAt: table.updatedAt }).from(table).where(eq(table.id, input.id)).for("update");
+      if (!current) throw new Error("CMS_NOT_FOUND");
+      if (!input.expectedUpdatedAt || current.updatedAt.toISOString() !== input.expectedUpdatedAt) throw new Error("CMS_STALE");
+      const values = input.kind === "category"
+        ? { name: input.name, key: input.key, description: input.description,
+          sortOrder: input.sortOrder, updatedAt: new Date() }
+        : { name: input.name, key: input.key, referenceUrl: input.referenceUrl,
+          iconKey: input.iconKey, sortOrder: input.sortOrder, updatedAt: new Date() };
+      await tx.update(table).set(values as never).where(eq(table.id, input.id));
+      return { id: input.id };
+    });
+  }
+
+  async deleteTaxonomy(kind: "category" | "technology", id: string, expectedUpdatedAt: string) {
+    await this.write();
+    return this.db.transaction(async (tx) => {
+      const table = kind === "category" ? projectCategories : technologies;
+      const [current] = await tx.select({ updatedAt: table.updatedAt }).from(table).where(eq(table.id, id)).for("update");
+      if (!current) throw new Error("CMS_NOT_FOUND");
+      if (current.updatedAt.toISOString() !== expectedUpdatedAt) throw new Error("CMS_STALE");
+      const referenced = kind === "category"
+        ? Boolean((await tx.select({ id: projectCategoryAssignments.projectId }).from(projectCategoryAssignments)
+          .where(eq(projectCategoryAssignments.categoryId, id)).limit(1))[0])
+        : (await Promise.all([
+          tx.select({ id: projectTechnologies.projectId }).from(projectTechnologies)
+            .where(eq(projectTechnologies.technologyId, id)).limit(1),
+          tx.select({ id: researchTechnologies.researchId }).from(researchTechnologies)
+            .where(eq(researchTechnologies.technologyId, id)).limit(1),
+        ])).some((rows) => Boolean(rows[0]));
+      if (referenced) throw new Error("CMS_TAXONOMY_IN_USE");
+      await tx.delete(table).where(eq(table.id, id));
+      return { id };
     });
   }
 }

@@ -18,7 +18,9 @@ async function main() {
   const { db, client } = createDatabaseConnection(process.env);
   try {
     const result = await seedDevelopmentContent(db);
-    console.log(`Development seed complete: profile ${result.profile}, education ${result.education}, research ${result.research}.`);
+    console.log(`Development seed complete: profile ${result.profile}, education ${result.education}, project ${result.project}, research ${result.research}, Thought ${result.thought}.`);
+    console.log(`Master data: ${result.categoriesCreated} categories and ${result.technologiesCreated} technologies created; existing rows preserved.`);
+    console.log("Unverified experience, credential, social, and Thought samples remain hidden or draft until replaced.");
     console.log("The research entry remains a draft until missing publication facts are supplied and reviewed.");
   } finally {
     await client.end({ timeout: 5 });

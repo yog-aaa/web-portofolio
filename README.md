@@ -30,8 +30,9 @@ and media-access rules. Research and Thoughts now provide bounded archives,
 safe long-form detail views, managed figures, derived reading time, and private-state
 protection. The authenticated owner workspace now manages Projects, Experience,
 Research, Thoughts, and Credentials with private drafts, safe previews, publishing,
-withdrawal, visibility, media selection, taxonomy, validation, and stale-write
-protection. Site settings, contact/social management, and the safe semantic theme
+withdrawal, visibility, media selection, validation, and stale-write protection.
+Reusable project categories and technologies now have a dedicated owner-only
+Master data workspace with usage-aware deletion. Site settings, contact/social management, and the safe semantic theme
 editor are implemented. The homepage hero supports a CMS-selected square or 3:4
 portrait in an adaptive editorial frame, plus primary Work and secondary Contact
 actions. Site settings provide repeatable social-profile rows with a searchable,
@@ -99,7 +100,9 @@ Public signup is disabled. There is no email reset flow.
 ## Development content seed
 
 After reviewing and applying migrations to a verified development database, seed
-only the supplied known profile, education, interests, and draft research content:
+the known profile and education, route copy, Calm Blue theme, Work filters,
+technology catalogue, the supplied fall-detection project/research drafts, and
+private placeholders for otherwise unknown content:
 
 ```bash
 npm run db:seed:development -- --confirm-development
@@ -107,9 +110,11 @@ npm run db:seed:development -- --confirm-development
 
 The command is never run by startup or build. It refuses production/test mode,
 does not overwrite or delete existing rows, and is safe to rerun. The known
-fall-detection research remains a draft because publication facts such as the
-owner's role were not supplied. It does not create GPA, employment, credentials,
-awards, email addresses, or social URLs.
+fall-detection project and research remain drafts because publication facts such
+as the owner's role were not supplied. Unknown experience, credential, social,
+and Thought examples are explicitly labelled and remain hidden or draft. Replace
+or remove them before publishing. GPA and media are never fabricated; media must
+be uploaded through the authenticated Cloudinary flow.
 
 ## Environment configuration
 
@@ -166,7 +171,8 @@ route-level settings, public GPA handling, and
 the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
 the target before using its required confirmation flag.
 Admin tests cover independent read/write authorization, private-draft isolation,
-publication and withdrawal, optimistic concurrency, media access, and collection CRUD.
+publication and withdrawal, optimistic concurrency, media access, collection CRUD,
+and usage-safe taxonomy management.
 The UI tests verify CMS copy injection, featured-research promotion into the
 Selected Work composition, archive filtering, Project/Research section parsing,
 Thought metadata and reading-time derivation, managed Markdown media, and

@@ -116,6 +116,7 @@ and draft content from indexing; indexing directives do not replace access contr
 | `/admin/thoughts` | Thoughts / articles and Markdown editing |
 | `/admin/credentials` | Credentials and previews |
 | `/admin/media` | Media library and upload management |
+| `/admin/master-data` | Reusable project categories and project/research technologies |
 | `/admin/settings` | Hero, profile, education/GPA, social/contact details, and site/SEO settings |
 | `/admin/settings/theme` | Allowed theme colors |
 

@@ -176,20 +176,29 @@ test("public queries expose only published, visible, public presentation data", 
   }
 });
 
-test("development seed is idempotent, preserves rows, and keeps incomplete research private", async (t) => {
+test("development seed covers CMS content safely, remains idempotent, and keeps placeholders private", async (t) => {
   const f = await fixture();
   t.after(() => f.client.close());
   const first = await seedDevelopmentContent(f.db);
   const second = await seedDevelopmentContent(f.db);
-  assert.deepEqual(first, { profile: "created", education: "created", research: "created" });
-  assert.deepEqual(second, { profile: "preserved", education: "preserved", research: "preserved" });
+  assert.deepEqual(first, { profile: "created", education: "created", project: "created", research: "created",
+    thought: "created", experience: "created", credential: "created", socialLink: "created",
+    categoriesCreated: 4, technologiesCreated: 10, pageSettingsCreated: 7 });
+  assert.deepEqual(second, { profile: "preserved", education: "preserved", project: "preserved", research: "preserved",
+    thought: "preserved", experience: "preserved", credential: "preserved", socialLink: "preserved",
+    categoriesCreated: 0, technologiesCreated: 0, pageSettingsCreated: 0 });
   assert.equal((await f.db.select().from(schema.education).where(eq(schema.education.id, developmentSeedIds.education))).length, 1);
   const [research] = await f.db.select().from(schema.research).where(eq(schema.research.id, developmentSeedIds.research));
   assert.equal(research.status, "draft");
   const [settings] = await f.db.select().from(schema.siteSettings);
   assert.equal(settings.heroHeadline, "Building useful digital products with software & AI.");
+  assert.equal((await f.db.select().from(schema.sitePageSettings)).length, 7);
+  assert.equal((await f.db.select().from(schema.projectCategories)).length, 4);
+  assert.equal((await f.db.select().from(schema.technologies)).length, 10);
   assert.equal((await f.queries.getFeaturedResearch()).length, 0);
-  assert.equal((await f.db.select().from(schema.credentials)).length, 0);
-  assert.equal((await f.db.select().from(schema.experiences)).length, 0);
-  assert.equal((await f.db.select().from(schema.socialLinks)).length, 0);
+  assert.equal((await f.queries.getFeaturedProjects()).length, 0);
+  assert.equal((await f.queries.getPublishedThoughts()).length, 0);
+  assert.equal((await f.queries.getCredentials()).length, 0);
+  assert.equal((await f.queries.getExperiences()).length, 0);
+  assert.equal((await f.queries.getProfile())?.socialLinks.length, 0);
 });

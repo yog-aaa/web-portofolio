@@ -89,17 +89,22 @@ database without printing it. The command is not called from startup, builds,
 migrations, login, or tests.
 
 The transaction takes an advisory lock and inserts stable seed IDs with conflict
-preservation. It creates missing singleton profile/theme/site records, the supplied
-education row, and the supplied privacy-preserving fall-detection research draft.
-Reruns preserve every existing row and create no duplicates; the command never
-updates or deletes content. If a conflicting slug already exists, it preserves that
-record and skips the research insert.
+preservation. It creates missing singleton profile/theme/site records, settings for
+all seven public routes, the supplied education row, the four Work filter categories,
+a starter technology catalogue, and private project/research drafts for the supplied
+fall-detection direction. It also creates clearly labelled hidden or draft examples
+for Experience, Credentials, Social links, and Thoughts so every CMS workflow can be
+inspected without exposing invented facts. Reruns preserve every existing row and
+create no duplicates; the command never updates or deletes content. If a conflicting
+slug already exists, it preserves that record.
 
 Only these supplied facts are represented: Yoga Agustiansyah, YOGAAA., Indonesia,
 Institut Teknologi Garut, S1 Teknik Informatika, the 2022–2026 period, the supplied
-interest areas, and the supplied research direction. The research entry stays
-draft because role and other publication requirements are unknown. GPA, employment,
-credentials, awards, email, and social URLs remain absent.
+interest areas, the application stack, and the supplied research direction. Project,
+Research, and Thought examples stay draft; unknown Experience, Credential, and Social
+records stay hidden. Placeholder rows say that they must be replaced before public
+use. GPA, media records, awards, real contact details, and unverified claims are not
+created. Cloudinary-backed media must be uploaded through the owner flow.
 
 `npm run test:content` applies committed migrations to ephemeral PGlite and checks
 all visibility boundaries plus seed idempotency. It never reads `.env.local` or

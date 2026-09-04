@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const links = [
   ["Overview", "/admin"], ["Projects", "/admin/projects"], ["Experience", "/admin/experience"],
   ["Research", "/admin/research"], ["Thoughts", "/admin/thoughts"], ["Credentials", "/admin/credentials"],
-  ["Media", "/admin/media"], ["Settings", "/admin/settings"],
+  ["Media", "/admin/media"], ["Master data", "/admin/master-data"], ["Settings", "/admin/settings"],
 ] as const;
 
 export function AdminNavigation() {

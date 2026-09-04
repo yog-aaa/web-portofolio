@@ -18,6 +18,7 @@ authorization, and database boundaries continue to follow
 | `/admin/thoughts` | Draft, preview, publish, archive, category, cover, references, and SEO |
 | `/admin/credentials` | Create, edit, order, show/hide, attach previews, verify, and delete credentials |
 | `/admin/media` | Upload, browse, select, describe, inspect references, and safely delete Cloudinary assets |
+| `/admin/master-data` | Create, edit, order, inspect usage, and safely delete reusable project categories and technologies |
 | `/admin/settings` | Manage identity, homepage copy, location, contact email, social links, SEO default, and footer |
 | `/admin/settings/theme` | Preview, save, and reset validated semantic color overrides |
 
@@ -71,8 +72,12 @@ silently replacing newer work.
 
 ## Inputs and media
 
-Project categories and shared technologies can be added from their relevant
-collection page, then selected explicitly. Slugs use lowercase kebab case. Partial
+Project categories and shared technologies can be added quickly from their relevant
+collection page, then managed completely under `/admin/master-data`. Master data
+uses stable lowercase keys, explicit ordering, and optimistic concurrency. Categories
+support descriptions; technologies support optional HTTPS references and provider-neutral
+icon keys. A referenced item cannot be deleted until it is removed from every draft
+and published relationship. Slugs use lowercase kebab case. Partial
 dates remain `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`. Structured link fields use one
 `Label | https://example.com` entry per line. Thoughts store the optional category
 in the documented strict Markdown frontmatter convention; the editor strips it

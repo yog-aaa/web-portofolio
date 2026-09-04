@@ -172,6 +172,28 @@ export const taxonomyInputSchema = z.object({
   returnTo: z.enum(["projects", "research"]),
 });
 
+const taxonomyKey = z.string().trim().min(1, "Key is required.").max(80)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only.");
+
+export const masterTaxonomyInputSchema = z.object({
+  kind: z.enum(["category", "technology"]),
+  id: optionalUuid,
+  expectedUpdatedAt: z.string().datetime().nullable(),
+  name: requiredText("Name", 80),
+  key: taxonomyKey,
+  description: optionalText(500),
+  referenceUrl: optionalHttps,
+  iconKey: z.string().trim().max(80).refine((value) => !value || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value),
+    "Use lowercase letters, numbers, and hyphens only.").transform((value) => value || null),
+  sortOrder: nonnegativeInteger,
+});
+
+export const deleteTaxonomyInputSchema = z.object({
+  kind: z.enum(["category", "technology"]),
+  id: uuid,
+  expectedUpdatedAt: z.string().datetime(),
+});
+
 export function actionError(error: unknown): AdminActionState {
   if (error instanceof z.ZodError) {
     const fields = z.flattenError(error).fieldErrors;
@@ -186,6 +208,8 @@ export function actionError(error: unknown): AdminActionState {
       CMS_MEDIA_INVALID: "One or more selected media assets are unavailable.",
       CMS_MEDIA_PRIVATE: "Published content can only use public media assets.",
       CMS_TAXONOMY_INVALID: "One or more selected categories or technologies are unavailable.",
+      CMS_TAXONOMY_KEY_TAKEN: "That taxonomy key is already in use.",
+      CMS_TAXONOMY_IN_USE: "Remove this item from every project or research entry before deleting it.",
       CMS_INVALID_STATE: "That operation is not allowed for the current publication state.",
     };
     return { status: "error", message: messages[error.message] ?? "The content could not be saved." };

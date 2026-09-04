@@ -6,7 +6,8 @@ import { publicContentTags } from "@/lib/queries/content-cache";
 import type { AdminContentService } from "@/lib/services/admin-content";
 import { getAdminContentService } from "@/lib/services/admin-content-server";
 import { actionError, checkbox, credentialInputSchema, deleteCollectionInputSchema,
-  experienceInputSchema, formStrings, lifecycleInputSchema, parseLinks,
+  deleteTaxonomyInputSchema, experienceInputSchema, formStrings, lifecycleInputSchema,
+  masterTaxonomyInputSchema, parseLinks,
   projectInputSchema, researchInputSchema, thoughtInputSchema,
   taxonomyInputSchema, type AdminActionState } from "@/lib/validation/admin-content";
 
@@ -149,4 +150,46 @@ export async function addTaxonomyAction(_state: AdminActionState, formData: Form
   } catch (error) { return actionError(error); }
   revalidatePath(`/admin/${input.returnTo}`);
   redirect(`/admin/${input.returnTo}?notice=taxonomy-saved`);
+}
+
+function refreshTaxonomy(kind: "category" | "technology") {
+  updateTag(publicContentTags.projects);
+  revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath("/admin/projects");
+  if (kind === "technology") {
+    updateTag(publicContentTags.research);
+    revalidatePath("/research");
+    revalidatePath("/admin/research");
+  }
+  revalidatePath("/admin/master-data");
+}
+
+export async function saveTaxonomyAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  let kind: "category" | "technology";
+  try {
+    const input = masterTaxonomyInputSchema.parse({
+      kind: value(formData, "kind"), id: value(formData, "id"),
+      expectedUpdatedAt: value(formData, "expectedUpdatedAt") || null,
+      name: value(formData, "name"), key: value(formData, "key"),
+      description: value(formData, "description"), referenceUrl: value(formData, "referenceUrl"),
+      iconKey: value(formData, "iconKey"), sortOrder: value(formData, "sortOrder") || "0",
+    });
+    kind = input.kind;
+    await service().saveTaxonomy(input);
+  } catch (error) { return actionError(error); }
+  refreshTaxonomy(kind);
+  redirect("/admin/master-data?notice=taxonomy-saved");
+}
+
+export async function deleteTaxonomyAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  let kind: "category" | "technology";
+  try {
+    const input = deleteTaxonomyInputSchema.parse({ kind: value(formData, "kind"), id: value(formData, "id"),
+      expectedUpdatedAt: value(formData, "expectedUpdatedAt") });
+    kind = input.kind;
+    await service().deleteTaxonomy(input.kind, input.id, input.expectedUpdatedAt);
+  } catch (error) { return actionError(error); }
+  refreshTaxonomy(kind);
+  redirect("/admin/master-data?notice=taxonomy-deleted");
 }

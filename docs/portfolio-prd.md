@@ -244,17 +244,17 @@ and archived detail URLs return a not-found result without their titles or bodie
 | --- | --- |
 | `/admin/login` | Email/password sign-in; accessible to unauthenticated visitors; no sign-up controls or registration API availability. |
 | `/admin` | Owner-only counts by publication state, recent edits, and shortcuts; not a visitor analytics dashboard. |
-| `/admin/projects` | Project editing, publication, sorting/featuring, categories and technologies as inline management tools. |
+| `/admin/projects` | Project editing, publication, sorting/featuring, and category/technology assignment. |
 | `/admin/experience` | Experience editing, visibility, ordering, homepage highlight selection. |
 | `/admin/research` | Research editing, Markdown preview, publication, sources, figures, featuring. |
 | `/admin/thoughts` | Thought editing, Markdown preview, draft/publish/archive management. |
 | `/admin/credentials` | Credential editing, visibility, ordering, previews and verification links. |
 | `/admin/media` | Authorized uploads, selection/reuse, metadata, reference inspection, safe deletion. |
+| `/admin/master-data` | Owner-only CRUD for reusable project categories and project/research technologies, with usage-aware deletion. |
 | `/admin/settings` | Global/site copy, profile, education/GPA, social/contact links, page SEO, and owner session/password controls through Better Auth. |
 | `/admin/settings/theme` | Preview, validate, save, and reset the allowed theme values. |
 
-Editors may use panels or route query state within these routes. This PRD does not
-require additional admin URL surfaces. All protected content is server-authorized;
+Editors may use panels or route query state within these routes. All protected content is server-authorized;
 authorization cannot depend on reaching it through a particular layout.
 
 ## 9. Homepage hierarchy

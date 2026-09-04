@@ -9,7 +9,7 @@ import type { Database } from "../lib/database/connection";
 import { createPublicContentQueries } from "../lib/queries/public-content";
 import { AdminContentService } from "../lib/services/admin-content";
 import { credentialInputSchema, experienceInputSchema, projectInputSchema,
-  researchInputSchema, thoughtInputSchema } from "../lib/validation/admin-content";
+  masterTaxonomyInputSchema, researchInputSchema, thoughtInputSchema } from "../lib/validation/admin-content";
 
 const ids = {
   category: "10000000-0000-4000-8000-000000000001",
@@ -98,6 +98,19 @@ test("publishing rejects private media and collection CRUD validates visibility"
   assert.equal((await f.publicQueries.getCredentials()).length, 0);
   const taxonomy = await f.service.addTaxonomy("technology", "Computer Vision");
   assert.ok(taxonomy.id);
+  let master = await f.service.masterData();
+  const computerVision = master.technologies.find((item) => item.id === taxonomy.id)!;
+  await f.service.saveTaxonomy(masterTaxonomyInputSchema.parse({ kind: "technology", id: computerVision.id,
+    expectedUpdatedAt: computerVision.updatedAt.toISOString(), name: "Computer Vision", key: "computer-vision",
+    description: "", referenceUrl: "https://example.test/computer-vision", iconKey: "computer-vision", sortOrder: 2 }));
+  master = await f.service.masterData();
+  const updated = master.technologies.find((item) => item.id === taxonomy.id)!;
+  assert.equal(updated.referenceUrl, "https://example.test/computer-vision");
+  await f.service.deleteTaxonomy("technology", updated.id, updated.updatedAt.toISOString());
+  assert.equal((await f.service.masterData()).technologies.some((item) => item.id === taxonomy.id), false);
+  await f.service.saveProject(projectInput());
+  await assert.rejects(f.service.deleteTaxonomy("technology", ids.technology,
+    (await f.service.masterData()).technologies.find((item) => item.id === ids.technology)!.updatedAt.toISOString()), /CMS_TAXONOMY_IN_USE/);
 });
 
 test("Research and Thoughts publish through private working copies", async (t) => {
