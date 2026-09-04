@@ -46,6 +46,19 @@ Project detail pages interpret owner-authored level-two Markdown headings as
 case-study sections. Markdown remains data, is rendered without raw HTML or
 executable MDX, and media continues through `MediaAsset` relationships.
 
+Research detail pages use the same safe section approach for Abstract, Research
+Question, Motivation, Methodology, Dataset, System Pipeline, Models, Experimental
+Setup, Results, Discussion, Limitations, and Conclusion. Unrecognized level-two
+headings remain visible as additional sections. GFM tables present metrics, blockquotes
+act as restrained callouts, and public-ready figure media can carry diagrams.
+
+Thoughts may begin with strict Markdown frontmatter containing the optional
+`category: Agentic AI` presentation value. The query layer removes that frontmatter
+from the public body and derives reading time at 220 words per minute. Inline
+Markdown images resolve only `media:<reference-or-asset-id>` values from the
+already-filtered public media collection; remote or unresolved Markdown images
+are omitted. No raw HTML, MDX, Mermaid execution, or external image URL is enabled.
+
 Public types contain no status, draft payload, revision, internal sort/feature
 control, or hidden row. SEO values and safe Markdown are included only on published
 detail records where presentation/metadata needs them. Administrative reads and

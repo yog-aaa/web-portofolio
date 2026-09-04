@@ -143,6 +143,8 @@ export type PublicResearchDetail = PublicResearch & {
 
 export type PublicThought = PublicEditorialBase & {
   excerpt: string;
+  category: string | null;
+  readingMinutes: number;
   cover: PublicMediaReference | null;
 };
 export type PublicThoughtDetail = PublicThought & {

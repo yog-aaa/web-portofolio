@@ -23,9 +23,11 @@ database-backed rate limits, and a bootstrap CLI
 are implemented. Secure image upload, metadata verification, private delivery,
 reference inspection, and retryable deletion are implemented without a media-library
 UI. Typed public content queries now enforce publication, visibility, relationship-slot,
-and media-access rules. Research/Thoughts public pages, content-management screens,
-and deployment remain pending. The configured local Aiven database now serves the
-public content layer. Auth/media/content behavior also has isolated PostgreSQL coverage;
+and media-access rules. Research and Thoughts now provide bounded archives,
+safe long-form detail views, managed figures, derived reading time, and private-state
+protection. Content-management screens and deployment remain pending. The configured
+local Aiven database now serves the public content layer. Auth/media/content behavior
+also has isolated PostgreSQL coverage;
 Cloudinary account integration and production deployment remain pending.
 
 The intended system is CMS-first: routine content updates should eventually require
@@ -144,8 +146,9 @@ route-level settings, public GPA handling, and
 the non-destructive seed. The seed command itself connects to `DATABASE_URL`; verify
 the target before using its required confirmation flag.
 The UI tests verify CMS copy injection, featured-research promotion into the
-Selected Work composition, archive filtering, case-study parsing, and raw-HTML/unsafe-link
-rejection in Markdown. Public pages are request-rendered and require the current
+Selected Work composition, archive filtering, Project/Research section parsing,
+Thought metadata and reading-time derivation, managed Markdown media, and
+raw-HTML/unsafe-link rejection. Public pages are request-rendered and require the current
 migrations plus configured public content at runtime.
 The current `next/font/google` setup downloads Geist and Geist
 Mono during compilation; builds require access to Google Fonts.

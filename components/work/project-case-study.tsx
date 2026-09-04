@@ -50,13 +50,13 @@ export function ProjectCaseStudy({ project, nextProject }: {
             {key === "overview" && !entries.length ? <p className="max-w-reading text-body-lg text-foreground-secondary">{project.summary}</p> : null}
             {key === "role" ? <p className="mb-5 max-w-reading text-body-lg text-foreground-secondary">{project.roleOrContribution}</p> : null}
             {key === "technology" && project.technologies.length ? <div className="mb-6 flex flex-wrap gap-2">{project.technologies.map((item) => <Tag key={item.key}>{item.name}</Tag>)}</div> : null}
-            {entries.map((entry, entryIndex) => <SafeMarkdown key={`${key}-${entryIndex}`} markdown={entry.markdown}
+            {entries.map((entry, entryIndex) => <SafeMarkdown key={`${key}-${entryIndex}`} markdown={entry.markdown} media={project.media}
               className={entryIndex ? "mt-7 border-t border-border pt-7" : ""} />)}
           </div>
         </section>)}
         {additional.map((section, index) => <section key={`${section.label}-${index}`} className="editorial-grid border-b border-border py-10 md:py-14">
           <div className="col-span-full lg:col-span-3"><p className="type-metadata text-foreground-secondary">{String(sections.length + index + 1).padStart(2, "0")}</p><h2 className="mt-3 text-h3">{section.label}</h2></div>
-          <SafeMarkdown markdown={section.markdown} className="col-span-full mt-7 lg:col-span-8 lg:col-start-5 lg:mt-0" />
+          <SafeMarkdown markdown={section.markdown} media={project.media} className="col-span-full mt-7 lg:col-span-8 lg:col-start-5 lg:mt-0" />
         </section>)}
       </div>
 

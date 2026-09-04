@@ -94,7 +94,8 @@ async function seedQueryFixture(db: Database) {
   await db.update(schema.research).set({ slug: "published-research", status: "published" }).where(eq(schema.research.id, ids.research));
 
   await db.insert(schema.thoughts).values([
-    { id: ids.thought, title: "Published thought", excerpt: "Published excerpt", bodyMarkdown: "Published thought body",
+    { id: ids.thought, title: "Published thought", excerpt: "Published excerpt",
+      bodyMarkdown: "---\ncategory: Systems\n---\nPublished thought body",
       draftContent: { version: 1, title: "PRIVATE THOUGHT DRAFT" }, publishedAt, publicUpdatedAt: publishedAt },
     { id: ids.draftThought, title: "PRIVATE DRAFT THOUGHT", status: "draft" },
   ]);
@@ -159,6 +160,8 @@ test("public queries expose only published, visible, public presentation data", 
   assert.deepEqual((await f.queries.getFeaturedResearch()).map((item) => item.id), [ids.research]);
   assert.equal((await f.queries.getResearchBySlug("published-research"))?.bodyMarkdown, "Published research body");
   assert.deepEqual((await f.queries.getPublishedThoughts()).map((item) => item.slug), ["published-thought"]);
+  assert.equal((await f.queries.getPublishedThoughts())[0].category, "Systems");
+  assert.equal((await f.queries.getPublishedThoughts())[0].readingMinutes, 1);
   assert.deepEqual((await f.queries.getLatestThoughts(50)).map((item) => item.id), [ids.thought]);
   assert.equal((await f.queries.getThoughtBySlug("published-thought"))?.bodyMarkdown, "Published thought body");
   assert.deepEqual((await f.queries.getExperiences()).map((item) => item.roleTitle), ["Visible role"]);

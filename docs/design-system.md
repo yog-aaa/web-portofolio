@@ -146,9 +146,9 @@ work at one viewport. Use `text-balance` selectively for short headings.
 
 Reading content is capped at 42rem; aim for roughly 60–75 characters per line.
 Use paragraph gaps of 1–1.5rem and larger spacing before section headings. The
-future safe-Markdown renderer must style real headings, lists, links, quotes,
-figures, tables, and code explicitly; no typography plugin or renderer is added
-in this foundation task.
+safe-Markdown renderer styles headings, lists, links, quotes, managed figures,
+tables, and code explicitly. Thoughts use a 46rem reading measure; Research uses
+the same measure within the wider editorial grid. No typography plugin is required.
 
 ## 5. Containers, grid, and rhythm
 

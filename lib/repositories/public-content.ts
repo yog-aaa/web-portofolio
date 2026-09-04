@@ -8,6 +8,7 @@ import { experiences, projectCategories, projectCategoryAssignments, projectMedi
   projectTechnologies, researchMedia, researchTechnologies, technologies, thoughtMedia } from "../database/schema/relationships";
 import { mediaAssets } from "../database/schema/media";
 import type { MediaImageData } from "../domain/media";
+import { parseThoughtDocument } from "../presentation/thought-document";
 import type { PublicCredential, PublicEducation, PublicExperience, PublicMediaReference, PublicPageRoute, PublicPageSettings,
   PublicProfile, PublicProject, PublicProjectDetail, PublicResearch, PublicResearchDetail,
   PublicSiteSettings, PublicSocialLink, PublicTaxonomy, PublicThemeSettings,
@@ -167,8 +168,10 @@ export class PublicContentRepository {
     if (!validSlug(slug)) return null;
     const [row] = await this.thoughtRows(and(published(thoughts.status), eq(thoughts.slug, slug)));
     if (!row) return null;
+    const document = parseThoughtDocument(row.bodyMarkdown!);
+    if (!document.bodyMarkdown.trim()) return null;
     const [base] = await this.hydrateThoughts([row]);
-    return { ...base, bodyMarkdown: row.bodyMarkdown!, seoTitle: row.seoTitle,
+    return { ...base, bodyMarkdown: document.bodyMarkdown, seoTitle: row.seoTitle,
       seoDescription: row.seoDescription, references: row.references,
       media: await this.media("thought", [row.id]).then((map) => map.get(row.id) ?? []) };
   }
@@ -243,9 +246,22 @@ export class PublicContentRepository {
   private async hydrateThoughts(rows: Awaited<ReturnType<PublicContentRepository["thoughtRows"]>>): Promise<PublicThought[]> {
     if (!rows.length) return [];
     const mediaMap = await this.media("thought", rows.map((row) => row.id));
-    return rows.map((row) => ({ id: row.id, slug: row.slug!, title: row.title, excerpt: row.excerpt!,
-      publishedAt: iso(row.publishedAt!), publicUpdatedAt: iso(row.publicUpdatedAt!),
-      cover: (mediaMap.get(row.id) ?? []).find((item) => item.role === "cover") ?? null }));
+    return rows.flatMap((row) => {
+      const document = parseThoughtDocument(row.bodyMarkdown!);
+      if (!document.bodyMarkdown.trim()) return [];
+
+      return [{
+        id: row.id,
+        slug: row.slug!,
+        title: row.title,
+        excerpt: row.excerpt!,
+        publishedAt: iso(row.publishedAt!),
+        publicUpdatedAt: iso(row.publicUpdatedAt!),
+        category: document.category,
+        readingMinutes: document.readingMinutes,
+        cover: (mediaMap.get(row.id) ?? []).find((item) => item.role === "cover") ?? null,
+      }];
+    });
   }
 
   private async publicEducation(): Promise<PublicEducation[]> {
