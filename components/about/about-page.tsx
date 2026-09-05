@@ -6,6 +6,7 @@ import { MediaRenderer } from "@/components/ui/media-renderer";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tag } from "@/components/ui/tag";
 import { SocialLinks } from "@/components/ui/social-links";
+import { Timeline, TimelineItem } from "@/components/ui/timeline";
 import type { PublicCredential, PublicPageSettings, PublicProfile, PublicProject } from "@/lib/domain/content";
 import { formatDateRange, formatDecimal, formatPreciseDate, uniqueByKey } from "@/lib/presentation/content";
 
@@ -44,14 +45,14 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
         {profile.biographyMarkdown ? <AboutSection index="03" title={sections[2]}><SafeMarkdown markdown={profile.biographyMarkdown} /></AboutSection> : null}
 
         <AboutSection id="education" index="04" title={sections[3]}>
-          {profile.education.length ? <ol className="border-t border-border">{profile.education.map((item) => <li key={item.id} className="border-b border-border py-6">
-            <p className="type-metadata text-foreground-secondary">{formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false)}</p>
-            <h3 className="mt-3 text-h3">{item.qualificationOrProgram}</h3>
+          {profile.education.length ? <Timeline>{profile.education.map((item) => <TimelineItem key={item.id} current={item.isCurrent ?? false}
+            metadata={<p className="type-metadata">{formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false)}</p>}>
+            <h3 className="text-h3">{item.qualificationOrProgram}</h3>
             <p className="mt-1 text-foreground-secondary">{item.institutionName}{item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}</p>
             {item.description ? <p className="mt-4 max-w-reading text-foreground-secondary">{item.description}</p> : null}
             {item.gpaValue && item.gpaScale ? <p className="type-metadata mt-4 text-foreground-secondary">GPA {formatDecimal(item.gpaValue)} / {formatDecimal(item.gpaScale)}</p> : null}
             {item.institutionUrl ? <div className="mt-4"><ArrowLink href={item.institutionUrl} external>Institution</ArrowLink></div> : null}
-          </li>)}</ol> : <p className="text-foreground-secondary">No public education entries are available.</p>}
+          </TimelineItem>)}</Timeline> : <p className="text-foreground-secondary">No public education entries are available.</p>}
         </AboutSection>
 
         <AboutSection index="05" title={sections[4]}>

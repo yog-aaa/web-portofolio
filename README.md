@@ -16,6 +16,8 @@ Hero → Work → Experience → Education → Research → Thoughts → About �
 Education shows up to three visible profile entries and links to `/about#education`.
 Its heading, introduction, and action label are editable under Site Settings →
 Homepage section copy → Education; clearing the heading hides the section.
+Experience and Education use a shared responsive timeline on Home, Experience,
+and About, with date labels and a marker for each entry.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and an owner-authorized Cloudinary media service are in place.
 The content/auth schema and migrations are present. The Work archive and case-study,

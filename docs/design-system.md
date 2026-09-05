@@ -199,6 +199,14 @@ then no additional top gap); do not accidentally double the intended rhythm.
 
 ## 6. Borders, radii, and depth
 
+Experience and Education use the shared `components/ui/timeline.tsx` presentation
+on Home, Experience, and About. Each ordered-list entry has a thin decorative rail
+and circular marker; current entries add a filled center and quiet accent ring,
+with “Present” also written in the date range. Dates sit beside content from `md`
+and above content on smaller screens. Keep real content in the reading order and
+hide the rail and markers from assistive technology. Timeline entries preserve
+the public query's ordering and visibility; the visual treatment adds no content.
+
 Use 1px `border-border` rules between editorial rows or regions. Use
 `border-border-control` for an input boundary or an outlined action. A divider
 does not need to look like a box. Reserve 2px for deliberate emphasis or focus.

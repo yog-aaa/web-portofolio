@@ -9,6 +9,7 @@ import { MediaRenderer } from "@/components/ui/media-renderer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Tag } from "@/components/ui/tag";
 import { SocialLinks } from "@/components/ui/social-links";
+import { Timeline, TimelineItem } from "@/components/ui/timeline";
 import { defaultEducationSectionCopy, type SectionCopy } from "@/lib/domain/content-values";
 import { formatDateRange, formatDecimal } from "@/lib/presentation/content";
 
@@ -128,11 +129,13 @@ export function HomePage({ settings, profile, projects, experience, research, th
       <Container>
         <SectionHeader index="02 / EXPERIENCE" heading={settings.sectionCopy.experienceHighlight.heading} headingId="experience-title"
           intro={settings.sectionCopy.experienceHighlight.intro} href="/experience" actionLabel={settings.sectionCopy.experienceHighlight.actionLabel} />
-        <article className="editorial-grid border-y border-border py-8 md:py-10">
-          <p className="type-metadata col-span-full text-foreground-secondary md:col-span-2 lg:col-span-3">{period(experience.startDate, experience.isCurrent ? "Present" : experience.endDate)}</p>
-          <div className="col-span-full mt-5 md:col-span-6 md:mt-0 lg:col-span-4"><h3 className="text-h3">{experience.roleTitle}</h3><p className="mt-1 text-foreground-secondary">{experience.organizationName}</p></div>
-          <p className="col-span-full mt-5 text-foreground-secondary md:col-span-6 md:col-start-3 lg:col-span-5 lg:col-start-8 lg:mt-0">{experience.description}</p>
-        </article>
+        <Timeline>
+          <TimelineItem current={experience.isCurrent} metadata={<p className="type-metadata">{formatDateRange(experience.startDate, experience.endDate, experience.isCurrent)}</p>}>
+            <h3 className="text-h3">{experience.roleTitle}</h3>
+            <p className="mt-2 text-foreground-secondary">{experience.organizationName}</p>
+            <p className="mt-4 max-w-reading text-foreground-secondary">{experience.description}</p>
+          </TimelineItem>
+        </Timeline>
       </Container>
     </section> : null}
 
@@ -140,21 +143,18 @@ export function HomePage({ settings, profile, projects, experience, research, th
       <Container>
         <SectionHeader index="03 / EDUCATION" heading={educationCopy.heading} headingId="education-title"
           intro={educationCopy.intro} href="/about#education" actionLabel={educationCopy.actionLabel} />
-        <ol className="border-t border-border">{education.map((item) => {
+        <Timeline>{education.map((item) => {
           const dates = formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false);
-          return <li key={item.id} className="editorial-grid border-b border-border py-8 md:py-10">
-            <div className="col-span-full min-w-0 text-foreground-secondary md:col-span-2 lg:col-span-3">
+          return <TimelineItem key={item.id} current={item.isCurrent ?? false} metadata={<>
               {dates ? <p className="type-metadata">{dates}</p> : null}
               {item.gpaValue && item.gpaScale ? <p className="type-metadata mt-3">GPA {formatDecimal(item.gpaValue)} / {formatDecimal(item.gpaScale)}</p> : null}
-            </div>
-            <div className="col-span-full min-w-0 md:col-span-6 lg:col-span-9">
+            </>}>
               <h3 className="text-h3 break-words">{item.qualificationOrProgram}</h3>
               <p className="mt-2 break-words text-foreground-secondary">{item.institutionName}{item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}</p>
               {item.description ? <p className="mt-4 max-w-reading text-foreground-secondary">{item.description}</p> : null}
               {item.institutionUrl ? <div className="mt-5"><ArrowLink href={item.institutionUrl} external>Institution</ArrowLink></div> : null}
-            </div>
-          </li>;
-        })}</ol>
+          </TimelineItem>;
+        })}</Timeline>
       </Container>
     </section> : null}
 
