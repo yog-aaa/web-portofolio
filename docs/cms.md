@@ -43,6 +43,15 @@ contrast for primary text and accent-button text. Resetting stores null override
 so the code-owned Calm Blue defaults remain authoritative. The public layout
 receives the selected values during server rendering, avoiding a client theme flash.
 
+Homepage section copy includes Education after Experience. Its heading, introduction,
+and action label are saved in the existing `sectionCopy` settings with normal owner
+authorization, stale-write checks, and public cache invalidation. Existing settings
+without Education copy use “Education” and “View education”; clearing and saving the
+heading hides the homepage section. It reads up to three visible education entries
+from the same profile query as About. This change adds section-copy controls;
+education-record editing is not yet implemented in the settings form.
+Apply `0004_education_section_copy.sql` before using the updated Site Settings form.
+
 ## Editorial lifecycle
 
 Projects, Research, and Thoughts use `draft`, `published`, and `archived`.

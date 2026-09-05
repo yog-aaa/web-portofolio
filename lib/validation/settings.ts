@@ -34,6 +34,7 @@ export const siteSettingsInputSchema = z.object({
   sectionCopy: z.object({
     selectedWork: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),
     experienceHighlight: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),
+    education: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),
     featuredResearch: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),
     latestThoughts: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),
     shortAbout: z.object({ heading: optionalText(160), intro: optionalText(500), actionLabel: optionalText(120) }),

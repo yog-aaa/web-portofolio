@@ -267,11 +267,12 @@ of archive pages. The sequence is code-owned; copy and eligible selections are C
 | 1 | Hero | Identity from Profile; headline/intro and CTA copy from SiteSettings | One introduction, primary exploration link to Work, secondary Contact action. |
 | 2 | Selected Work | Strong project evidence | Up to 3 published, featured Projects ordered by featuredOrder. |
 | 3 | Experience Highlight | Concise professional context | One visible, featured Experience; archive contains the complete account. |
-| 4 | Featured Research | Research depth | Up to 2 published, featured Research entries ordered by featuredOrder. |
-| 5 | Latest Thoughts | Current writing | Up to 3 published Thoughts ordered by first publication date, newest first. |
-| 6 | Short About | Human/background context | Profile short biography and link to About; no full education/credential list. |
-| 7 | Contact CTA | Clear next action | SiteSettings copy and the designated visible contact link. |
-| 8 | Footer | Secondary navigation and identity | Public social links, About/Credentials access, and owner-managed footer copy. |
+| 4 | Education | Academic background from Profile | Up to 3 visible Education entries in stored order; link to `/about#education` for the full list. Omit when empty or its CMS heading is cleared. |
+| 5 | Featured Research | Research depth | Up to 2 published, featured Research entries ordered by featuredOrder. |
+| 6 | Latest Thoughts | Current writing | Up to 3 published Thoughts ordered by first publication date, newest first. |
+| 7 | Short About | Human/background context | Profile short biography and link to About; no full education/credential list. |
+| 8 | Contact CTA | Clear next action | SiteSettings copy and the designated visible contact link. |
+| 9 | Footer | Secondary navigation and identity | Public social links, About/Credentials access, and owner-managed footer copy. |
 
 Do not auto-promote unfeatured projects/research to fill space. Empty optional
 collection sections are omitted while primary archive navigation remains available.

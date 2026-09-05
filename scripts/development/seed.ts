@@ -2,6 +2,7 @@ import "server-only";
 
 import { eq, sql } from "drizzle-orm";
 import type { Database } from "../../lib/database/connection";
+import { defaultEducationSectionCopy } from "../../lib/domain/content-values";
 import { projects, projectSlugs, research, researchSlugs, thoughts, thoughtSlugs } from "../../lib/database/schema/editorial";
 import { experiences, projectCategories, projectCategoryAssignments, projectTechnologies,
   researchTechnologies, technologies } from "../../lib/database/schema/relationships";
@@ -70,6 +71,7 @@ export async function seedDevelopmentContent(db: Database): Promise<DevelopmentS
       footerCopy: "Software · AI · Research", sectionCopy: {
         selectedWork: { heading: "Selected Work", intro: "A focused view of projects and research shaped by practical questions.", actionLabel: "View all work" },
         experienceHighlight: { heading: "Experience", actionLabel: "View experience" },
+        education: defaultEducationSectionCopy,
         featuredResearch: { heading: "Featured Research", actionLabel: "View all research" },
         latestThoughts: { heading: "Latest Thoughts", actionLabel: "Read all thoughts" },
         shortAbout: { heading: "About", actionLabel: "More about Yoga" }, contact: { heading: "Contact" },

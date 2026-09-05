@@ -41,6 +41,10 @@ delivery locators never enter public DTOs.
 page introductions, empty-state copy, metadata, and public-ready social imagery.
 Visible education includes GPA only as the stored value-and-scale pair; presentation
 omits both when the pair is absent.
+The homepage reuses `getProfile().education`, preserves its stored ordering, and
+shows at most three entries after Experience. No additional query is needed;
+`/about#education` retains the complete visible list. Apply the Education section-copy
+migration before saving its CMS copy.
 
 Project detail pages interpret owner-authored level-two Markdown headings as
 case-study sections. Markdown remains data, is rendered without raw HTML or

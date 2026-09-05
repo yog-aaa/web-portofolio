@@ -4,11 +4,16 @@ export type ContentLink = { label: string; url: string };
 export type CollaboratorCredit = { name: string; role?: string; url?: string };
 
 export type HomeSectionKey =
-  | "hero" | "selectedWork" | "experienceHighlight" | "featuredResearch"
+  | "hero" | "selectedWork" | "experienceHighlight" | "education" | "featuredResearch"
   | "latestThoughts" | "shortAbout" | "contact" | "footer";
 export type SectionCopy = Partial<Record<HomeSectionKey, {
   heading?: string; intro?: string; actionLabel?: string;
 }>>;
+
+/** Used until the owner saves Education copy; an explicitly empty heading hides it. */
+export const defaultEducationSectionCopy: NonNullable<SectionCopy["education"]> = {
+  heading: "Education", actionLabel: "View education",
+};
 
 /** Complete private editing payload, not a public read model. References use slot-aware joins. */
 export interface EditorialDraft {

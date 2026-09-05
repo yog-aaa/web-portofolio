@@ -77,7 +77,7 @@ export const siteSettings = pgTable("site_settings", {
 }, (t) => [
   check("site_settings_singleton", sql`${t.id} = 1`), nonBlank("site_brand_nonempty", t.brandName),
   check("site_section_copy_keys", sql`jsonb_typeof(${t.sectionCopy}) = 'object'
-    and ${t.sectionCopy} - array['hero','selectedWork','experienceHighlight','featuredResearch','latestThoughts','shortAbout','contact','footer']::text[] = '{}'::jsonb`),
+    and ${t.sectionCopy} - array['hero','selectedWork','experienceHighlight','education','featuredResearch','latestThoughts','shortAbout','contact','footer']::text[] = '{}'::jsonb`),
 ]);
 
 // Seven fixed route records with concrete fields, not an arbitrary SEO/EAV store.

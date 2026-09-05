@@ -9,6 +9,8 @@ import { MediaRenderer } from "@/components/ui/media-renderer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Tag } from "@/components/ui/tag";
 import { SocialLinks } from "@/components/ui/social-links";
+import { defaultEducationSectionCopy, type SectionCopy } from "@/lib/domain/content-values";
+import { formatDateRange, formatDecimal } from "@/lib/presentation/content";
 
 type WorkFeature = { kind: "project"; item: PublicProject } | { kind: "research"; item: PublicResearch };
 const period = (start: string | null, end: string | null) => [start, end].filter(Boolean).join(" — ");
@@ -98,6 +100,8 @@ export function HomePage({ settings, profile, projects, experience, research, th
   const remainingResearch = feature?.kind === "research" ? research.slice(1) : research;
   const contact = profile?.socialLinks.find((item) => item.purpose === "contact");
   const socialProfiles = profile?.socialLinks.filter((item) => item.purpose === "social") ?? [];
+  const education = profile?.education.slice(0, 3) ?? [];
+  const educationCopy: NonNullable<SectionCopy["education"]> = settings?.sectionCopy.education ?? defaultEducationSectionCopy;
 
   return <main id="main-content" className="flex-1">
     <section className="relative overflow-hidden pb-section pt-8 md:pt-14 lg:min-h-[calc(100svh-5rem)] lg:pt-16" aria-labelledby="home-title">
@@ -132,9 +136,31 @@ export function HomePage({ settings, profile, projects, experience, research, th
       </Container>
     </section> : null}
 
+    {education.length > 0 && educationCopy.heading ? <section id="education" className="scroll-mt-24 pb-section" aria-labelledby="education-title">
+      <Container>
+        <SectionHeader index="03 / EDUCATION" heading={educationCopy.heading} headingId="education-title"
+          intro={educationCopy.intro} href="/about#education" actionLabel={educationCopy.actionLabel} />
+        <ol className="border-t border-border">{education.map((item) => {
+          const dates = formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false);
+          return <li key={item.id} className="editorial-grid border-b border-border py-8 md:py-10">
+            <div className="col-span-full min-w-0 text-foreground-secondary md:col-span-2 lg:col-span-3">
+              {dates ? <p className="type-metadata">{dates}</p> : null}
+              {item.gpaValue && item.gpaScale ? <p className="type-metadata mt-3">GPA {formatDecimal(item.gpaValue)} / {formatDecimal(item.gpaScale)}</p> : null}
+            </div>
+            <div className="col-span-full min-w-0 md:col-span-6 lg:col-span-9">
+              <h3 className="text-h3 break-words">{item.qualificationOrProgram}</h3>
+              <p className="mt-2 break-words text-foreground-secondary">{item.institutionName}{item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}</p>
+              {item.description ? <p className="mt-4 max-w-reading text-foreground-secondary">{item.description}</p> : null}
+              {item.institutionUrl ? <div className="mt-5"><ArrowLink href={item.institutionUrl} external>Institution</ArrowLink></div> : null}
+            </div>
+          </li>;
+        })}</ol>
+      </Container>
+    </section> : null}
+
     {remainingResearch.length && settings?.sectionCopy.featuredResearch?.heading ? <section className="pb-section" aria-labelledby="research-title">
       <Container>
-        <SectionHeader index="03 / RESEARCH" heading={settings.sectionCopy.featuredResearch.heading} headingId="research-title"
+        <SectionHeader index="04 / RESEARCH" heading={settings.sectionCopy.featuredResearch.heading} headingId="research-title"
           intro={settings.sectionCopy.featuredResearch.intro} href="/research" actionLabel={settings.sectionCopy.featuredResearch.actionLabel} />
         <div className="border-t border-border">{remainingResearch.map((item, index) => <article key={item.id} className="editorial-grid border-b border-border py-8 md:py-10">
           <p className="type-metadata col-span-2 text-foreground-secondary">R.{String(index + 1).padStart(2, "0")}</p>
@@ -146,7 +172,7 @@ export function HomePage({ settings, profile, projects, experience, research, th
 
     {thoughts.length && settings?.sectionCopy.latestThoughts?.heading ? <section className="bg-surface py-section" aria-labelledby="thoughts-title">
       <Container>
-        <SectionHeader index="04 / THOUGHTS" heading={settings.sectionCopy.latestThoughts.heading} headingId="thoughts-title"
+        <SectionHeader index="05 / THOUGHTS" heading={settings.sectionCopy.latestThoughts.heading} headingId="thoughts-title"
           intro={settings.sectionCopy.latestThoughts.intro} href="/thoughts" actionLabel={settings.sectionCopy.latestThoughts.actionLabel} />
         <ol className="border-t border-border">{thoughts.map((item, index) => <li key={item.id} className="border-b border-border">
           <Link href={`/thoughts/${item.slug}`} className="editorial-grid group py-7 md:py-9">
@@ -160,7 +186,7 @@ export function HomePage({ settings, profile, projects, experience, research, th
 
     {profile && settings?.sectionCopy.shortAbout?.heading ? <section className="py-section" aria-labelledby="about-title">
       <Container>
-        <SectionHeader index="05 / ABOUT" heading={settings.sectionCopy.shortAbout.heading} headingId="about-title"
+        <SectionHeader index="06 / ABOUT" heading={settings.sectionCopy.shortAbout.heading} headingId="about-title"
           intro={settings.sectionCopy.shortAbout.intro} href="/about" actionLabel={settings.sectionCopy.shortAbout.actionLabel} />
         <div className="editorial-grid border-y border-border py-10 md:py-14">
           <div className="col-span-full lg:col-span-7"><h3 className="max-w-[18ch] text-h2 text-balance">{profile.focusLine ?? profile.displayName}</h3>{profile.shortBiography ? <p className="mt-6 max-w-reading text-body-lg text-foreground-secondary">{profile.shortBiography}</p> : null}</div>
@@ -171,7 +197,7 @@ export function HomePage({ settings, profile, projects, experience, research, th
 
     {contact && settings?.contactCtaHeading && settings.contactCtaLabel ? <section className="bg-accent-deep py-section text-accent-foreground" aria-labelledby="contact-title">
       <Container className="editorial-grid items-end">
-        <p className="type-metadata col-span-full text-accent-soft lg:col-span-3">06 / {settings.sectionCopy.contact?.heading ?? settings.contactCtaLabel}</p>
+        <p className="type-metadata col-span-full text-accent-soft lg:col-span-3">07 / {settings.sectionCopy.contact?.heading ?? settings.contactCtaLabel}</p>
         <div className="col-span-full mt-8 lg:col-span-7 lg:mt-0"><h2 id="contact-title" className="text-h2 text-balance">{settings.contactCtaHeading}</h2>{settings.contactSupportingCopy ? <p className="mt-5 max-w-reading text-body-lg text-accent-soft">{settings.contactSupportingCopy}</p> : null}</div>
         <div className="col-span-full mt-8 lg:col-span-2 lg:text-right"><a href={contact.destination} className="inline-flex min-h-target items-center border-b border-accent-soft font-medium">{settings.contactCtaLabel}<span className="ml-2" aria-hidden="true">↗</span></a></div>
         {socialProfiles.length ? <div className="col-span-full mt-7 lg:col-start-4"><SocialLinks links={socialProfiles} tone="inverse" /></div> : null}

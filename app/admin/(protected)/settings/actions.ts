@@ -45,6 +45,7 @@ export async function saveSiteSettingsAction(_state: AdminActionState, form: For
       contactText: value(form, "contactText"), contactEmail: value(form, "contactEmail"),
       footerContent: value(form, "footerContent"), socialLinks: socialLinks(form),
       sectionCopy: { selectedWork: section("selectedWork"), experienceHighlight: section("experienceHighlight"),
+        education: section("education"),
         featuredResearch: section("featuredResearch"), latestThoughts: section("latestThoughts"),
         shortAbout: section("shortAbout"), contact: { heading: value(form, "contactSectionHeading") } },
     });

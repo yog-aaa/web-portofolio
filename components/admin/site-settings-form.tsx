@@ -1,5 +1,6 @@
 import { saveSiteSettingsAction } from "@/app/admin/(protected)/settings/actions";
 import type { AdminSiteSettings } from "@/lib/domain/settings";
+import { defaultEducationSectionCopy } from "@/lib/domain/content-values";
 import { AdminActionForm, SubmitButton } from "./admin-action-form";
 import { fieldClass, helpClass, labelClass } from "./admin-ui";
 import { SocialLinksEditor } from "./social-links-editor";
@@ -8,6 +9,7 @@ import type { AdminMediaOption } from "@/lib/repositories/admin-content";
 
 const sections = [
   ["selectedWork", "Selected Work"], ["experienceHighlight", "Experience Highlight"],
+  ["education", "Education"],
   ["featuredResearch", "Featured Research"], ["latestThoughts", "Latest Thoughts"],
   ["shortAbout", "Short About"],
 ] as const;
@@ -54,7 +56,7 @@ export function SiteSettingsForm({ settings, media }: { settings: AdminSiteSetti
       <h2 id="section-copy-settings" className="text-h3">Homepage section copy</h2>
       <p className={helpClass}>Empty headings hide their corresponding homepage section.</p>
       <div className="mt-6 space-y-8">{sections.map(([key, label]) => {
-        const item = copy[key];
+        const item = copy[key] ?? (key === "education" ? defaultEducationSectionCopy : undefined);
         return <fieldset key={key} className="grid gap-5 border-l border-border pl-5 md:grid-cols-2">
           <legend className="type-metadata mb-4 text-foreground-secondary">{label.toUpperCase()}</legend>
           <Field name={`${key}Heading`} label="Heading" value={item?.heading} />

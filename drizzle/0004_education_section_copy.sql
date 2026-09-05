@@ -1,0 +1,3 @@
+ALTER TABLE "site_settings" DROP CONSTRAINT "site_section_copy_keys";--> statement-breakpoint
+ALTER TABLE "site_settings" ADD CONSTRAINT "site_section_copy_keys" CHECK (jsonb_typeof("site_settings"."section_copy") = 'object'
+    and "site_settings"."section_copy" - array['hero','selectedWork','experienceHighlight','education','featuredResearch','latestThoughts','shortAbout','contact','footer']::text[] = '{}'::jsonb);

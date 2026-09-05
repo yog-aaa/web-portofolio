@@ -104,6 +104,11 @@ social previews, and sitemap entries use the same published source as page conte
 SEO overrides are CMS-managed, with code-owned, truthful fallbacks. Exclude admin
 and draft content from indexing; indexing directives do not replace access control.
 
+The homepage includes Education after Experience, using up to three visible entries
+from the public profile in stored order and linking to `/about#education` for the
+full list. Section copy is CMS-owned; missing Education copy uses shared defaults,
+while an explicitly empty heading or no visible entries hides the section.
+
 ## 3. Admin CMS
 
 | Route | Purpose |

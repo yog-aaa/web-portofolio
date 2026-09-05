@@ -34,6 +34,7 @@ function siteInput(expectedUpdatedAt: string | null = null) {
     sectionCopy: {
       selectedWork: { heading: "Selected Work", intro: "", actionLabel: "View work" },
       experienceHighlight: { heading: "Experience", intro: "", actionLabel: "View experience" },
+      education: { heading: "Academic background", intro: "Studies and learning.", actionLabel: "View education" },
       featuredResearch: { heading: "Research", intro: "", actionLabel: "View research" },
       latestThoughts: { heading: "Thoughts", intro: "", actionLabel: "Read thoughts" },
       shortAbout: { heading: "About", intro: "", actionLabel: "About Yoga" },
@@ -57,9 +58,16 @@ test("site settings require owner access, persist managed links, and reject stal
   assert.equal(saved?.socialLinks[0].platformKey, "github");
   assert.equal((await f.publicQueries.getProfile())?.socialLinks.length, 2);
   assert.equal((await f.publicQueries.getSiteSettings())?.heroHeadline, "Build useful things.");
+  assert.deepEqual((await f.publicQueries.getSiteSettings())?.sectionCopy.education, {
+    heading: "Academic background", intro: "Studies and learning.", actionLabel: "View education",
+  });
   await assert.rejects(f.service.saveSite(siteInput(null)), /SETTINGS_STALE/);
   assert.ok(f.permissions.includes("cms:read"));
   assert.ok(f.permissions.includes("cms:write"));
+  const hiddenEducation = siteInput(saved!.updatedAt);
+  hiddenEducation.sectionCopy.education = { heading: null, intro: null, actionLabel: null };
+  await f.service.saveSite(hiddenEducation);
+  assert.deepEqual((await f.publicQueries.getSiteSettings())?.sectionCopy.education, {});
 });
 
 test("theme settings validate contrast, reach public queries, and reset to defaults", async (t) => {

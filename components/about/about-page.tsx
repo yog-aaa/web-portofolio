@@ -43,7 +43,7 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
 
         {profile.biographyMarkdown ? <AboutSection index="03" title={sections[2]}><SafeMarkdown markdown={profile.biographyMarkdown} /></AboutSection> : null}
 
-        <AboutSection index="04" title={sections[3]}>
+        <AboutSection id="education" index="04" title={sections[3]}>
           {profile.education.length ? <ol className="border-t border-border">{profile.education.map((item) => <li key={item.id} className="border-b border-border py-6">
             <p className="type-metadata text-foreground-secondary">{formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false)}</p>
             <h3 className="mt-3 text-h3">{item.qualificationOrProgram}</h3>
@@ -83,8 +83,8 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
   </main>;
 }
 
-function AboutSection({ index, title, children }: { index: string; title: string; children: ReactNode }) {
-  return <section className="editorial-grid border-b border-border py-10 md:py-14" aria-labelledby={`about-${index}`}>
+function AboutSection({ id, index, title, children }: { id?: string; index: string; title: string; children: ReactNode }) {
+  return <section id={id} className="editorial-grid scroll-mt-24 border-b border-border py-10 md:py-14" aria-labelledby={`about-${index}`}>
     <div className="col-span-full lg:col-span-3"><p className="type-metadata text-foreground-secondary">{index}</p><h2 id={`about-${index}`} className="mt-3 text-h3">{title}</h2></div>
     <div className="col-span-full mt-7 min-w-0 lg:col-span-8 lg:col-start-5 lg:mt-0">{children}</div>
   </section>;

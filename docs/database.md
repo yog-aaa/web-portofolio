@@ -69,7 +69,11 @@ enums. [0001_auth_rate_limit.sql](../drizzle/0001_auth_rate_limit.sql) adds Bett
 `rate_limit` table, [0002_media_service.sql](../drizzle/0002_media_service.sql)
 adds media deletion jobs/category constraints, and
 [0003_theme_settings.sql](../drizzle/0003_theme_settings.sql) adds the
-approved neutral theme override columns. The total remains 31 tables. No rows,
+approved neutral theme override columns.
+[0004_education_section_copy.sql](../drizzle/0004_education_section_copy.sql) extends
+the `site_section_copy_keys` check to accept Education homepage copy. Apply it before
+saving site settings with this version; existing rows are preserved.
+The total remains 31 tables. No rows,
 personal facts, accounts, passwords, or bootstrap data are seeded by migrations.
 UUIDs are database-generated for content/association records. Fixed singletons use
 `smallint` ID 1 with a check constraint; auth IDs remain Better Auth-managed text.

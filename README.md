@@ -12,7 +12,10 @@ and the environment template are established. Foundational Calm Blue tokens,
 typography, responsive layout utilities, focus, and reduced-motion CSS are in place.
 The public shell and CMS-driven homepage now implement the Calm Blue editorial
 system with sticky responsive navigation, reusable UI primitives, and the curated
-Hero → Work → Experience → Research → Thoughts → About → Contact hierarchy.
+Hero → Work → Experience → Education → Research → Thoughts → About → Contact hierarchy.
+Education shows up to three visible profile entries and links to `/about#education`.
+Its heading, introduction, and action label are editable under Site Settings →
+Homepage section copy → Education; clearing the heading hides the section.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and an owner-authorized Cloudinary media service are in place.
 The content/auth schema and migrations are present. The Work archive and case-study,
@@ -42,7 +45,7 @@ structured data for identity, work, research, and Thoughts. Public read models u
 persistent tagged caching with immediate CMS invalidation, and production responses
 include baseline anti-framing, MIME, referrer, and permissions headers. Deployment
 remains pending. Database integration is configured; apply every reviewed migration,
-including the current theme-settings migration, before running these public queries
+including the Education section-copy migration, before saving homepage settings or running public queries
 against an existing Aiven database. Auth, media, content, and settings
 behavior has isolated PostgreSQL coverage;
 Live Aiven, Cloudinary, custom-domain, and production deployment verification remain pending.
