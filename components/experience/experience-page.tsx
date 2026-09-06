@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/container";
 import { MediaRenderer } from "@/components/ui/media-renderer";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tag } from "@/components/ui/tag";
-import { Timeline, TimelineItem } from "@/components/ui/timeline";
+import { Timeline, TimelineDetails, TimelineItem } from "@/components/ui/timeline";
 import type { PublicExperience, PublicPageSettings } from "@/lib/domain/content";
 import { formatDateRange, normalizeLabel } from "@/lib/presentation/content";
 
@@ -36,18 +36,18 @@ export function ExperiencePage({ experiences, pageSettings }: {
               <p className="type-metadata mt-3 text-foreground-secondary">{formatDateRange(experience.startDate, experience.endDate, experience.isCurrent)}</p>
               {category(experience.contextLabel) ? <Tag className="mt-5">{category(experience.contextLabel)}</Tag> : null}
             </>}>
-          <article className="grid gap-7 lg:grid-cols-2 lg:gap-8">
+          <article>
             <div className="min-w-0">
               <h2 className="text-h3">{experience.roleTitle}</h2>
               <p className="mt-2 text-body-lg text-foreground-secondary">{experience.organizationName}</p>
               {experience.location ? <p className="type-metadata mt-3 text-foreground-secondary">{experience.location}</p> : null}
-              {experience.organizationUrl ? <div className="mt-5"><ArrowLink href={experience.organizationUrl} external>Organization</ArrowLink></div> : null}
             </div>
-            <div className="min-w-0">
-              <p className="max-w-reading text-foreground-secondary">{experience.description}</p>
+            <TimelineDetails label={experience.roleTitle}>
+              <p>{experience.description}</p>
+              {experience.organizationUrl ? <ArrowLink href={experience.organizationUrl} external>Organization</ArrowLink> : null}
               {experience.organizationImage ? <MediaRenderer className="mt-7 max-w-sm" image={experience.organizationImage}
                 sizes="(min-width: 1024px) 24rem, 60vw" /> : null}
-            </div>
+            </TimelineDetails>
           </article>
         </TimelineItem>)}
       </Timeline> : <div className="border-y border-border py-16 md:py-24"><p className="max-w-reading text-body-lg text-foreground-secondary">

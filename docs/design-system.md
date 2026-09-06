@@ -206,6 +206,14 @@ with “Present” also written in the date range. Dates sit beside content from
 and above content on smaller screens. Keep real content in the reading order and
 hide the rail and markers from assistive technology. Timeline entries preserve
 the public query's ordering and visibility; the visual treatment adds no content.
+The client-only reveal wrapper animates each entry once on intersection; content
+is visible in server HTML and never depends on animation completion. Respect
+reduced motion at entry and cancel running animations if that preference changes.
+Hover and focus within an entry emphasize its marker, rail, and content background.
+Use native `details`/`summary` for supplementary descriptions and institution links;
+keep dates, roles/programs, institutions, and GPA visible. Omit the disclosure when
+no supplementary content exists. Disclosure controls support keyboard and touch
+and work without JavaScript.
 
 Use 1px `border-border` rules between editorial rows or regions. Use
 `border-border-control` for an input boundary or an outlined action. A divider

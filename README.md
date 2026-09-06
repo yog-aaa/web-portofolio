@@ -17,7 +17,10 @@ Education shows up to three visible profile entries and links to `/about#educati
 Its heading, introduction, and action label are editable under Site Settings →
 Homepage section copy → Education; clearing the heading hides the section.
 Experience and Education use a shared responsive timeline on Home, Experience,
-and About, with date labels and a marker for each entry.
+and About, with date labels and a marker for each entry. Entries animate once when
+they enter the viewport, highlight on hover or keyboard focus, and offer expandable
+details when additional content exists. Reduced-motion preferences are respected;
+content and native detail controls remain usable without JavaScript.
 Approved backend dependencies, a lazy database client, Drizzle Kit configuration,
 environment validation, and an owner-authorized Cloudinary media service are in place.
 The content/auth schema and migrations are present. The Work archive and case-study,

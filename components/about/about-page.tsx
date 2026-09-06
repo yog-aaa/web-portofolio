@@ -6,7 +6,7 @@ import { MediaRenderer } from "@/components/ui/media-renderer";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tag } from "@/components/ui/tag";
 import { SocialLinks } from "@/components/ui/social-links";
-import { Timeline, TimelineItem } from "@/components/ui/timeline";
+import { Timeline, TimelineDetails, TimelineItem } from "@/components/ui/timeline";
 import type { PublicCredential, PublicPageSettings, PublicProfile, PublicProject } from "@/lib/domain/content";
 import { formatDateRange, formatDecimal, formatPreciseDate, uniqueByKey } from "@/lib/presentation/content";
 
@@ -49,9 +49,11 @@ export function AboutPage({ profile, projects, credentials, pageSettings }: {
             metadata={<p className="type-metadata">{formatDateRange(item.startDate, item.endDate, item.isCurrent ?? false)}</p>}>
             <h3 className="text-h3">{item.qualificationOrProgram}</h3>
             <p className="mt-1 text-foreground-secondary">{item.institutionName}{item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}</p>
-            {item.description ? <p className="mt-4 max-w-reading text-foreground-secondary">{item.description}</p> : null}
             {item.gpaValue && item.gpaScale ? <p className="type-metadata mt-4 text-foreground-secondary">GPA {formatDecimal(item.gpaValue)} / {formatDecimal(item.gpaScale)}</p> : null}
-            {item.institutionUrl ? <div className="mt-4"><ArrowLink href={item.institutionUrl} external>Institution</ArrowLink></div> : null}
+            {item.description || item.institutionUrl ? <TimelineDetails label={item.qualificationOrProgram}>
+              {item.description ? <p>{item.description}</p> : null}
+              {item.institutionUrl ? <ArrowLink href={item.institutionUrl} external>Institution</ArrowLink> : null}
+            </TimelineDetails> : null}
           </TimelineItem>)}</Timeline> : <p className="text-foreground-secondary">No public education entries are available.</p>}
         </AboutSection>
 

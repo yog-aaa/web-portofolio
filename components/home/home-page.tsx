@@ -9,7 +9,7 @@ import { MediaRenderer } from "@/components/ui/media-renderer";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Tag } from "@/components/ui/tag";
 import { SocialLinks } from "@/components/ui/social-links";
-import { Timeline, TimelineItem } from "@/components/ui/timeline";
+import { Timeline, TimelineDetails, TimelineItem } from "@/components/ui/timeline";
 import { defaultEducationSectionCopy, type SectionCopy } from "@/lib/domain/content-values";
 import { formatDateRange, formatDecimal } from "@/lib/presentation/content";
 
@@ -133,7 +133,7 @@ export function HomePage({ settings, profile, projects, experience, research, th
           <TimelineItem current={experience.isCurrent} metadata={<p className="type-metadata">{formatDateRange(experience.startDate, experience.endDate, experience.isCurrent)}</p>}>
             <h3 className="text-h3">{experience.roleTitle}</h3>
             <p className="mt-2 text-foreground-secondary">{experience.organizationName}</p>
-            <p className="mt-4 max-w-reading text-foreground-secondary">{experience.description}</p>
+            <TimelineDetails label={experience.roleTitle}><p>{experience.description}</p></TimelineDetails>
           </TimelineItem>
         </Timeline>
       </Container>
@@ -151,8 +151,10 @@ export function HomePage({ settings, profile, projects, experience, research, th
             </>}>
               <h3 className="text-h3 break-words">{item.qualificationOrProgram}</h3>
               <p className="mt-2 break-words text-foreground-secondary">{item.institutionName}{item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}</p>
-              {item.description ? <p className="mt-4 max-w-reading text-foreground-secondary">{item.description}</p> : null}
-              {item.institutionUrl ? <div className="mt-5"><ArrowLink href={item.institutionUrl} external>Institution</ArrowLink></div> : null}
+              {item.description || item.institutionUrl ? <TimelineDetails label={item.qualificationOrProgram}>
+                {item.description ? <p>{item.description}</p> : null}
+                {item.institutionUrl ? <ArrowLink href={item.institutionUrl} external>Institution</ArrowLink> : null}
+              </TimelineDetails> : null}
           </TimelineItem>;
         })}</Timeline>
       </Container>

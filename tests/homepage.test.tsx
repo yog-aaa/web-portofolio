@@ -49,6 +49,9 @@ test("homepage places CMS education after experience and links to the About educ
   for (const text of ["Academic background", "Studies and learning.", "All education", "Example Institute", "Example program",
     "Computing", "Sep 2022 — Present", "GPA 3.5 / 4", "Owner-supplied study description."]) assert.ok(html.includes(text));
   assert.match(html, /href="\/about#education"/);
+  assert.match(html, /<details[^>]*>[\s\S]*<summary/);
+  assert.doesNotMatch(html, /<details[^>]*\sopen(?:[\s=>])/);
+  assert.match(html, / about Example program/);
   const about = renderToStaticMarkup(<AboutPage profile={educationProfile} projects={[]} credentials={[]} pageSettings={null} />);
   assert.match(about, /id="education"/);
 });
@@ -63,6 +66,7 @@ test("homepage education supports existing settings, respects ordering and limit
   assert.ok(html.indexOf("Institute 0") < html.indexOf("Institute 1"));
   assert.match(html, /Institute 2/);
   assert.doesNotMatch(html, /Institute 3|GPA|Present|href="https:\/\/example.test"/);
+  assert.doesNotMatch(html, /<details|View details/);
 });
 
 test("homepage omits education when no public entries exist or the owner clears its heading", () => {
