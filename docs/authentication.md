@@ -110,11 +110,29 @@ Action without supplying equivalent protection. See the official
 
 There is no email password-reset workflow. When the current password is known,
 use the authenticated Change password form. If credentials are lost, bootstrap
-must still refuse to overwrite the owner. Recovery requires a separately reviewed
-offline procedure that verifies ownership, uses Better Auth-supported password
-handling, preserves the stable binding, and revokes sessions. Do not delete auth
-rows or manually write plaintext/hash values as an improvised recovery path.
-An offline recovery procedure and deployment rehearsal remain launch gates.
+still refuses to overwrite the owner. Use the reviewed offline recovery procedure:
+
+1. Verify the intended database, TLS trust, backup availability, and bound owner
+   email. Run only from a trusted operational environment.
+2. Securely inject `RESET_OWNER_EMAIL` and a new `RESET_OWNER_PASSWORD` of 12–128
+   characters. Never pass either value as a command-line argument.
+3. Run:
+
+   ```bash
+   npm run auth:reset-owner-password -- --confirm-owner-password-reset
+   ```
+
+4. The command locks against concurrent bootstrap/recovery, requires the supplied
+   email to match the persisted owner binding, hashes through Better Auth, preserves
+   the user/account/binding identity, and revokes all owner sessions atomically.
+   Unexpected or ambiguous state fails without changing credentials.
+5. Remove `RESET_OWNER_EMAIL` and `RESET_OWNER_PASSWORD` from local, Vercel, and
+   temporary secret-manager scopes immediately after success. Sign in again with
+   the new password; every previous session remains invalid.
+
+Do not expose this command through HTTP, add it to build/start, delete auth rows,
+or manually write plaintext/hash values as an improvised recovery path. Rehearse
+the procedure against an isolated restored database before relying on it in production.
 
 ## Validation
 
@@ -132,8 +150,9 @@ They use generated test secrets, never load `.env.local`, and exercise the real
 Better Auth Drizzle adapter, HTTP boundary, and server gate. Coverage includes
 anonymous admin requests, invalid/successful login, secure cookies, session
 expiry/logout, signup rejection, cross-origin denial, non-owner authorization,
-password changes, atomic bootstrap rollback, rerun/concurrent provisioning, and
-concurrent rate limiting across auth instances.
+password changes, atomic bootstrap rollback, rerun/concurrent provisioning,
+offline password recovery/session revocation, and concurrent rate limiting across
+auth instances.
 
 PGlite is a development-only test engine; runtime persistence remains postgres.js
 and Aiven PostgreSQL. These tests do not verify postgres.js network/TLS behavior,

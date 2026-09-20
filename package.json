@@ -16,6 +16,7 @@
     "db:check": "drizzle-kit check --config=drizzle.config.ts",
     "db:seed:development": "node --conditions=react-server --import tsx scripts/seed-development.ts",
     "auth:bootstrap-owner": "node --conditions=react-server --import tsx scripts/bootstrap-owner.ts",
+    "auth:reset-owner-password": "node --conditions=react-server --import tsx scripts/reset-owner-password.ts",
     "test:auth": "node --conditions=react-server --import tsx --test tests/auth.test.ts",
     "test:database": "node --import tsx --test tests/database-environment.test.ts",
     "test:media": "node --conditions=react-server --import tsx --test tests/media.test.ts && node --import tsx --test tests/media-image.test.tsx",

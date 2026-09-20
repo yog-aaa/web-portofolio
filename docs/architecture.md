@@ -278,6 +278,12 @@ temporary password through the authenticated form at `/admin`. Normal authentica
 authorization use persisted auth identity and do not depend on any bootstrap
 environment value. Document provisioning and recovery before enabling CMS access.
 
+Lost-password recovery uses an explicit offline CLI, never a hosted endpoint. It
+must verify the supplied email against the stable owner binding, hash through
+Better Auth, preserve the bound identity, and revoke every owner session in the
+same transaction. Recovery inputs are temporary server-only secrets and must be
+removed immediately after use. See [authentication operations](authentication.md).
+
 ## 9. Cloudinary and media
 
 Cloudinary stores profile imagery, project covers/galleries, research figures,
@@ -362,6 +368,8 @@ Do not put real credentials into documentation, generated artifacts, or example 
 | `BOOTSTRAP_OWNER_NAME` | Provisioning-only server input | `Yoga Agustiansyah`; not the runtime profile source |
 | `BOOTSTRAP_OWNER_EMAIL` | Provisioning-only server input | Explicit placeholder until supplied; never used as public contact data implicitly |
 | `BOOTSTRAP_OWNER_PASSWORD` | Provisioning-only server secret | Temporary; remove from production after provisioning succeeds |
+| `RESET_OWNER_EMAIL` | Recovery-only server input | Must match the persisted bound owner email; remove after recovery |
+| `RESET_OWNER_PASSWORD` | Recovery-only server secret | New password; remove immediately after recovery succeeds |
 
 Only `NEXT_PUBLIC_SITE_URL` is a public environment variable. Never introduce
 `NEXT_PUBLIC_DATABASE_URL`, `NEXT_PUBLIC_BETTER_AUTH_SECRET`, or

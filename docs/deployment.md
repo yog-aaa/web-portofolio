@@ -32,9 +32,11 @@ the application enforces Aiven certificate and hostname verification.
 | `BOOTSTRAP_OWNER_NAME` | Only while provisioning | Only while provisioning | Bootstrap-only input |
 | `BOOTSTRAP_OWNER_EMAIL` | Only while provisioning | Only while provisioning | Bootstrap-only private input |
 | `BOOTSTRAP_OWNER_PASSWORD` | Only while provisioning | Remove immediately after success | Bootstrap-only secret |
+| `RESET_OWNER_EMAIL` | Only during offline recovery | Remove immediately after success | Recovery-only private input |
+| `RESET_OWNER_PASSWORD` | Only during offline recovery | Remove immediately after success | Recovery-only secret |
 
 Only `NEXT_PUBLIC_SITE_URL` is exposed to browser code. Never create public-prefixed
-database, Better Auth, Cloudinary, CA, or bootstrap variables. Changes to Vercel
+database, Better Auth, Cloudinary, CA, bootstrap, or recovery variables. Changes to Vercel
 environment variables apply only to new deployments, so redeploy after changing a
 runtime value. See Vercel's [environment variable documentation](https://vercel.com/docs/environment-variables).
 
@@ -184,6 +186,12 @@ After a successful bootstrap:
    longer contains it.
 3. Sign in and change the temporary password from `/admin`.
 
+If the owner password is lost, verify the database and backup, securely inject
+temporary `RESET_OWNER_EMAIL` and `RESET_OWNER_PASSWORD`, then follow the exact
+[offline recovery procedure](authentication.md#recovery). Never use bootstrap to
+overwrite the existing owner. Remove both recovery values and redeploy after a
+successful production reset, then verify that previous sessions stay revoked.
+
 ## 10. Release verification
 
 Run the repository checks before deployment:
@@ -232,8 +240,9 @@ Production launch remains blocked until the external checks above pass. Automate
 tests use ephemeral PostgreSQL and a mocked Cloudinary boundary; they do not prove
 live Aiven connectivity, Cloudinary account permissions, Vercel ingress behavior,
 DNS, SSL, cache propagation, or CDN invalidation. The application has no email
-password-reset flow, so an owner-verified offline recovery procedure must be agreed
-and rehearsed before launch.
+password-reset flow. Its owner-verified offline recovery command is implemented
+and tested against ephemeral PostgreSQL, but must be rehearsed against an isolated
+restored database before launch.
 
 Keep an Aiven restore path and a rollback-capable Vercel deployment available.
 Schema rollback should normally use a reviewed forward migration. Content changes

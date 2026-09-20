@@ -151,7 +151,7 @@ state, and never silently reassign the pointer. It is not a CMS-editable setting
 Runtime server checks, API-level `disableSignUp`, and CLI provisioning are now
 implemented. `rate_limit` accompanies the database-backed limiter. See the
 [authentication guide](authentication.md) for provisioning, password changes,
-session policy, independent authorization, recovery limits, and isolated tests.
+session policy, independent authorization, offline recovery, and isolated tests.
 
 ### Editorial storage and publication
 

@@ -15,8 +15,9 @@ import { createAuthHttpHandler } from "../lib/auth/http";
 import { AuthorizationError, authorizeOwner } from "../lib/auth/authorization";
 import { createAdminGate } from "../lib/auth/admin-gate";
 import { baseAuthOptions } from "../lib/auth/options";
-import { parseAuthEnvironment, parseBootstrapEnvironment } from "../lib/validation/environment";
+import { parseAuthEnvironment, parseBootstrapEnvironment, parseOwnerPasswordResetEnvironment } from "../lib/validation/environment";
 import { BootstrapConflict, provisionOwner } from "../scripts/auth/bootstrap";
+import { OwnerPasswordResetConflict, resetOwnerPassword } from "../scripts/auth/reset-owner-password";
 
 // Never load .env.local or use getDatabase(): all SQL runs in ephemeral WASM PostgreSQL.
 const environment = parseAuthEnvironment({
@@ -203,6 +204,47 @@ test("failed binding rolls back both Better Auth user and credential account", a
   assert.equal((await f.db.select().from(schema.user)).length, 0);
   assert.equal((await f.db.select().from(schema.account)).length, 0);
   assert.equal((await f.db.select().from(schema.ownerBinding)).length, 0);
+});
+
+test("offline owner password reset preserves the binding and revokes every session", async (t) => {
+  const f = await fixture();
+  t.after(() => f.client.close());
+  await provisionOwner(f.db, environment, input);
+  const ownerBefore = (await f.db.select().from(schema.ownerBinding))[0];
+  const accountBefore = (await f.db.select().from(schema.account))[0];
+  await f.signIn();
+  await f.signIn();
+  assert.equal((await f.db.select().from(schema.session)).length, 2);
+
+  const newPassword = randomBytes(24).toString("base64url");
+  const resetInput = parseOwnerPasswordResetEnvironment({
+    RESET_OWNER_EMAIL: input.BOOTSTRAP_OWNER_EMAIL.toUpperCase(),
+    RESET_OWNER_PASSWORD: newPassword,
+  });
+  const result = await resetOwnerPassword(f.db, resetInput);
+
+  assert.equal(result.userId, ownerBefore.userId);
+  assert.deepEqual(await f.db.select().from(schema.ownerBinding), [ownerBefore]);
+  const accountAfter = (await f.db.select().from(schema.account))[0];
+  assert.equal(accountAfter.id, accountBefore.id);
+  assert.notEqual(accountAfter.password, accountBefore.password);
+  assert.equal((await f.db.select().from(schema.session)).length, 0);
+  assert.equal((await f.signIn()).status, 401);
+  assert.equal((await f.signIn(newPassword)).status, 200);
+});
+
+test("offline owner password reset refuses a mismatched confirmation email", async (t) => {
+  const f = await fixture();
+  t.after(() => f.client.close());
+  await provisionOwner(f.db, environment, input);
+  const accountBefore = (await f.db.select().from(schema.account))[0];
+  const resetInput = parseOwnerPasswordResetEnvironment({
+    RESET_OWNER_EMAIL: "another@example.test",
+    RESET_OWNER_PASSWORD: randomBytes(24).toString("base64url"),
+  });
+
+  await assert.rejects(resetOwnerPassword(f.db, resetInput), OwnerPasswordResetConflict);
+  assert.deepEqual(await f.db.select().from(schema.account), [accountBefore]);
 });
 
 test("login rate limiting persists across auth instances and concurrent requests", async (t) => {

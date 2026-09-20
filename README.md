@@ -105,6 +105,15 @@ After success, remove `BOOTSTRAP_OWNER_PASSWORD` from Vercel and local environme
 settings, sign in at `/admin/login`, and replace the temporary password at `/admin`.
 Public signup is disabled. There is no email reset flow.
 
+If the current password is lost, follow the owner-verified offline recovery steps
+in [the authentication guide](docs/authentication.md#recovery). The recovery command
+uses temporary `RESET_OWNER_*` environment values, preserves the bound owner, and
+revokes every existing session:
+
+```bash
+npm run auth:reset-owner-password -- --confirm-owner-password-reset
+```
+
 ## Development content seed
 
 After reviewing and applying migrations to a verified development database, seed
@@ -131,9 +140,9 @@ placeholders. When configuring integrations, put real local values in root
 `.env.local`; Git ignores real environment files and allows only the example.
 Do not overwrite an existing local environment file or commit real credentials.
 
-Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, and
-owner bootstrap credentials remain server-only. Remove `BOOTSTRAP_OWNER_PASSWORD`
-from the production environment after owner provisioning succeeds. Next.js and the
+Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, owner
+bootstrap, and owner recovery credentials remain server-only. Remove temporary
+password variables after their command succeeds. Next.js and the
 Drizzle Kit configuration share `.env.local` without duplicated database
 credentials. Set `DATABASE_CA_CERT_BASE64` to the one-line Base64 encoding of the
 Aiven `ca.pem`; the runtime and Drizzle Kit validate and decode it without writing
@@ -214,7 +223,7 @@ see [the audit notes](docs/database.md#dependency-audit) before changing version
 - [Database schema and infrastructure](docs/database.md): schema relationships,
   draft/public storage, migration workflows, environment loading, and verified TLS.
 - [Authentication](docs/authentication.md): owner provisioning, route/mutation
-  protection, session policy, password changes, tests, and recovery limitations.
+  protection, session policy, password changes, tests, and offline recovery.
 - [Media service](docs/media.md): owner-only library, upload limits, Cloudinary
   delivery, metadata, references, deletion retries, and test boundaries.
 - [Public content queries](docs/content-queries.md): public DTOs, visibility rules,
