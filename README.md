@@ -58,6 +58,15 @@ Live Aiven, Cloudinary, custom-domain, and production deployment verification re
 The intended system is CMS-first: routine content updates should eventually require
 no source-code change, Git commit, or redeployment.
 
+## Planned migration
+
+The next architecture change will replace Aiven PostgreSQL and Better Auth with
+Cloud Firestore and Firebase Authentication while retaining Cloudinary. The current
+application still uses PostgreSQL; no Firebase runtime has been implemented yet.
+Porto V2 design content will become the new seed; existing development samples
+will not be migrated. Review the [Firestore migration design](docs/superpowers/specs/2026-11-12-firestore-migration-design.md)
+before implementation.
+
 ## Stack
 
 - **Installed:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Geist,
