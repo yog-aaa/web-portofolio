@@ -123,7 +123,7 @@ public Profile and contact email cannot grant CMS access.
 ## 6. Configure and deploy Vercel
 
 1. Import the repository into Vercel or link it with the Vercel CLI. Keep npm and
-   the repository's Node.js 22-or-newer engine. The build command is `npm run build`.
+   the repository's Node.js 24.12-or-newer engine. The build command is `npm run build`.
 2. Add all required runtime variables from the table above to the Production scope.
    Add isolated values to Preview only when Preview integrations are intentionally
    exercised. Vercel supports certificate-sized environment values within its

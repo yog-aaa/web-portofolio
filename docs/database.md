@@ -21,7 +21,7 @@ production database driver, auth provider, or schema-generation plugin was added
 scripts and tests. `@electric-sql/pglite` is development-only PostgreSQL for isolated
 auth integration tests, never an application persistence fallback.
 
-Use Node.js 22 or newer (the current workspace uses 24.15.0). Better Auth's
+Use Node.js 24.12 or newer (the current workspace uses 24.15.0). Better Auth's
 Kysely dependency requires Node 22, above the original starter's minimum.
 
 ## Module boundaries

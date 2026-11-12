@@ -4,7 +4,7 @@ Status: design for review; implementation pending. Date: 12 November 2026.
 
 ## Purpose and decisions
 
-Replace Aiven PostgreSQL with Cloud Firestore Standard edition for the portfolio's editable content and CMS state. Replace Better Auth with Firebase Authentication for the single owner. Keep Next.js 16, React 19, TypeScript, Vercel, and Cloudinary. The current Aiven database contains development samples only; no SQL data import is required. Seed content will be rebuilt from the Porto V2 design handoff, not from the existing PostgreSQL development seed.
+Replace Aiven PostgreSQL with Cloud Firestore Standard edition for the portfolio's editable content and CMS state. Replace Better Auth with Firebase Authentication for the single owner. Keep Next.js 16, React 19, TypeScript, Vercel, and Cloudinary. The Firebase SDK dependency set used by the migration requires Node.js 24.12 or newer; set this explicitly for local development and Vercel. The current Aiven database contains development samples only; no SQL data import is required. Seed content will be rebuilt from the Porto V2 design handoff, not from the existing PostgreSQL development seed.
 
 The change addresses Aiven Free's inactivity shutdown. It does not promise zero downtime or unlimited free usage. Firestore usage, indexes, authentication, and Cloudinary remain operational concerns. The Porto V2 visual implementation is a separate workstream; the persistence migration must preserve the existing public and CMS behavior until the new visual layer is implemented.
 

@@ -71,7 +71,7 @@ before implementation.
 
 - **Installed:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Geist,
   Geist Mono, npm, Drizzle ORM + Drizzle Kit, postgres.js, Better Auth, Zod,
-  Cloudinary, Sharp, react-markdown, and remark-gfm.
+  Cloudinary, Firebase SDK, Firebase Admin SDK, Sharp, react-markdown, and remark-gfm.
 - **Environment tooling:** `@next/env` lets Drizzle Kit load the same local
   environment as Next.js; the Aiven CA is supplied as validated Base64 trust
   material, with no separate dotenv dependency or deployed certificate file.
@@ -85,7 +85,7 @@ contract for system boundaries and planned capabilities.
 
 ## Local development
 
-Use Node.js 22 or newer and npm; Better Auth's dependency tree requires Node 22.
+Use Node.js 24.12 or newer and npm; the Firebase dependencies require Node 24.12.
 The current workspace uses Node.js 24.15.0 and npm 11.12.1. Install the locked
 dependencies, then start the starter app:
 
@@ -149,7 +149,9 @@ placeholders. When configuring integrations, put real local values in root
 `.env.local`; Git ignores real environment files and allows only the example.
 Do not overwrite an existing local environment file or commit real credentials.
 
-Only `NEXT_PUBLIC_SITE_URL` is public. Database, authentication, Cloudinary, owner
+The active legacy app only publishes `NEXT_PUBLIC_SITE_URL`. The Firebase web app
+identifiers in `.env.example` will also be public after cutover. Database,
+authentication, Cloudinary, owner
 bootstrap, and owner recovery credentials remain server-only. Remove temporary
 password variables after their command succeeds. Next.js and the
 Drizzle Kit configuration share `.env.local` without duplicated database
@@ -167,6 +169,21 @@ See [the environment contract](docs/architecture.md#11-environment-variables) fo
 the full variable list and loading requirements.
 See [the deployment runbook](docs/deployment.md) for Production/Preview scopes,
 migrations, Vercel configuration, Hostinger DNS, owner bootstrap, and live checks.
+
+## Firebase migration branch
+
+The owner account is provisioned in Firebase Authentication. Set Firebase web
+identifiers and `FIREBASE_OWNER_UID` in ignored `.env.local`; this branch already
+contains local values for the provided project. Server access also needs a service
+account. For local development, download its JSON from Firebase Console → Project
+settings → Service accounts, store it **outside the repository**, and set
+`GOOGLE_APPLICATION_CREDENTIALS` to its absolute path in `.env.local`. Do not send
+or commit that JSON. Vercel will use server-only `FIREBASE_ADMIN_CLIENT_EMAIL` and
+`FIREBASE_ADMIN_PRIVATE_KEY` when the deployment migration is ready.
+
+`firestore.rules` denies direct browser access because all Firestore reads and
+writes belong on the server. Do not deploy the rules or switch production traffic
+until the new auth, repositories, and Porto V2 seed have passed verification.
 
 ## Validation commands
 
