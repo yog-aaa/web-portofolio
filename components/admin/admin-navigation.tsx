@@ -21,6 +21,7 @@ const groups = [
   { label: "SITE", items: [
     ["Homepage & profile", "/admin/homepage", "M3 4h18v16H3z M7 9h7 M7 13h10 M7 17h6"],
     ["Settings", "/admin/settings", "M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5.6 5.6l2.1 2.1 M16.3 16.3l2.1 2.1 M18.4 5.6l-2.1 2.1 M7.7 16.3l-2.1 2.1 M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8"],
+    ["Account access", "/admin/settings/account", "M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4 21a8 8 0 0 1 16 0 M19 10v4 M17 12h4"],
   ] },
 ] as const;
 
@@ -29,8 +30,9 @@ function Icon({ path }: { path: string }) { return <svg viewBox="0 0 24 24" widt
 function NavLinks({ expanded, close, previewScreen }: { expanded: boolean; close?: () => void; previewScreen?: string }) {
   const pathname = usePathname();
   return <>{groups.map(group => <div className="cms-nav-group" key={group.label}><p className="cms-nav-label">{expanded ? group.label : group.label.slice(0, 1)}</p>{group.items.map(([label, href, icon]) => {
+    if (previewScreen && href === "/admin/settings/account") return null;
     const screen = href === "/admin" ? "overview" : href.split("/").at(-1)!;
-    const active = previewScreen ? previewScreen === screen : href === "/admin" ? pathname === href : pathname.startsWith(href);
+    const active = previewScreen ? previewScreen === screen : href === "/admin" ? pathname === href : href === "/admin/settings" ? pathname === href || pathname.startsWith("/admin/settings/theme") : pathname.startsWith(href);
     const target = previewScreen ? `/preview/cms/${screen}` : href;
     return <Link key={href} href={target} title={expanded ? undefined : label} aria-label={label} aria-current={active ? "page" : undefined} className={`cms-nav-item${active ? " is-active" : ""}`} onClick={close}><Icon path={icon} /><span>{label}</span></Link>;
   })}</div>)}</>;

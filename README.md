@@ -21,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-The local owner login is at `/admin/login`. Firestore is server-only; the browser uses Firebase only to sign in. Add `localhost` to Firebase Authentication authorized domains for Google sign-in. The CMS requires the configured owner UID even when another account can authenticate.
+The local owner login is at `/admin/login`. Firestore is server-only; the browser uses Firebase only to sign in. Add `localhost` and the production domain to Firebase Authentication authorized domains for Google sign-in. The CMS requires the configured owner UID even when another account can authenticate. To connect Google after an email/password login, open **Account access** in the CMS, confirm the current password, then choose the Google account with the same email. The browser's temporary Firebase session is cleared after linking; both sign-in methods keep the original owner UID.
 
 ## Porto V2 content
 
