@@ -8,7 +8,8 @@ html[data-porto-theme="dark"] .cms-v2 { --surface: #292b29; }
 .cms-rail[data-expanded="true"] .cms-rail-brand { height: 78px; flex-direction: row; justify-content: space-between; padding: 0 14px 0 18px; }
 .cms-rail-brand > a { font: 400 30px var(--font-anton), Impact, sans-serif; color: #f4efe7; }
 .cms-rail-brand button { width: 34px; height: 34px; border: 1px solid #555950; color: #d5cdc1; background: transparent; cursor: pointer; }
-.cms-rail nav { overflow: auto; padding: 17px 0; }
+.cms-rail nav { overflow: auto; padding: 17px 0; scrollbar-width: none; }
+.cms-rail nav::-webkit-scrollbar { display: none; }
 .cms-nav-group { margin-bottom: 13px; }
 .cms-nav-label { height: 28px; margin: 0 0 2px; padding: 7px 17px; color: #98958e; font-size: 10px; font-weight: 800; letter-spacing: .09em; white-space: nowrap; }
 .cms-rail:not([data-expanded="true"]) .cms-nav-label { height: 12px; margin: 10px 16px 3px; padding: 0; border-top: 1px solid #373a37; font-size: 0; }
@@ -37,7 +38,8 @@ html[data-porto-theme="dark"] .cms-nav-item.is-active { color: #c49869 !importan
 .cms-v2 .cms-content :focus-visible, .cms-rail :focus-visible, .cms-drawer :focus-visible { outline: 2px solid var(--v2-accent); outline-offset: 3px; }
 .cms-mobile-menu-button, .cms-bottom-nav { display: none; }
 .cms-drawer[hidden] { display: none; }
-.cms-drawer { position: fixed; z-index: 100; inset: 0; display: flex; flex-direction: column; padding: 22px; background: #141615; color: #f4efe7; overflow-y: auto; }
+.cms-drawer { position: fixed; z-index: 100; inset: 0; display: flex; flex-direction: column; padding: 22px; background: #141615; color: #f4efe7; overflow-y: auto; scrollbar-width: none; }
+.cms-drawer::-webkit-scrollbar { display: none; }
 .cms-drawer-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 25px; border-bottom: 1px solid #555950; font-size: 13px; }
 .cms-drawer-top button { padding: 10px; border: 1px solid #555950; background: transparent; color: inherit; }
 .cms-drawer nav { padding: 30px 0; }

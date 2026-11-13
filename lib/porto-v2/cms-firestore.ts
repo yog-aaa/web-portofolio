@@ -8,10 +8,14 @@ export function isCmsCollection(value: string): value is CmsCollection {
   return (cmsCollections as readonly string[]).includes(value);
 }
 
+function displayOrder(data: Record<string, unknown>) {
+  return Number(data.order ?? (data.draft as Record<string, unknown> | undefined)?.order ?? (data.published as Record<string, unknown> | undefined)?.order ?? 0);
+}
+
 export async function getCmsCollection(collection: CmsCollection) {
-  const snapshot = await getServerFirestore().collection(collection).limit(100).get();
+  const snapshot = await getServerFirestore().collection(collection).get();
   return snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})).sort((a, b) =>
-    Number(a.data.order ?? 0) - Number(b.data.order ?? 0));
+    displayOrder(a.data) - displayOrder(b.data) || a.id.localeCompare(b.id));
 }
 
 export function editableContent(collection: CmsCollection, data: Record<string, unknown>) {

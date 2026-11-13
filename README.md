@@ -35,6 +35,8 @@ npm run data:verify
 
 The CMS provides owner-only forms for projects, experience, education, credentials, thoughts, research, homepage copy, site identity, theme, and master data. Projects, thoughts, and research have separate draft, publish, and unpublish actions. Images can be selected from the Cloudinary media library without entering URLs. The theme form changes the live light and dark palette, with text/background contrast validation. The old 12-screen CMS preview remains a visual reference.
 
+The project form controls homepage featuring, feature order, display order, and project status. The public Work pages use the published project data for titles, descriptions, status, links, and counts. The **Settings** navigation item opens appearance controls; profile details and homepage copy live under **Homepage & profile**. New CMS entries cannot overwrite an existing record with the same address.
+
 Public pages read published Firestore data at request time. A change to a published project or thought becomes public when the owner chooses **Publish**. Draft thoughts are not returned by public queries. The hero's two approved counts are editable in `site/settings`; they are not yet derived automatically from projects and collaborators.
 
 ## Security and deployment

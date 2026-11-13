@@ -19,7 +19,7 @@ const number = (key: string, label: string, required = true): Field => ({key, la
 
 function groupsFor(collection: string, id: string): Group[] {
   if (collection === "projects") return [
-    {title: "Project identity", note: "These details appear on the work index and case study.", fields: [text("title", "Project name"), text("slug", "Page address"), text("category", "Category"), long("subtitle", "Short introduction"), text("role", "Your contribution"), text("team", "Team or organization"), text("surface", "Product type"), link("external", "Project website"), number("order", "Display order")]},
+    {title: "Project identity", note: "These details appear on the work index and case study.", fields: [text("title", "Project name"), text("slug", "Page address"), text("category", "Category"), long("subtitle", "Short introduction"), text("role", "Your contribution"), text("team", "Team or organization"), text("surface", "Product type"), link("external", "Project website"), {key: "projectPhase", label: "Project status", type: "select", options: ["completed", "in-progress"]}, number("order", "Display order"), {key: "isFeatured", label: "Feature on homepage", type: "checkbox"}, number("featuredOrder", "Homepage order")]},
     {title: "Cover artwork", fields: [image("visual", "Project image"), text("alt", "Image description"), text("caption", "Image credit or caption")]},
     {title: "Case study", note: "Add a heading and paragraph for each part of the story.", repeat: {key: "sections", label: "Section", shape: "pair", columns: [text("heading", "Heading"), long("body", "Paragraph")], blank: ["", ""], max: 20}},
   ];
@@ -77,7 +77,7 @@ function setValue(data: RecordValue, path: string, value: unknown): RecordValue 
 const slugify = (value: string) => value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 95);
 const labelFor = (collection: string) => ({projects: "project", experiences: "experience", credentials: "credential", education: "education", thoughts: "thought", research: "research"}[collection] ?? "record");
 function defaultsFor(collection: string): RecordValue {
-  if (collection === "projects") return {sections: [], order: 0};
+  if (collection === "projects") return {sections: [], order: 0, projectPhase: "completed", isFeatured: false, featuredOrder: 0};
   if (collection === "experiences") return {links: [], order: 0, status: "published"};
   if (collection === "credentials") return {href: "", order: 0, status: "published"};
   if (collection === "education") return {focus: [], order: 0, status: "published"};
@@ -164,7 +164,7 @@ export function FirestoreEditor({collection, id, content, revision, editorial, s
   }
   const preview = editorial && id ? (collection === "projects" ? `/work/${id}` : collection === "thoughts" ? `/thoughts/${id}` : `/research/${id}`) : null;
   return <form action={action} className="cms-editor-form">
-    <input type="hidden" name="collection" value={collection} /><input type="hidden" name="id" value={documentId} /><input type="hidden" name="revision" value={revision} /><input type="hidden" name="payload" value={JSON.stringify(effectiveDraft)} />
+    <input type="hidden" name="collection" value={collection} /><input type="hidden" name="id" value={documentId} /><input type="hidden" name="mode" value={creating ? "create" : "update"} /><input type="hidden" name="revision" value={revision} /><input type="hidden" name="payload" value={JSON.stringify(effectiveDraft)} />
     <div className="cms-editor-intro"><div><span className="cms-editor-kicker">{creating ? "NEW" : "EDITING"} {labelFor(collection).toUpperCase()}</span><h2>{creating ? `Add ${labelFor(collection)}` : String(content.title ?? content.name ?? content.institution ?? content.label ?? id)}</h2>{!creating && <p>Record address: {id}</p>}</div><div className="cms-editor-flags">{editorial && <span data-status={status}>{status === "published" ? "● Published" : "○ Draft"}</span>}{dirty && <span className="cms-unsaved">Unsaved changes</span>}</div></div>
     {groups.map((group, i) => <section className="cms-form-section" key={i}><div className="cms-form-section-title"><h3>{group.title}</h3>{group.note && <p>{group.note}</p>}</div>{group.fields && <div className="cms-fields">{group.fields.map(spec => field(spec))}</div>}{group.repeat && repeat(group.repeat)}</section>)}
     {collection === "thoughts" && media.length > 0 && <div className="cms-insert-media"><label htmlFor="cms-inline-image">Insert an image in the article</label><div><select id="cms-inline-image" value={picture} onChange={e => setPicture(e.target.value)}>{media.map(item => <option key={item.url} value={item.url}>{item.name}</option>)}</select><button type="button" onClick={() => {const selected = media.find(item => item.url === picture); if (selected) update("bodyMarkdown", `${String(draft.bodyMarkdown ?? "").trimEnd()}\n\n![${selected.alt}](${selected.url})\n\n`);}}>Insert image</button></div></div>}

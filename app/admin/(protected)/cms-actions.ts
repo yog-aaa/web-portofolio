@@ -10,6 +10,11 @@ type State = {error?: string; success?: string};
 const editorial = new Set<CmsCollection>(["projects", "thoughts", "research"]);
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+function checkWriteTarget(mode: string, exists: boolean) {
+  if (mode === "create" && exists) throw new Error("This entry already exists. Open it from the list before editing.");
+  if (mode === "update" && !exists) throw new Error("This entry no longer exists. Return to the list and try again.");
+}
+
 function payloadFrom(form: FormData) {
   const raw = String(form.get("payload") ?? "");
   if (raw.length > 200_000) throw new Error("Document is too large.");
@@ -25,12 +30,14 @@ export async function saveCmsDocument(_state: State, form: FormData): Promise<St
     await requireOwner("cms:write");
     const collection = String(form.get("collection") ?? "");
     const id = String(form.get("id") ?? "");
+    const mode = String(form.get("mode") ?? "");
     const intent = String(form.get("intent") ?? "save");
     const revision = Number(form.get("revision") ?? 0);
     if (!isCmsCollection(collection) || collection === "mediaAssets") throw new Error("This collection cannot be edited here.");
     if (!slugPattern.test(id) || id.length > 100) throw new Error("Use a lowercase, hyphenated document ID.");
     if (collection === "site" && !["settings", "theme"].includes(id)) throw new Error("Invalid site document.");
     if (!Number.isSafeInteger(revision) || revision < 0) throw new Error("Invalid revision.");
+    if (mode !== "create" && mode !== "update") throw new Error("Invalid editing mode.");
     if (!["save", "publish", "unpublish"].includes(intent)) throw new Error("Invalid action.");
     const payload = validateCmsPayload(collection, id, payloadFrom(form));
     const db = getServerFirestore();
@@ -47,6 +54,7 @@ export async function saveCmsDocument(_state: State, form: FormData): Promise<St
       }
       await db.runTransaction(async tx => {
         const old = await tx.get(ref);
+        checkWriteTarget(mode, old.exists);
         const kind = collection === "projects" ? "project" : collection === "thoughts" ? "thought" : "research";
         const reservation = db.collection("slugReservations").doc(`${kind}_${slug}`);
         const owner = await tx.get(reservation);
@@ -64,6 +72,7 @@ export async function saveCmsDocument(_state: State, form: FormData): Promise<St
     } else {
       await db.runTransaction(async tx => {
         const old = await tx.get(ref);
+        checkWriteTarget(mode, old.exists);
         if ((old.exists ? Number(old.data()?.revision ?? 0) : 0) !== revision) throw new Error("This document changed. Reload before saving.");
         const now = new Date();
         const publicRecord = ["experiences", "education", "credentials"].includes(collection);

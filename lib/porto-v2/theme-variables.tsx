@@ -1,15 +1,11 @@
 import "server-only";
 
 import { getServerFirestore } from "@/lib/firebase/admin";
+import { relativeLuminance } from "./color-contrast";
 
 const hex = /^#[0-9a-fA-F]{6}$/;
-function luminance(value: string) {
-  const channels = [1, 3, 5].map(index => parseInt(value.slice(index, index + 2), 16) / 255)
-    .map(channel => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
-  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
-}
 function onAccent(value: string) {
-  return luminance(value) > 0.179 ? "#171a1c" : "#ffffff";
+  return relativeLuminance(value) > 0.179 ? "#171a1c" : "#ffffff";
 }
 
 async function getThemeCss() {

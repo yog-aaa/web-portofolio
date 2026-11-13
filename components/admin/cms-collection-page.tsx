@@ -6,7 +6,8 @@ import { editableContent, getCmsCollection, type CmsCollection } from "@/lib/por
 export async function CmsCollectionPage({collection, heading, selectedId, basePath, fixedId, embedded = false}: {
   collection: CmsCollection; heading: string; selectedId?: string; basePath: string; fixedId?: string; embedded?: boolean;
 }) {
-  const [items, assets] = await Promise.all([getCmsCollection(collection), getCmsCollection("mediaAssets")]);
+  const needsMedia = ["projects", "experiences", "thoughts"].includes(collection) || (collection === "site" && fixedId !== "theme");
+  const [items, assets] = await Promise.all([getCmsCollection(collection), needsMedia ? getCmsCollection("mediaAssets") : Promise.resolve([])]);
   const id = fixedId ?? selectedId ?? items[0]?.id ?? "";
   const selected = items.find(item => item.id === id);
   const content = selected ? editableContent(collection, selected.data) as Record<string, unknown> : {};

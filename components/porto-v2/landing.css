@@ -104,6 +104,7 @@ html[data-porto-theme="dark"] .v2-brand img { filter: grayscale(1) brightness(0)
 .v2-project-index { position: absolute; left: 24px; top: 13px; color: var(--v2-accent); font: 400 29px/1 var(--font-anton), Impact, sans-serif; }
 .v2-project-identity { display: flex; align-items: center; gap: 12px; }
 .v2-project-identity img { flex: none; width: 38px; height: 38px; object-fit: contain; border-radius: 3px; }
+.v2-project-monogram { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border: 1px solid currentColor; border-radius: 3px; font: 400 20px/1 var(--font-anton), Impact, sans-serif; }
 .v2-project h3 { margin: 16px 0 10px 50px; font: 400 28px/1.2 var(--font-anton), Impact, sans-serif; }
 .v2-project > div > p:not(.v2-project-index) { min-height: 50px; margin: 0; font-size: 14px; line-height: 1.55; color: var(--v2-muted); }
 .v2-project-bottom { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; font-size: 10px; font-weight: 800; color: var(--v2-accent); }

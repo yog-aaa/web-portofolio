@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LandingInteractions, LandingIntro, ThemeToggle } from "./interactions";
-import { getHomePageContent, getPublicExperiences, getPublicProjects, getPublicSite } from "@/lib/porto-v2/content";
+import { getHomePageContent, getPublicExperiences, getPublicProjects, getPublicSite, pickFeaturedProject } from "@/lib/porto-v2/content";
 
 function Arrow({ direction = "up" }: { direction?: "up" | "down" }) {
   return <span aria-hidden="true">{direction === "up" ? "↗" : "↓"}</span>;
@@ -61,32 +61,35 @@ function SectionHeading({ eyebrow, title, description, id }: { eyebrow?: string;
 async function Work() {
   const projects = await getPublicProjects();
   const page = await getHomePageContent();
-  const [sakode, aisnet, reyy] = projects;
-  if (!sakode || !aisnet || !reyy) return null;
+  const featured = pickFeaturedProject(projects);
+  if (!featured) return null;
+  const secondary = projects.filter(project => project.slug !== featured.slug).slice(0, 2);
+  const projectIcons: Record<string, string> = {"aisnet-mobile": "/porto-v2/aisnet-icon.png", "reyyaid-top-up": "/porto-v2/reyy-icon.png"};
   return <section id="selected-work" className="v2-section v2-work" aria-labelledby="work-heading">
     <SectionHeading id="work-heading" title={page?.workHeading ?? "What I've built."} description="A selection of products I've built with teams across education, campus life, and commerce." />
     <article className="v2-featured">
-      <div className="v2-featured-copy"><p className="v2-eyebrow">FEATURED PROJECT</p><h3>Sakode<br />Academy</h3><p>I continued frontend development of Sakode Academy&apos;s public site, presenting its classes, projects, and team.</p><div className="v2-tags"><span>FRONTEND DEVELOPMENT</span><span>COMPANY PROFILE</span></div><a href="https://sakode.com" target="_blank" rel="noreferrer">VISIT SAKODE.COM <Arrow /></a></div>
-      <div className="v2-featured-art"><span aria-hidden="true">SAKODE</span><Image src={sakode.visual} alt={sakode.alt} width={1792} height={850} sizes="(max-width: 700px) 75vw, 45vw" /></div>
+      <div className="v2-featured-copy"><p className="v2-eyebrow">FEATURED PROJECT</p><h3>{featured.title}</h3><p>{featured.subtitle}</p><div className="v2-tags"><span>{featured.role.toUpperCase()}</span><span>{featured.category.toUpperCase()}</span></div><Link href={`/work/${featured.slug}`}>VIEW CASE STUDY <Arrow /></Link></div>
+      <div className="v2-featured-art"><span aria-hidden="true">{featured.title.split(" ")[0].toUpperCase()}</span><Image src={featured.visual} alt={featured.alt} width={1792} height={850} sizes="(max-width: 700px) 75vw, 45vw" /></div>
     </article>
-    <div className="v2-work-subhead">MORE PROJECTS <span>/ 02</span></div>
+    {secondary.length > 0 && <div className="v2-work-subhead">MORE PROJECTS <span>/ {String(secondary.length).padStart(2, "0")}</span></div>}
     <div className="v2-project-grid">
-      <article className="v2-project"><Image src={aisnet.visual} alt={aisnet.alt} width={1024} height={500} sizes="(max-width: 700px) 40vw, 35vw" /><div><p className="v2-project-index">01</p><div className="v2-project-identity"><Image src="/porto-v2/aisnet-icon.png" alt="" width={38} height={38} /><h3>{aisnet.title}</h3></div><p>I designed and built the Flutter app for ITG students using its existing API.</p><div className="v2-project-bottom"><span>UI DESIGN / FLUTTER</span><Link href={`/work/${aisnet.slug}`}>VIEW PROJECT <Arrow /></Link></div></div></article>
-      <article className="v2-project"><Image src={reyy.visual} alt={reyy.alt} width={1796} height={880} sizes="(max-width: 700px) 40vw, 35vw" /><div><p className="v2-project-index">02</p><div className="v2-project-identity"><Image src="/porto-v2/reyy-icon.png" alt="" width={38} height={38} /><h3>{reyy.title}</h3></div><p>I built the game top-up website frontend with Puru Software Agency.</p><div className="v2-project-bottom"><span>FRONTEND / PURU</span><Link href={`/work/${reyy.slug}`}>VIEW PROJECT <Arrow /></Link></div></div></article>
+      {secondary.map((project, index) => <article className="v2-project" key={project.slug}><Image src={project.visual} alt={project.alt} width={1024} height={500} sizes="(max-width: 700px) 40vw, 35vw" /><div><p className="v2-project-index">0{index + 1}</p><div className="v2-project-identity">{projectIcons[project.slug] ? <Image src={projectIcons[project.slug]} alt="" width={38} height={38} /> : <span className="v2-project-monogram" aria-hidden="true">{project.title.slice(0, 1)}</span>}<h3>{project.title}</h3></div><p>{project.subtitle}</p><div className="v2-project-bottom"><span>{project.category.toUpperCase()}</span><Link href={`/work/${project.slug}`}>VIEW PROJECT <Arrow /></Link></div></div></article>)}
     </div>
     <Link className="v2-outline-link" href="/work">VIEW ALL PROJECTS <Arrow /></Link>
   </section>;
 }
 
 async function Experience() {
-  const [itg, puru, sakode] = await getPublicExperiences();
+  const experiences = await getPublicExperiences();
   const page = await getHomePageContent();
-  if (!itg || !puru || !sakode) return null;
+  const lead = experiences.find(item => item.id === "itg") ?? experiences[0];
+  if (!lead) return null;
+  const others = experiences.filter(item => item.id !== lead.id).slice(0, 2);
   return <section id="experience" className="v2-section v2-experience" aria-labelledby="experience-heading">
-    <SectionHeading id="experience-heading" eyebrow="EXPERIENCE & COLLABORATION" title={page?.experienceHeading ?? "The teams behind the work."} description="Engineering at ITG, leading client work at Puru, and building a coding academy with Sakode." />
+    <SectionHeading id="experience-heading" eyebrow="EXPERIENCE & COLLABORATION" title={page?.experienceHeading ?? "The teams behind the work."} description="The organizations where I build software, coordinate teams, and work with people." />
     <div className="v2-experience-grid">
-      <article className="v2-experience-lead"><div className="v2-org-mark"><Image src={itg.image} alt="" width={72} height={72} /><span aria-hidden="true">ITG</span></div><p className="v2-eyebrow">FULL-TIME ROLE</p><h3>Institut Teknologi<br />Garut</h3><p className="v2-experience-role">{itg.role.toUpperCase()}</p><p className="v2-experience-date">{itg.date}</p><p>{itg.text}</p><a href={itg.links[0]?.[1] ?? "https://itg.ac.id"} target="_blank" rel="noreferrer">ITG.AC.ID <Arrow /></a></article>
-      <div className="v2-experience-list">{[puru, sakode].map(item => <article key={item.name}><div className="v2-org-mini"><Image src={item.image} alt="" width={72} height={72} /><div><h3>{item.name}</h3><p>{item.role.toUpperCase()}</p></div><time>{item.date}</time></div><p>{item.text}</p><a href={item.links[0]?.[1] ?? "#experience"} target="_blank" rel="noreferrer">{item.links[0]?.[0] ?? "WEBSITE"} <Arrow /></a></article>)}</div>
+      <article className="v2-experience-lead"><div className="v2-org-mark"><Image src={lead.image} alt="" width={72} height={72} /><span aria-hidden="true">{lead.id.toUpperCase()}</span></div><p className="v2-eyebrow">FEATURED ROLE</p><h3>{lead.name}</h3><p className="v2-experience-role">{lead.role.toUpperCase()}</p><p className="v2-experience-date">{lead.date}</p><p>{lead.text}</p>{lead.links[0] && <a href={lead.links[0][1]} target="_blank" rel="noreferrer">{lead.links[0][0]} <Arrow /></a>}</article>
+      <div className="v2-experience-list">{others.map(item => <article key={item.id}><div className="v2-org-mini"><Image src={item.image} alt="" width={72} height={72} /><div><h3>{item.name}</h3><p>{item.role.toUpperCase()}</p></div><time>{item.date}</time></div><p>{item.text}</p>{item.links[0] && <a href={item.links[0][1]} target="_blank" rel="noreferrer">{item.links[0][0]} <Arrow /></a>}</article>)}</div>
     </div>
     <div className="v2-experience-foot"><p>Earlier roles, community work, and teaching continue in the full timeline.</p><Link className="v2-outline-link" href="/experience">VIEW ALL EXPERIENCE <Arrow /></Link></div>
   </section>;

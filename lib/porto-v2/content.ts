@@ -7,9 +7,10 @@ export type PublicProject = {
   slug: string; title: string; category: string; subtitle: string; role: string;
   team: string; surface: string; visual: string; alt: string; caption: string;
   external?: string; sections: [string, string][]; order: number;
+  isFeatured?: boolean; featuredOrder?: number; projectPhase?: string;
 };
 export type PublicExperience = {
-  name: string; role: string; date: string; image: string; text: string;
+  id: string; name: string; role: string; date: string; image: string; text: string;
   links: [string, string][]; order: number;
 };
 export type PublicCredential = { title: string; issuer: string; href: string; group: string; order: number };
@@ -28,9 +29,14 @@ export const getPublicProjects = cache(async (): Promise<PublicProject[]> => {
     .sort((a, b) => a.order - b.order);
 });
 
+export function pickFeaturedProject(projects: PublicProject[]) {
+  return projects.filter(item => item.isFeatured)
+    .sort((a, b) => (a.featuredOrder ?? a.order) - (b.featuredOrder ?? b.order))[0] ?? projects[0];
+}
+
 export const getPublicExperiences = cache(async (): Promise<PublicExperience[]> => {
   const snapshot = await db().collection("experiences").where("status", "==", "published").get();
-  return snapshot.docs.map(doc => doc.data() as PublicExperience).sort((a, b) => a.order - b.order);
+  return snapshot.docs.map(doc => ({...doc.data(), id: doc.id} as PublicExperience)).sort((a, b) => a.order - b.order);
 });
 
 export const getPublicCredentials = cache(async (): Promise<PublicCredential[]> => {

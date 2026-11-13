@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CmsCollection } from "./cms-firestore";
+import { relativeLuminance } from "./color-contrast";
 
 const short = z.string().trim().min(1).max(240);
 const text = z.string().trim().max(10_000);
@@ -12,6 +13,9 @@ const project = z.object({
   team: short, surface: short, visual: url, alt: short, caption: short,
   external: url.optional(), sections: z.array(z.tuple([short, text])).min(1).max(20),
   order: z.number().int().min(0).max(1000),
+  projectPhase: z.enum(["completed", "in-progress"]).optional(),
+  isFeatured: z.boolean().optional(),
+  featuredOrder: z.number().int().min(0).max(1000).optional(),
 }).passthrough();
 const experience = z.object({
   name: short, role: short, date: short, image: url, text,
@@ -43,13 +47,8 @@ const siteSettings = z.object({
   teamsAndClientsCount: z.number().int().min(0).max(999),
 }).passthrough();
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
-function luminance(value: string) {
-  const channels = [1, 3, 5].map(index => parseInt(value.slice(index, index + 2), 16) / 255)
-    .map(channel => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
-  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
-}
 const themeMode = z.object({background: color, foreground: color, accent: color}).superRefine((mode, context) => {
-  const a = luminance(mode.background), b = luminance(mode.foreground);
+  const a = relativeLuminance(mode.background), b = relativeLuminance(mode.foreground);
   if ((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) < 4.5) {
     context.addIssue({code: "custom", message: "Text and background need at least 4.5:1 contrast."});
   }
