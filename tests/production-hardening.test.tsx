@@ -43,6 +43,9 @@ test("production responses disable framework disclosure and carry baseline secur
     "Strict-Transport-Security", "X-Content-Type-Options", "X-Frame-Options"]) {
     assert.equal(names.has(name), true, `${name} is missing`);
   }
+  const csp = global?.headers.find((header) => header.key === "Content-Security-Policy")?.value;
+  assert.match(csp ?? "", /connect-src[^;]*https:\/\/identitytoolkit\.googleapis\.com/);
+  assert.match(csp ?? "", /connect-src[^;]*https:\/\/securetoken\.googleapis\.com/);
 });
 
 test("JSON-LD serialization cannot be closed by managed content", () => {

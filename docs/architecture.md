@@ -237,7 +237,17 @@ separate credential-bearing `.env` file is not allowed.
 Dependencies, a typed runtime client, schema definitions, `drizzle.config.ts`, and
 the initial generated migration are present. See [database infrastructure](database.md).
 
-## 8. Better Auth and owner identity
+## 8. Owner identity (Porto V2 transition)
+
+The user-approved migration changes owner login and the `/admin` gate to Firebase
+Authentication. A Firebase Admin verified, revocation-checked session cookie and
+exact `FIREBASE_OWNER_UID` protect owner pages and private service calls. The
+overview no longer needs PostgreSQL. Legacy content editors still store data in
+PostgreSQL until the Firestore adapter replaces them. The V1 Better Auth design
+below documents the retained legacy endpoint and tests; it is no longer the
+active login path. See [authentication operations](authentication.md).
+
+### V1 legacy contract
 
 Use Better Auth's email/password authentication and its own user, session, and
 account structures, plus any supporting structures required by its selected

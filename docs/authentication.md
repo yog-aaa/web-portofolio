@@ -1,6 +1,49 @@
 # Owner authentication
 
-Status: implemented and tested with ephemeral PostgreSQL. Live Aiven migrations,
+## Porto V2 transition (current)
+
+`/admin/login`, `/api/owner-session`, the `/admin` gate, and private service
+guards now use Firebase Authentication. The browser signs in through Firebase
+email/password or Google, sends the ID token to the same-origin session endpoint,
+and clears its in-memory Firebase state after the server issues a 12-hour HttpOnly
+cookie. The server checks token freshness, revocation, and the exact UID in
+`FIREBASE_OWNER_UID`; another Firebase account cannot enter the CMS. Sign-out
+clears the cookie. Google access must first be linked to the owner UID by selecting
+the link option during an email/password sign-in.
+The login form declares a native POST fallback to `/admin/login`. If browser
+hydration is delayed or JavaScript is unavailable, credentials cannot be placed
+in a GET query string. A no-JavaScript submission only reloads the login page;
+actual sign-in requires the Firebase client code.
+The admin gate also redirects any query-bearing login URL to the clean path and
+sets `Referrer-Policy: no-referrer` on admin responses. This cannot erase a URL
+that was already stored in browser history; rotate any credential exposed there.
+
+Configure the `NEXT_PUBLIC_FIREBASE_*` values, `FIREBASE_PROJECT_ID`,
+`FIREBASE_OWNER_UID`, and either a server service account credential pair or
+`GOOGLE_APPLICATION_CREDENTIALS` locally. The credential file must stay outside
+the repository. On Vercel, set server credential values as environment variables;
+a local file path will not exist there. The old `/api/auth` Better Auth endpoint
+and PostgreSQL-backed editors are transitional legacy code, not the V2 login path.
+The owner overview works without PostgreSQL, while old editor data still requires it.
+
+The global Content Security Policy must allow the two Firebase Authentication
+endpoints in `connect-src`: `https://identitytoolkit.googleapis.com` and
+`https://securetoken.googleapis.com`. Without these entries, the browser blocks
+the request before it reaches Firebase and the SDK reports
+`auth/network-request-failed`. The allowed origins are kept exact in
+`next.config.ts`; do not replace them with a broad Google wildcard.
+
+For Google popup sign-in, add each site hostname under Firebase Console →
+Authentication → Settings → Authorized domains. Development needs `localhost`;
+deployment needs the actual production and Vercel hostnames in use. Enter only
+hostnames, without protocol, port, or path. `auth/unauthorized-domain` points to
+this setting, while `auth/network-request-failed` means the browser could not
+reach an endpoint. Keep `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` set to the
+Firebase-provided `*.firebaseapp.com` host for this Vercel-hosted popup flow.
+
+## V1 legacy implementation
+
+Status: retained for legacy content editors and tests. Live Aiven migrations,
 owner provisioning, ingress configuration, and deployment verification remain
 operational steps. Follow the [architecture](architecture.md) and
 [database migration/TLS guide](database.md) before connecting to a real service.

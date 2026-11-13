@@ -74,6 +74,10 @@ test("owner login, session, logout, signup and server authorization", async (t) 
       assert.match(response.headers.get("cache-control")!, /no-store/);
     }
     assert.equal((await f.gate(new NextRequest(`${origin}/admin/login`))).status, 200);
+    const dirtyLogin = await f.gate(new NextRequest(`${origin}/admin/login?email=test%40example.test&password=dummy`));
+    assert.equal(dirtyLogin.status, 303);
+    assert.equal(dirtyLogin.headers.get("location"), `${origin}/admin/login`);
+    assert.equal(dirtyLogin.headers.get("referrer-policy"), "no-referrer");
     await assert.rejects(authorizeOwner(f.auth, f.db, new Headers(), "cms:write"), denied(401));
     assert.equal((await f.handler(f.request("/change-password", { currentPassword: "unused", newPassword: "unused" }))).status, 401);
   });

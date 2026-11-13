@@ -11,17 +11,19 @@ The `feat/porto-v2-landing` branch contains the approved Porto V2 public slice:
 the homepage, Work and three case studies, Experience, About, Credentials, Research,
 and Thoughts. It includes the supplied portrait and project artwork, Cream + Ink and
 Charcoal + Sand themes, responsive layouts, intro motion, and the theme switch.
-The owner CMS now has the V2 visual shell, sidebar, overview, login, and themed
-existing editors. Education and Homepage & Profile are static design slices.
+The owner CMS now has the V2 visual shell, sidebar, overview, and Firebase
+Authentication login (email/password or a linked Google account). Education and
+Homepage & Profile are static design slices.
 The development-only `/preview/cms` route lets the complete 12-screen CMS design be
 reviewed without connecting the old database or signing in; it is read-only and
 returns 404 in production.
 See [Porto V2 slicing](docs/porto-v2-slicing.md) for the route map, responsive
 behavior, validation, and the current CMS integration boundary.
 
-Public V2 content is temporarily code-owned; the planned Firebase CMS migration
-will replace it with published read models. The existing owner workflows still use
-PostgreSQL/Better Auth, so CMS persistence and login have not been migrated yet.
+Public V2 content is temporarily code-owned; the planned Firestore CMS migration
+will replace it with published read models. Owner login and the `/admin` gate now
+use Firebase Authentication and the configured owner UID. Existing content editors
+still use PostgreSQL for persistence until their Firestore migration.
 The former homepage component remains in `components/home/` for migration reference.
 
 Repository guidance, the architecture contract, the formal V1 PRD, the design system,
@@ -77,9 +79,9 @@ no source-code change, Git commit, or redeployment.
 
 ## Planned migration
 
-The next architecture change will replace Aiven PostgreSQL and Better Auth with
-Cloud Firestore and Firebase Authentication while retaining Cloudinary. The current
-application still uses PostgreSQL; no Firebase runtime has been implemented yet.
+The next architecture change will replace Aiven PostgreSQL content persistence with
+Cloud Firestore while retaining Cloudinary. Firebase Authentication already serves
+owner login and the CMS gate; the old PostgreSQL content layer remains temporarily.
 Porto V2 design content will become the new seed; existing development samples
 will not be migrated. Review the [Firestore migration design](docs/superpowers/specs/2026-11-12-firestore-migration-design.md)
 before implementation.

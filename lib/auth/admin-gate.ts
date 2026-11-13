@@ -8,6 +8,9 @@ import { privateResponse } from "./http";
 export function createAdminGate(authorize: (headers: Headers) => Promise<OwnerIdentity>) {
   return async (request: NextRequest) => {
     if (request.nextUrl.pathname.replace(/\/$/, "") === "/admin/login") {
+      if (request.nextUrl.search) {
+        return privateResponse(NextResponse.redirect(new URL("/admin/login", request.url), 303));
+      }
       return privateResponse(NextResponse.next());
     }
     try {

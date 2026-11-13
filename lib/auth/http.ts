@@ -12,6 +12,7 @@ const ownerPaths = new Set(["/sign-out", "/change-password"]);
 export function privateResponse(response: Response): Response {
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Referrer-Policy", "no-referrer");
   return response;
 }
 

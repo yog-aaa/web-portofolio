@@ -10,8 +10,9 @@ put detailed decisions in `docs/`. `CLAUDE.md` is a compatibility pointer only.
 
 - Next.js 16 App Router, React 19, TypeScript
 - Tailwind CSS 4, Geist, Geist Mono, npm
-- PostgreSQL on Aiven, Drizzle ORM + Drizzle Kit, postgres.js
-- Better Auth: email/password, single owner, no public registration
+- Firebase Authentication: email/password and linked Google, single owner UID
+- PostgreSQL on Aiven, Drizzle ORM + Drizzle Kit, postgres.js: legacy CMS content until Firestore migration
+- Better Auth: legacy endpoint and tests only; no longer the owner login or admin gate
 - Cloudinary: server-authorized uploads
 - Vercel
 
