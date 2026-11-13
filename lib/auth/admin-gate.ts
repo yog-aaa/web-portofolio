@@ -2,15 +2,18 @@ import "server-only";
 
 import { NextResponse, type NextRequest } from "next/server";
 import { AuthorizationError, type OwnerIdentity } from "./authorization";
-import { privateResponse } from "./http";
 
-// Dependency injection keeps the real route gate testable without a live database.
+function privateResponse(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  return response;
+}
+
 export function createAdminGate(authorize: (headers: Headers) => Promise<OwnerIdentity>) {
   return async (request: NextRequest) => {
     if (request.nextUrl.pathname.replace(/\/$/, "") === "/admin/login") {
-      if (request.nextUrl.search) {
-        return privateResponse(NextResponse.redirect(new URL("/admin/login", request.url), 303));
-      }
+      if (request.nextUrl.search) return privateResponse(NextResponse.redirect(new URL("/admin/login", request.url), 303));
       return privateResponse(NextResponse.next());
     }
     try {

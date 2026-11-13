@@ -1,10 +1,3 @@
-import { connection } from "next/server";
-import { MasterDataManager } from "@/components/admin/master-data-manager";
-import { getAdminContentService } from "@/lib/services/admin-content-server";
-
-export default async function MasterDataPage({ searchParams }: PageProps<"/admin/master-data">) {
-  await connection();
-  const [data, query] = await Promise.all([getAdminContentService().masterData(), searchParams]);
-  const notice = Array.isArray(query.notice) ? query.notice[0] : query.notice;
-  return <MasterDataManager {...data} notice={notice} />;
-}
+import Link from "next/link";
+import { CmsCollectionPage } from "@/components/admin/cms-collection-page";
+export default async function Page({searchParams}: {searchParams: Promise<{edit?: string; collection?: string}>}) { const {edit, collection} = await searchParams; const selected = collection === "technologies" ? "technologies" : collection === "socialLinks" ? "socialLinks" : "projectCategories"; return <><nav className="cms-master-tabs" aria-label="Master data type"><Link aria-current={selected === "projectCategories" ? "page" : undefined} href="/admin/master-data?collection=projectCategories">Categories</Link><Link aria-current={selected === "technologies" ? "page" : undefined} href="/admin/master-data?collection=technologies">Technologies</Link><Link aria-current={selected === "socialLinks" ? "page" : undefined} href="/admin/master-data?collection=socialLinks">Social links</Link></nav><CmsCollectionPage collection={selected} heading={selected === "projectCategories" ? "Categories" : selected === "technologies" ? "Technologies" : "Social links"} selectedId={edit} basePath={`/admin/master-data?collection=${selected}`} /></>; }

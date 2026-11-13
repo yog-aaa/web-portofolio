@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ThemeVariables } from "@/lib/porto-v2/theme-variables";
 
 export const metadata: Metadata = {
   title: { default: "Owner · YOGAAA.", template: "%s · YOGAAA." },
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const theme = await ThemeVariables();
+  return <>{theme}{children}</>;
 }

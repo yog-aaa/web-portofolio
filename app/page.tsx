@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PortoLanding } from "@/components/porto-v2/landing";
 import "@/components/porto-v2/landing.css";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Yoga Agustiansyah — Software Developer & AI Explorer",

@@ -3,6 +3,7 @@ import { cloudinaryRemotePatterns } from "./lib/config/cloudinary-delivery";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
   images: {
     remotePatterns: cloudinaryRemotePatterns({
       CLOUDINARY_URL: process.env.CLOUDINARY_URL,

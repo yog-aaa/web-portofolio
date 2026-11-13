@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
-import { projects } from "@/components/porto-v2/detail-data";
+import { getPublicProjects } from "@/lib/porto-v2/content";
 import { absoluteSiteUrl } from "@/lib/presentation/site-url";
+export const dynamic = "force-dynamic";
 
 const pages: Array<{ path: string; priority: number; frequency: "weekly" | "monthly" }> = [
   { path: "/", priority: 1, frequency: "weekly" },
@@ -12,7 +13,8 @@ const pages: Array<{ path: string; priority: number; frequency: "weekly" | "mont
   { path: "/credentials", priority: 0.6, frequency: "monthly" },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const projects = await getPublicProjects();
   return [
     ...pages.map(page => ({ url: absoluteSiteUrl(page.path), changeFrequency: page.frequency, priority: page.priority })),
     ...projects.map(project => ({ url: absoluteSiteUrl(`/work/${project.slug}`), changeFrequency: "monthly" as const, priority: 0.8 })),

@@ -5,6 +5,7 @@ import { requireOwnerPage } from "@/lib/auth/require-owner";
 import { SignOutButton } from "./sign-out-button";
 import "@/components/porto-v2/landing.css";
 import "@/components/admin/cms-v2.css";
+import "@/components/admin/cms-firestore.css";
 
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
   await requireOwnerPage();

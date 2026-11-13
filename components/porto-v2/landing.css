@@ -1,14 +1,14 @@
 .porto-v2 {
-  --v2-bg: #f4efe7;
-  --v2-fg: #171a1c;
+  --v2-bg: var(--cms-light-bg, #f4efe7);
+  --v2-fg: var(--cms-light-fg, #171a1c);
   --v2-muted: #59605b;
   --v2-soft: #85857f;
   --v2-surface: #e9e1d5;
   --v2-display: #dcd1c2;
   --v2-line: #cbc2b5;
-  --v2-accent: #8f493e;
-  --v2-accent-hover: #7d4036;
-  --v2-on-accent: #fff;
+  --v2-accent: var(--cms-light-accent, #8f493e);
+  --v2-accent-hover: color-mix(in oklab, var(--v2-accent), #000 12%);
+  --v2-on-accent: var(--cms-light-on-accent, #fff);
   --v2-glow: #e7cdb5;
   background: var(--v2-bg);
   color: var(--v2-fg);
@@ -17,16 +17,16 @@
 }
 
 html[data-porto-theme="dark"] .porto-v2 {
-  --v2-bg: #1d1e1d;
-  --v2-fg: #f2e9dc;
+  --v2-bg: var(--cms-dark-bg, #1d1e1d);
+  --v2-fg: var(--cms-dark-fg, #f2e9dc);
   --v2-muted: #c8bfb2;
   --v2-soft: #9e9a90;
   --v2-surface: #292b29;
   --v2-display: #373a37;
   --v2-line: #555950;
-  --v2-accent: #c49869;
-  --v2-accent-hover: #d8ab7b;
-  --v2-on-accent: #1d1e1d;
+  --v2-accent: var(--cms-dark-accent, #c49869);
+  --v2-accent-hover: color-mix(in oklab, var(--v2-accent), #fff 12%);
+  --v2-on-accent: var(--cms-dark-on-accent, #1d1e1d);
   --v2-glow: #d8ad78;
 }
 
