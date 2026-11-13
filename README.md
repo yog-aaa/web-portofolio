@@ -7,10 +7,27 @@ Planned domain: [yogaagustiansyah.my.id](https://yogaagustiansyah.my.id).
 
 ## Project status
 
+The `feat/porto-v2-landing` branch contains the approved Porto V2 public slice:
+the homepage, Work and three case studies, Experience, About, Credentials, Research,
+and Thoughts. It includes the supplied portrait and project artwork, Cream + Ink and
+Charcoal + Sand themes, responsive layouts, intro motion, and the theme switch.
+The owner CMS now has the V2 visual shell, sidebar, overview, login, and themed
+existing editors. Education and Homepage & Profile are static design slices.
+The development-only `/preview/cms` route lets the complete 12-screen CMS design be
+reviewed without connecting the old database or signing in; it is read-only and
+returns 404 in production.
+See [Porto V2 slicing](docs/porto-v2-slicing.md) for the route map, responsive
+behavior, validation, and the current CMS integration boundary.
+
+Public V2 content is temporarily code-owned; the planned Firebase CMS migration
+will replace it with published read models. The existing owner workflows still use
+PostgreSQL/Better Auth, so CMS persistence and login have not been migrated yet.
+The former homepage component remains in `components/home/` for migration reference.
+
 Repository guidance, the architecture contract, the formal V1 PRD, the design system,
 and the environment template are established. Foundational Calm Blue tokens,
 typography, responsive layout utilities, focus, and reduced-motion CSS are in place.
-The public shell and CMS-driven homepage now implement the Calm Blue editorial
+The V1 public shell and former CMS-driven homepage implement the Calm Blue editorial
 system with sticky responsive navigation, reusable UI primitives, and the curated
 Hero → Work → Experience → Education → Research → Thoughts → About → Contact hierarchy.
 Education shows up to three visible profile entries and links to `/about#education`.
@@ -41,7 +58,7 @@ Research, Thoughts, and Credentials with private drafts, safe previews, publishi
 withdrawal, visibility, media selection, validation, and stale-write protection.
 Reusable project categories and technologies now have a dedicated owner-only
 Master data workspace with usage-aware deletion. Site settings, contact/social management, and the safe semantic theme
-editor are implemented. The homepage hero supports a CMS-selected square or 3:4
+editor are implemented. The former V1 homepage hero supports a CMS-selected square or 3:4
 portrait in an adaptive editorial frame, plus primary Work and secondary Contact
 actions. Site settings provide repeatable social-profile rows with a searchable,
 code-owned icon catalogue, and those icons appear in public contact areas. Production SEO now includes stable canonicals, Open Graph
@@ -87,14 +104,14 @@ contract for system boundaries and planned capabilities.
 
 Use Node.js 24.12 or newer and npm; the Firebase dependencies require Node 24.12.
 The current workspace uses Node.js 24.15.0 and npm 11.12.1. Install the locked
-dependencies, then start the starter app:
+dependencies, then start the app:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The public starter and login page render
+Open [localhost:3000](http://localhost:3000). The Porto V2 homepage and login page render
 without service credentials. Functional authentication requires the database,
 auth environment, reviewed migrations, and provisioned owner described below.
 

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Anton, Geist, Geist_Mono } from "next/font/google";
 import { productionSiteUrl } from "@/lib/presentation/site-url";
 import "./globals.css";
+
+const anton = Anton({ variable: "--font-anton", weight: "400", subsets: ["latin"] });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,8 +42,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} h-full antialiased`}
     >
+      <head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.portoTheme=localStorage.getItem('porto-v2-theme')==='dark'?'dark':'light'}catch{}" }} /></head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         {children}
       </body>

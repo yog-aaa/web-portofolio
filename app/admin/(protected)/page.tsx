@@ -5,29 +5,12 @@ import { getAdminContentService } from "@/lib/services/admin-content-server";
 import { PasswordForm } from "./password-form";
 
 export default async function OwnerPage() {
-  const [owner, dashboard] = await Promise.all([
-    requireOwnerPage(), getAdminContentService().dashboard(),
-  ]);
-  const sections = [
-    { href: "/admin/projects", label: "Projects", stats: dashboard.projects, note: `${dashboard.projects.published} published · ${dashboard.projects.draft} draft` },
-    { href: "/admin/research", label: "Research", stats: dashboard.research, note: `${dashboard.research.published} published · ${dashboard.research.draft} draft` },
-    { href: "/admin/thoughts", label: "Thoughts", stats: dashboard.thoughts, note: `${dashboard.thoughts.published} published · ${dashboard.thoughts.draft} draft` },
-    { href: "/admin/experience", label: "Experience", stats: dashboard.experience, note: `${dashboard.experience.visible} visible` },
-    { href: "/admin/credentials", label: "Credentials", stats: dashboard.credentials, note: `${dashboard.credentials.visible} visible` },
-  ];
-  return (
-    <main className="pb-section">
-      <AdminPageHeader eyebrow="PRIVATE WORKSPACE" title={`Welcome, ${owner.name}.`} description="Keep the public website current without editing source code. Draft privately, review carefully, then publish." />
-      <section aria-labelledby="content-overview" className="mt-10"><h2 id="content-overview" className="type-metadata mb-4 text-foreground-secondary">CONTENT OVERVIEW</h2>
-        <div className="grid border-b border-border sm:grid-cols-2 xl:grid-cols-3">{sections.map((section) => <Link key={section.href} href={section.href} className="group border-t border-border px-1 py-6 sm:odd:pr-6 sm:even:border-l sm:even:pl-6 xl:border-l xl:first:border-l-0 xl:nth-[4]:border-l-0">
-          <p className="type-metadata text-foreground-secondary">{section.stats.total} TOTAL</p><h3 className="mt-3 text-h3 group-hover:underline group-hover:underline-offset-4">{section.label}</h3><p className="mt-2 text-caption text-foreground-secondary">{section.note}</p>
-        </Link>)}</div>
-      </section>
-      <section aria-labelledby="password-heading" className="mt-14 max-w-form border-t border-border pt-8">
-        <h2 id="password-heading" className="text-h3">Change password</h2>
-        <p className="mt-2 mb-6 text-caption text-foreground-secondary">Replace your temporary password after your first sign in. Use at least 12 characters.</p>
-        <PasswordForm />
-      </section>
-    </main>
-  );
+  const [owner, dashboard] = await Promise.all([requireOwnerPage(), getAdminContentService().dashboard()]);
+  const stats = [
+    [dashboard.projects.total, "Projects", "All project records"],
+    [dashboard.thoughts.draft, "Thought drafts", "Private writing"],
+    [dashboard.credentials.total, "Credentials", "Catalogued"],
+    [dashboard.research.total, "Research", "Academic records"],
+  ] as const;
+  return <main className="cms-overview"><AdminPageHeader eyebrow="CONTENT STUDIO" title="Overview" description={`Welcome, ${owner.name}. A clear view of content, drafts, and what needs review.`} action={{ href: "/admin/projects?new=1", label: "+ New content" }} /><div className="cms-overview-leads"><section className="cms-continue"><p>CONTINUE WRITING</p><h2>{dashboard.thoughts.draft ? "Return to your drafts." : "Begin a new thought."}</h2><span>{dashboard.thoughts.draft ? "Keep developing your private writing before it reaches the public site." : "Start privately, shape the story, then review it before publication."}</span><Link href={dashboard.thoughts.draft ? "/admin/thoughts" : "/admin/thoughts?new=1"}>{dashboard.thoughts.draft ? "OPEN THOUGHTS ↗" : "NEW THOUGHT ↗"}</Link></section><section className="cms-review"><p>PUBLISHING QUEUE</p><h2>{dashboard.thoughts.draft} thought {dashboard.thoughts.draft === 1 ? "draft" : "drafts"} to review</h2><span>Private drafts stay off the public site until you publish them.</span><Link href="/admin/thoughts">REVIEW WRITING ↗</Link></section></div><section className="cms-overview-stats" aria-label="Content overview">{stats.map(([count, label, note]) => <div key={label}><strong>{String(count).padStart(2, "0")}</strong><span>{label}</span><small>{note}</small></div>)}</section><div className="cms-overview-links"><section><h2>Continue editing</h2><p>Return to a collection and keep the portfolio current.</p><Link href="/admin/projects">PROJECTS ↗</Link><Link href="/admin/experience">EXPERIENCE ↗</Link><Link href="/admin/credentials">CREDENTIALS ↗</Link></section><section><h2>Public site snapshot</h2><p>Preview the current public slice in its active theme.</p><div>YOGAAA.<strong>YOGA AGUSTIANSYAH.</strong></div><Link href="/" target="_blank" rel="noreferrer">OPEN PUBLIC SITE ↗</Link></section></div><details className="cms-account"><summary>ACCOUNT SECURITY</summary><div><h2>Change password</h2><p>Use at least 12 characters.</p><PasswordForm /></div></details></main>;
 }

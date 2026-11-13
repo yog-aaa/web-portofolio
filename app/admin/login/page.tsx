@@ -1,31 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { ThemeToggle } from "@/components/porto-v2/interactions";
 import { LoginForm } from "./login-form";
+import "@/components/porto-v2/landing.css";
+import "@/components/admin/cms-v2.css";
 
 export const metadata: Metadata = { title: "Owner sign in" };
-
 export default function LoginPage() {
-  return (
-    <main className="container-site flex min-h-svh flex-col py-8 md:py-12">
-      <header className="flex items-center justify-between border-b border-border pb-6">
-        <Link href="/" className="text-h3 font-medium tracking-tight">YOGAAA.</Link>
-        <span className="type-metadata text-foreground-secondary">OWNER ACCESS</span>
-      </header>
-      <div className="grid flex-1 items-center gap-12 py-section md:grid-cols-2 md:gap-16">
-        <div className="max-w-reading">
-          <p className="type-metadata mb-5 text-foreground-secondary">PRIVATE WORKSPACE</p>
-          <h1 className="text-h1">A space to<br />make it yours.</h1>
-          <p className="mt-6 max-w-sm text-body-lg text-foreground-secondary">Sign in to your personal publishing space.</p>
-        </div>
-        <section aria-labelledby="sign-in-heading" className="w-full max-w-form md:justify-self-end">
-          <h2 id="sign-in-heading" className="text-h3">Owner sign in</h2>
-          <p className="mt-2 mb-8 text-caption text-foreground-secondary">Use your owner email and password.</p>
-          <LoginForm />
-        </section>
-      </div>
-      <footer className="border-t border-border pt-6 text-caption text-foreground-secondary">
-        <Link className="inline-flex min-h-target items-center underline underline-offset-4" href="/">← Back to the website</Link>
-      </footer>
-    </main>
-  );
+  return <main className="porto-v2 cms-login"><header><Link href="/" className="v2-brand"><Image src="/porto-v2/yogaaa-mark.png" alt="" width={24} height={24} /> YOGAAA.</Link><ThemeToggle /></header><div className="cms-login-body"><div><p className="v2-eyebrow">PRIVATE WORKSPACE</p><h1>Make it<br />yours.</h1><p>Sign in to manage the work, writing, and story behind this portfolio.</p></div><section aria-labelledby="sign-in-heading"><p className="v2-eyebrow">OWNER ACCESS</p><h2 id="sign-in-heading">Welcome back.</h2><LoginForm /></section></div><footer><Link href="/">← BACK TO THE WEBSITE</Link></footer></main>;
 }
