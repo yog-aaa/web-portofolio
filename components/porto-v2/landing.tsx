@@ -67,13 +67,13 @@ async function Work() {
   const projectIcons: Record<string, string> = {"aisnet-mobile": "/porto-v2/aisnet-icon.png", "reyyaid-top-up": "/porto-v2/reyy-icon.png"};
   return <section id="selected-work" className="v2-section v2-work" aria-labelledby="work-heading">
     <SectionHeading id="work-heading" title={page?.workHeading ?? "What I've built."} description="A selection of products I've built with teams across education, campus life, and commerce." />
-    <article className="v2-featured">
-      <div className="v2-featured-copy"><p className="v2-eyebrow">FEATURED PROJECT</p><h3>{featured.title}</h3><p>{featured.subtitle}</p><div className="v2-tags"><span>{featured.role.toUpperCase()}</span><span>{featured.category.toUpperCase()}</span></div><Link href={`/work/${featured.slug}`}>VIEW CASE STUDY <Arrow /></Link></div>
+    <Link className="v2-featured" href={`/work/${featured.slug}`} aria-label={`View ${featured.title} case study`}>
+      <div className="v2-featured-copy"><p className="v2-eyebrow">FEATURED PROJECT</p><h3>{featured.title}</h3><p>{featured.subtitle}</p><div className="v2-tags"><span>{featured.role.toUpperCase()}</span><span>{featured.category.toUpperCase()}</span></div><span className="v2-featured-action">VIEW CASE STUDY <Arrow /></span></div>
       <div className="v2-featured-art"><span aria-hidden="true">{featured.title.split(" ")[0].toUpperCase()}</span><Image src={featured.visual} alt={featured.alt} width={1792} height={850} sizes="(max-width: 700px) 75vw, 45vw" /></div>
-    </article>
+    </Link>
     {secondary.length > 0 && <div className="v2-work-subhead">MORE PROJECTS <span>/ {String(secondary.length).padStart(2, "0")}</span></div>}
     <div className="v2-project-grid">
-      {secondary.map((project, index) => <article className="v2-project" key={project.slug}><Image src={project.visual} alt={project.alt} width={1024} height={500} sizes="(max-width: 700px) 40vw, 35vw" /><div><p className="v2-project-index">0{index + 1}</p><div className="v2-project-identity">{projectIcons[project.slug] ? <Image src={projectIcons[project.slug]} alt="" width={38} height={38} /> : <span className="v2-project-monogram" aria-hidden="true">{project.title.slice(0, 1)}</span>}<h3>{project.title}</h3></div><p>{project.subtitle}</p><div className="v2-project-bottom"><span>{project.category.toUpperCase()}</span><Link href={`/work/${project.slug}`}>VIEW PROJECT <Arrow /></Link></div></div></article>)}
+      {secondary.map((project, index) => <Link className="v2-project" href={`/work/${project.slug}`} key={project.slug} aria-label={`View ${project.title} project`}><Image src={project.visual} alt={project.alt} width={1024} height={500} sizes="(max-width: 700px) 40vw, 35vw" /><div><p className="v2-project-index">0{index + 1}</p><div className="v2-project-identity">{projectIcons[project.slug] ? <Image src={projectIcons[project.slug]} alt="" width={38} height={38} /> : <span className="v2-project-monogram" aria-hidden="true">{project.title.slice(0, 1)}</span>}<h3>{project.title}</h3></div><p>{project.subtitle}</p><div className="v2-project-bottom"><span>{project.category.toUpperCase()}</span><span className="v2-project-action">VIEW PROJECT <Arrow /></span></div></div></Link>)}
     </div>
     <Link className="v2-outline-link" href="/work">VIEW ALL PROJECTS <Arrow /></Link>
   </section>;

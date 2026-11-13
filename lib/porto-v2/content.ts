@@ -63,7 +63,7 @@ export const getPublishedThoughts = cache(async (): Promise<PublishedArticle[]> 
     .filter((item): item is PublishedArticle => Boolean(item?.slug));
 });
 
-export type PublishedResearch = {slug: string; title: string; category: string; summary: string; rows: [string, string][]};
+export type PublishedResearch = {slug: string; title: string; category: string; summary: string; visual?: string; rows: [string, string][]};
 export const getPublishedResearch = cache(async (): Promise<PublishedResearch[]> => {
   const snapshot = await db().collection("research").where("status", "==", "published").limit(50).get();
   return snapshot.docs.map(doc => ({...(doc.data().published as PublishedResearch), slug: doc.id}))

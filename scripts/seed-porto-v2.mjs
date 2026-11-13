@@ -25,7 +25,7 @@ const folder = `${(process.env.CLOUDINARY_FOLDER_ROOT || 'portfolio').replace(/\
 const assets = [
   'aisnet-artwork.png', 'aisnet-icon.png', 'ayawarta-logo.png', 'digitak-logo.svg',
   'itg-logo.png', 'puru-logo.svg', 'reyy-home.png', 'reyy-icon.png',
-  'sakode-home.png', 'sakode-logo.png', 'yoga-portrait.png', 'yogaaa-mark.png',
+  'sakode-home.png', 'sakode-logo.png', 'yoga-portrait.png', 'yogaaa-mark.png', 'research-preview.png',
 ];
 const cleanId = (file) => file.replace(/\.[^.]+$/, '');
 const urls = {};
@@ -102,11 +102,25 @@ await create('thoughts', 'the-interface-is-part-of-the-work', {title: 'The inter
     coverUrl: media('/porto-v2/sakode-home.png'), bodyMarkdown: 'A screen is a decision.\n\nBefore the first line of code, map the people, flow, and risks around the feature.\n\nWork with AI deliberately and review the outcome.'}});
 const research = {slug: 'privacy-preserving-fall-detection', title: 'Privacy-preserving fall detection.',
   category: 'Academic thesis / computer vision', summary: 'An academic exploration of fall detection that treats visual privacy as part of the research question.',
+  visual: media('/porto-v2/research-preview.png'),
   rows: [['The question', 'How might a visual system recognize falls while limiting what it reveals about a person?'],
     ['The context', 'This is a thesis project, separate from my client and workplace deliveries.'],
     ['The record', 'Methods, evaluation, and conclusions will be documented here when this material is ready for publication.']]};
 await create('research', research.slug, {slug: research.slug, title: research.title, status: 'published',
   published: research, draft: research, revision: 1, publishedAt: new Date()});
+await db.runTransaction(async (transaction) => {
+  const ref = db.collection('research').doc(research.slug);
+  const snapshot = await transaction.get(ref);
+  const current = snapshot.data();
+  if (current?.published?.visual === research.visual) return;
+  if (current?.published?.visual) throw new Error('Research preview already has a different published visual.');
+  transaction.update(ref, {
+    'published.visual': research.visual,
+    'draft.visual': research.visual,
+    revision: Number(current?.revision ?? 1) + 1,
+    updatedAt: new Date(),
+  });
+});
 await create('slugReservations', `research_${research.slug}`, {kind: 'research', slug: research.slug, ownerId: research.slug});
 await create('pages', 'homepage', {headline: 'YOGA AGUSTIANSYAH.', workHeading: "What I've built.",
   experienceHeading: 'The teams behind the work.', learningHeading: "What I'm learning now.",

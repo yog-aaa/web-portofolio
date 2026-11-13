@@ -25,7 +25,7 @@ The local owner login is at `/admin/login`. Firestore is server-only; the browse
 
 ## Porto V2 content
 
-Run the initial seed only for the intended Firebase project. It is idempotent: existing seed records are retained, and records created by another source are never overwritten. The seed uploads the 12 approved images to Cloudinary with content-hashed IDs and registers them in Firestore. It creates three featured projects, five experiences, education, 28 credentials, site/section copy, one public research summary, and a private draft thought.
+Run the initial seed only for the intended Firebase project. It is idempotent: existing seed records are retained, and records created by another source are never overwritten. The seed uploads the 13 approved images to Cloudinary with content-hashed IDs and registers them in Firestore. It creates three featured projects, five experiences, education, 28 credentials, site/section copy, one public research summary, and a private draft thought. The research preview is sourced from the Porto V2 Figma design and registered as Cloudinary media.
 
 ```powershell
 $env:CONFIRM_FIREBASE_PROJECT = 'your-project-id'
@@ -38,6 +38,12 @@ The CMS provides owner-only forms for projects, experience, education, credentia
 The project form controls homepage featuring, feature order, display order, and project status. The public Work pages use the published project data for titles, descriptions, status, links, and counts. The **Settings** navigation item opens appearance controls; profile details and homepage copy live under **Homepage & profile**. New CMS entries cannot overwrite an existing record with the same address.
 
 Public pages read published Firestore data at request time. A change to a published project or thought becomes public when the owner chooses **Publish**. Draft thoughts are not returned by public queries. The hero's two approved counts are editable in `site/settings`; they are not yet derived automatically from projects and collaborators.
+
+## Landing page motion
+
+On a first visit, a full-screen YOGAAA. cover waits for the server-rendered home sections, essential type, and the hero portrait to decode, with a six-second ceiling if an asset or data request stalls. The server reads Firestore content for the page; the cover uses an indeterminate progress line rather than a fake data-loading percentage. It parts from the center to reveal a staggered hero composition. Later visits in the same browser session skip the cover. CSS view timelines provide reversible scroll movement where supported; other browsers show the content in place. The mobile menu retains keyboard focus and Escape handling. `prefers-reduced-motion: reduce` skips the cover and keeps content visible without the reveal motion. No animation library is required.
+
+The [Figma parity audit](docs/figma-parity-audit-2026-11-13.md) records the route-by-route desktop, tablet, and mobile review, applied fixes, and remaining design differences.
 
 ## Security and deployment
 
