@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LandingInteractions, LandingIntro, ThemeToggle } from "./interactions";
+import { PublicMotion } from "./public-motion";
 import { getHomePageContent, getPublicExperiences, getPublicProjects, getPublicSite, pickFeaturedProject } from "@/lib/porto-v2/content";
 
 function Arrow({ direction = "up" }: { direction?: "up" | "down" }) {
@@ -29,7 +30,7 @@ function Header() {
 async function Hero() {
   const site = await getPublicSite();
   return <section className="v2-hero" aria-labelledby="hero-heading">
-    <div className="v2-hero-stage">
+    <div className="v2-hero-stage" data-motion-stage="1">
       <div className="v2-hero-watermark" aria-hidden="true">YOGAAA.</div>
       <div className="v2-hero-glow" aria-hidden="true" />
       <div className="v2-hero-copy">
@@ -40,7 +41,7 @@ async function Hero() {
         <a className="v2-button v2-button-primary v2-hero-cta" href="#selected-work">EXPLORE MY WORK <Arrow /></a>
       </div>
       <div className="v2-portrait-wrap">
-        <Image className="v2-portrait" src={site.portraitUrl} alt="Portrait of Yoga Agustiansyah" width={1086} height={1450} priority sizes="(max-width: 600px) 85vw, (max-width: 900px) 55vw, 42vw" />
+        <Image className="v2-portrait" data-motion-plane src={site.portraitUrl} alt="Portrait of Yoga Agustiansyah" width={1086} height={1450} priority sizes="(max-width: 600px) 85vw, (max-width: 900px) 55vw, 42vw" />
       </div>
       <aside className="v2-hero-aside" aria-label="Portfolio at a glance">
         <p className="v2-aside-label">IN NUMBERS</p>
@@ -69,7 +70,7 @@ async function Work() {
     <SectionHeading id="work-heading" title={page?.workHeading ?? "What I've built."} description="A selection of products I've built with teams across education, campus life, and commerce." />
     <Link className="v2-featured" href={`/work/${featured.slug}`} aria-label={`View ${featured.title} case study`}>
       <div className="v2-featured-copy"><p className="v2-eyebrow">FEATURED PROJECT</p><h3>{featured.title}</h3><p>{featured.subtitle}</p><div className="v2-tags"><span>{featured.role.toUpperCase()}</span><span>{featured.category.toUpperCase()}</span></div><span className="v2-featured-action">VIEW CASE STUDY <Arrow /></span></div>
-      <div className="v2-featured-art"><span aria-hidden="true">{featured.title.split(" ")[0].toUpperCase()}</span><Image src={featured.visual} alt={featured.alt} width={1792} height={850} sizes="(max-width: 700px) 75vw, 45vw" /></div>
+      <div className="v2-featured-art" data-motion-stage="0.6"><span aria-hidden="true">{featured.title.split(" ")[0].toUpperCase()}</span><Image data-motion-plane src={featured.visual} alt={featured.alt} width={1792} height={850} sizes="(max-width: 700px) 75vw, 45vw" /></div>
     </Link>
     {secondary.length > 0 && <div className="v2-work-subhead">MORE PROJECTS <span>/ {String(secondary.length).padStart(2, "0")}</span></div>}
     <div className="v2-project-grid">
@@ -117,5 +118,5 @@ async function Closing() {
 }
 
 export function PortoLanding() {
-  return <div className="porto-v2" id="top"><LandingIntro /><div className="v2-page"><span className="v2-skip"><a href="#main-content">Skip to content</a></span><Header /><main id="main-content"><Hero /><Work /><Experience /><Learning /><Closing /></main></div></div>;
+  return <div className="porto-v2" id="top"><PublicMotion /><LandingIntro /><div className="v2-page"><span className="v2-skip"><a href="#main-content">Skip to content</a></span><Header /><main id="main-content"><Hero /><Work /><Experience /><Learning /><Closing /></main></div></div>;
 }

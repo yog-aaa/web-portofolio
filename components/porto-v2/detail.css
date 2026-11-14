@@ -138,6 +138,23 @@
 @media(max-width:700px) { .v2-research-intro h2 { font-size: 58px; } .v2-research-sidebar { padding: 18px 10px; gap: 15px; font-size: 7px; } .v2-research-screen { padding: 15px; font-size: 9px; } .v2-research-bars { margin: 17px 0; gap: 6px; } .v2-research-bars i { height: 14px; } .v2-research-panels { gap: 5px; } }
 
 /* Detail pages follow the Porto V2 editorial layouts across breakpoints. */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes v2-detail-title-enter { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes v2-detail-art-enter { from { opacity: .75; transform: translateY(36px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .v2-page-lead h1, .v2-case-lead h1, .v2-about-lead h1, .v2-article-lead h1 { animation: v2-detail-title-enter .85s var(--v2-ease-out) both; }
+  .v2-page-lead > p, .v2-case-lead > p:last-child, .v2-about-lead > div:first-child > p { animation: v2-detail-title-enter .8s var(--v2-ease-out) .1s both; }
+  @supports (animation-timeline: view()) {
+    .v2-work-index-row, .v2-case-visual, .v2-about-portrait, .v2-thought-card, .v2-article figure { animation: v2-detail-art-enter linear both; animation-timeline: view(block); animation-range: entry 0% entry 65%; }
+    .v2-full-experience-row, .v2-case-story-row, .v2-about-practices > div, .v2-credential-groups section, .v2-research-rows > div { animation: v2-section-enter linear both; animation-timeline: view(block); animation-range: entry 0% entry 50%; }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .v2-work-index-row img, .v2-thought-card img { transition: transform .5s var(--v2-ease-out); }
+  .v2-work-index-row:hover img, .v2-thought-card:hover img { transform: scale(1.018); }
+  .v2-work-hero-art { perspective: 900px; }
+}
 .v2-work-label { border-top: 1px solid var(--v2-line); padding: 22px 0 20px; color: var(--v2-accent); font-size: 11px; font-weight: 800; letter-spacing: .04em; }
 .v2-work-label-secondary { border: 0; padding-top: 58px; }
 .v2-work-hero { min-height: 555px; }

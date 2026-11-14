@@ -43,6 +43,8 @@ Public pages read published Firestore data at request time. A change to a publis
 
 On a first visit, a full-screen YOGAAA. cover waits for the server-rendered home sections, essential type, and the hero portrait to decode, with a six-second ceiling if an asset or data request stalls. The server reads Firestore content for the page; the cover uses an indeterminate progress line rather than a fake data-loading percentage. It parts from the center to reveal a staggered hero composition. Later visits in the same browser session skip the cover. CSS view timelines provide reversible scroll movement where supported; other browsers show the content in place. The mobile menu retains keyboard focus and Escape handling. `prefers-reduced-motion: reduce` skips the cover and keeps content visible without the reveal motion. No animation library is required.
 
+The public motion layer adds a cinematic watermark, portrait and lighting reveal, a subtle ambient glow, scroll-linked section and artwork movement, and a reading-progress line on supported browsers. Desktop fine-pointer devices can tilt the hero portrait and featured artwork in response to the pointer; touch and reduced-motion devices keep those visuals still. Detail pages share the same editorial entry and scroll rhythm. Motion acts on decorative imagery and section entry; body text stays still while visitors read.
+
 The [Figma parity audit](docs/figma-parity-audit-2026-11-13.md) records the route-by-route desktop, tablet, and mobile review, applied fixes, and remaining design differences.
 
 ## Security and deployment
