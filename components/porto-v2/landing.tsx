@@ -20,7 +20,7 @@ function Header() {
   return <header className="v2-header">
     <Brand />
     <nav className="v2-nav" aria-label="Primary navigation">
-      <a href="#selected-work">Work</a><a href="#experience">Experience</a>
+      <Link href="/work">Work</Link><Link href="/experience">Experience</Link>
       <Link href="/research">Research</Link><Link href="/thoughts">Thoughts</Link><Link href="/about">About</Link>
     </nav>
     <div className="v2-header-actions"><ThemeToggle /><LandingInteractions /></div>
@@ -31,7 +31,7 @@ async function Hero() {
   const site = await getPublicSite();
   return <section className="v2-hero" aria-labelledby="hero-heading">
     <div className="v2-hero-stage" data-motion-stage="1">
-      <div className="v2-hero-watermark" aria-hidden="true">YOGAAA.</div>
+      <div className="v2-hero-watermark" aria-hidden="true"><span>YOGAAA.</span></div>
       <div className="v2-hero-glow" aria-hidden="true" />
       <div className="v2-hero-copy">
         <p className="v2-eyebrow">PORTFOLIO&nbsp; / &nbsp;2026</p>

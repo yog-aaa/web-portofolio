@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { initWebGLMotion } from "./webgl-motion";
 
 export function PublicMotion() {
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 901px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+    const media = window.matchMedia("(min-width: 901px) and (hover: hover) and (pointer: fine)");
     const root = document.querySelector(".porto-v2");
     if (!root) return;
+    document.documentElement.dataset.portoMotion = "full";
+    const stopWebGL = initWebGLMotion();
     const cleanups = new Map<HTMLElement, () => void>();
     const attach = (stage: HTMLElement) => {
       if (cleanups.has(stage)) return;
@@ -50,8 +53,10 @@ export function PublicMotion() {
     const observer = new MutationObserver(attachAll);
     observer.observe(root, { childList: true, subtree: true });
     return () => {
+      stopWebGL();
       observer.disconnect();
       cleanups.forEach((cleanup) => cleanup());
+      document.documentElement.dataset.portoMotion = "system";
     };
   }, []);
 

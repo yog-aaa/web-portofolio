@@ -13,6 +13,15 @@ const subscribeTheme = (callback: () => void) => {
 const getTheme = () => localStorage.getItem(themeKey) === "dark";
 const getServerTheme = () => false;
 
+function inkEdge(x: number, y: number, radius: number, phase: number) {
+  const points = 96;
+  return `polygon(${Array.from({ length: points }, (_, index) => {
+    const angle = index * Math.PI * 2 / points;
+    const ripple = 1 + .105 * Math.sin(angle * 7 + phase) + .04 * Math.sin(angle * 15 - phase * .7) + .018 * Math.cos(angle * 23 + phase);
+    return `${(x + Math.cos(angle) * radius * ripple).toFixed(1)}px ${(y + Math.sin(angle) * radius * ripple).toFixed(1)}px`;
+  }).join(",")})`;
+}
+
 export function LandingIntro() {
   useEffect(() => {
     const root = document.documentElement;
@@ -40,7 +49,7 @@ export function LandingIntro() {
       if (cancelled) return;
       try { sessionStorage.setItem("porto-v2-intro-seen", "1"); } catch {}
       root.dataset.portoIntro = "reveal";
-      window.setTimeout(() => { if (!cancelled) root.dataset.portoIntro = "done"; }, 1700);
+      window.setTimeout(() => { if (!cancelled) root.dataset.portoIntro = "done"; }, 2100);
     });
     return () => { cancelled = true; stopWatching(); };
   }, []);
@@ -71,9 +80,10 @@ export function ThemeToggle() {
   }, []);
 
   function toggle(event: React.MouseEvent<HTMLButtonElement>) {
+    const button = event.currentTarget;
+    if (button.dataset.themeTransition === "true") return;
     const next = !(requestedDark.current ?? getTheme());
     requestedDark.current = next;
-    const button = event.currentTarget;
     const rect = button.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -83,14 +93,25 @@ export function ThemeToggle() {
       localStorage.setItem(themeKey, next ? "dark" : "light");
       window.dispatchEvent(new Event(themeEvent));
     };
-    if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) { update(); return; }
+    if (!document.startViewTransition) { update(); return; }
+    button.dataset.themeTransition = "true";
+    document.documentElement.style.setProperty("--v2-ink-x", `${x}px`);
+    document.documentElement.style.setProperty("--v2-ink-y", `${y}px`);
     const transition = document.startViewTransition(update);
+    void transition.finished.finally(() => {
+      delete button.dataset.themeTransition;
+      document.documentElement.style.removeProperty("--v2-ink-x");
+      document.documentElement.style.removeProperty("--v2-ink-y");
+    });
     void transition.ready.then(() => {
-      document.documentElement.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] }, { duration: 520, easing: "cubic-bezier(.2,.7,.2,1)", pseudoElement: "::view-transition-new(root)" });
+      document.documentElement.animate({
+        clipPath: [inkEdge(x, y, 2, 0), inkEdge(x, y, radius * .27, .8), inkEdge(x, y, radius * .67, 1.7), inkEdge(x, y, radius * 1.35, 2.4)],
+        offset: [0, .3, .68, 1],
+      }, { duration: 900, easing: "cubic-bezier(0.77, 0, 0.175, 1)", fill: "forwards", pseudoElement: "::view-transition-new(root)" });
     }).catch(() => {});
   }
 
-  return <button type="button" className="v2-theme-toggle" onClick={toggle} aria-label={`Switch to ${dark ? "light" : "dark"} mode`} aria-pressed={dark}><span className="v2-theme-label">{dark ? "LIGHT MODE" : "DARK MODE"}</span><span className="v2-theme-icon" aria-hidden="true">{dark ? "☼" : "☾"}</span></button>;
+  return <button type="button" className="v2-theme-toggle" onClick={toggle} aria-label={`Switch to ${dark ? "light" : "dark"} mode`} aria-pressed={dark} title={`Switch to ${dark ? "light" : "dark"} mode`}><svg className="v2-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{dark ? <><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></> : <path d="M20.7 13.1A8.7 8.7 0 0 1 10.9 3.3 8.7 8.7 0 1 0 20.7 13.1Z"/>}</svg></button>;
 }
 
 export function LandingInteractions() {
@@ -119,5 +140,5 @@ export function LandingInteractions() {
   }, [open]);
 
   function close() { setOpen(false); trigger.current?.focus(); }
-  return <><button ref={trigger} type="button" className="v2-menu-trigger" aria-expanded={open} aria-haspopup="dialog" aria-controls="v2-mobile-menu" onClick={() => setOpen(true)}>MENU</button><div ref={menu} id="v2-mobile-menu" className="v2-mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation" aria-hidden={!open} inert={!open} data-open={open}><div className="v2-menu-top"><span>YOGAAA.</span><button ref={closeButton} type="button" onClick={close}>CLOSE ×</button></div><nav aria-label="Mobile navigation"><a onClick={close} href="#selected-work">Work</a><a onClick={close} href="#experience">Experience</a><Link onClick={close} href="/research">Research</Link><Link onClick={close} href="/thoughts">Thoughts</Link><Link onClick={close} href="/about">About</Link></nav><a className="v2-menu-contact" href="https://www.linkedin.com/in/yoga-agustiansyah/" target="_blank" rel="noreferrer">LET&apos;S COLLABORATE ↗</a></div></>;
+  return <><button ref={trigger} type="button" className="v2-menu-trigger" aria-expanded={open} aria-haspopup="dialog" aria-controls="v2-mobile-menu" onClick={() => setOpen(true)}>MENU</button><div ref={menu} id="v2-mobile-menu" className="v2-mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation" aria-hidden={!open} inert={!open} data-open={open}><div className="v2-menu-top"><span>YOGAAA.</span><button ref={closeButton} type="button" onClick={close}>CLOSE ×</button></div><nav aria-label="Mobile navigation"><Link onClick={close} href="/work">Work</Link><Link onClick={close} href="/experience">Experience</Link><Link onClick={close} href="/research">Research</Link><Link onClick={close} href="/thoughts">Thoughts</Link><Link onClick={close} href="/about">About</Link></nav><a className="v2-menu-contact" href="https://www.linkedin.com/in/yoga-agustiansyah/" target="_blank" rel="noreferrer">LET&apos;S COLLABORATE ↗</a></div></>;
 }

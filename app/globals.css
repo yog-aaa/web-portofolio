@@ -226,9 +226,9 @@
 
 /* Accessibility guardrail: do not depend on animation completion for behavior. */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
+  html:not([data-porto-motion="full"]) *,
+  html:not([data-porto-motion="full"]) ::before,
+  html:not([data-porto-motion="full"]) ::after {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;

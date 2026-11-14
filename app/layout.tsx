@@ -45,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} h-full antialiased`}
     >
-      <head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.portoTheme=localStorage.getItem('porto-v2-theme')==='dark'?'dark':'light';if(location.pathname==='/'||location.pathname===''){document.documentElement.dataset.portoIntro=sessionStorage.getItem('porto-v2-intro-seen')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches?'skip':'loading'}}catch{document.documentElement.dataset.portoIntro='skip'}" }} /></head>
+      <head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.portoTheme=localStorage.getItem('porto-v2-theme')==='dark'?'dark':'light';document.documentElement.dataset.portoMotion=/^\\/(?:admin|preview)(?:\\/|$)/.test(location.pathname)?'system':'full';if(location.pathname==='/'||location.pathname===''){document.documentElement.dataset.portoIntro=sessionStorage.getItem('porto-v2-intro-seen')==='1'?'skip':'loading'}}catch{document.documentElement.dataset.portoIntro='skip'}" }} /></head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         {children}
       </body>

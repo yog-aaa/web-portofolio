@@ -122,7 +122,7 @@
 @media(min-width:901px) { .v2-detail .v2-nav { display: flex; } .v2-detail .v2-menu-trigger { display: none; } }
 @media(min-width:701px) and (max-width:900px) { .v2-about-lead h1 { font-size: 58px; } .v2-about-portrait img { width: 100%; left: 0; transform: scale(1.22); transform-origin: bottom center; } }
 @media(max-width:700px) { .v2-detail-main { padding: 0 20px; } .v2-detail-footer { margin: 0 20px; flex-wrap: wrap; justify-content: flex-start; gap: 20px; padding-bottom: 35px; } .v2-detail-footer a:first-child { flex-basis: 100%; } .v2-crumb { margin: 34px 0 38px; } .v2-page-lead { padding-bottom: 48px; } .v2-page-lead h1 { font-size: clamp(52px,15vw,75px); } .v2-page-lead > p { font-size: 17px; margin-top: 25px; } .v2-work-hero,.v2-work-index-row,.v2-about-lead,.v2-outside,.v2-about-practices > div,.v2-research-rows > div { display: block; } .v2-work-hero { min-height: 0; } .v2-work-hero > div:first-child { padding: 30px; } .v2-work-hero h2 { margin: 35px 0 24px; font-size: 67px; } .v2-work-hero span:last-child { margin-top: 20px; } .v2-work-hero-art { padding: 24px; } .v2-work-index-row { padding: 34px 0; } .v2-work-index-row > div { padding: 0; } .v2-work-index-row h2 { font-size: 58px; } .v2-work-index-row img { margin-top: 28px; } .v2-ledger { margin: 70px 0 35px; } .v2-ledger-row { font-size: 16px; } .v2-all-work { margin: 32px 0; } .v2-case-lead { padding-bottom: 42px; } .v2-case-lead h1 { font-size: clamp(78px,20vw,115px); } .v2-case-meta { grid-template-columns: repeat(2,1fr); gap: 24px; margin-bottom: 35px; } .v2-case-meta dt { margin-bottom: 9px; } .v2-case-visual { margin-bottom: 50px; } .v2-case-visual > div { min-height: 200px; padding: 18px; } .v2-case-story h2 { font-size: 55px; } .v2-case-story-row { grid-template-columns: 35px 1fr; padding: 30px 0 42px; } .v2-case-story-row h3 { font-size: 30px; } .v2-case-story-row p { grid-column: 2; margin-top: 18px; } .v2-full-experience-row { grid-template-columns: 72px 1fr; gap: 16px; padding: 35px 0; } .v2-full-experience-row time { grid-column: 2; grid-row: auto; } .v2-full-experience-row > div:nth-child(2) { grid-column: 2; grid-row: 1; } .v2-full-experience-row h2 { font-size: 40px; } .v2-full-experience-row p { font-size: 15px; } .v2-org-logo { width: 60px; height: 60px; } .v2-outside { padding: 60px 0; } .v2-outside h2 { font-size: 47px; } .v2-about-lead { min-height: 0; } .v2-about-lead h1 { font-size: 67px; } .v2-about-portrait { height: 440px; margin: 45px -20px 0; } .v2-about-practices { margin: 50px 0 70px; } .v2-about-practices h2 { font-size: 46px; } .v2-about-education h2 { font-size: 48px; } .v2-about-credentials > a,.v2-about-credentials > div:not(.v2-rule-heading) { display: block; } .v2-about-credentials span { display: block; margin-top: 8px; } .v2-about-cta { display: block; padding: 32px; } .v2-about-cta h2 { font-size: 50px; margin-bottom: 25px; } .v2-credential-row { grid-template-columns: 1fr auto; } .v2-credential-row strong { grid-column: 1/-1; } .v2-credential-row a { font-size: 10px; } .v2-research-intro h2 { font-size: 58px; } .v2-research-preview { min-height: 300px; padding: 20px; } .v2-research-preview > span { left: 20px; bottom: 25px; } .v2-research-rows h3 { margin-bottom: 18px; } .v2-thought-card h2 { font-size: 50px; } .v2-article-lead { margin: 30px auto 40px; } .v2-article-lead h1 { font-size: 72px; } .v2-article-body h2 { font-size: 42px; } .v2-article-body p { font-size: 17px; } .v2-article-body blockquote { font-size: 35px; } }
-@media(prefers-reduced-motion:reduce) { .v2-detail * { scroll-behavior: auto !important; } }
+@media(prefers-reduced-motion:reduce) { html[data-porto-motion="system"] .v2-detail * { scroll-behavior: auto !important; } }
 .v2-research-preview { padding: 0; }
 .v2-research-preview::after { pointer-events: none; }
 .v2-research-schematic { display: grid; grid-template-columns: 18% 1fr; position: absolute; inset: 0; color: #d7e2ea; background: #111419; }
@@ -139,7 +139,7 @@
 
 /* Detail pages follow the Porto V2 editorial layouts across breakpoints. */
 
-@media (prefers-reduced-motion: no-preference) {
+@media screen {
   @keyframes v2-detail-title-enter { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes v2-detail-art-enter { from { opacity: .75; transform: translateY(36px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
   .v2-page-lead h1, .v2-case-lead h1, .v2-about-lead h1, .v2-article-lead h1 { animation: v2-detail-title-enter .85s var(--v2-ease-out) both; }
@@ -150,7 +150,7 @@
   }
 }
 
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+@media (hover: hover) and (pointer: fine) {
   .v2-work-index-row img, .v2-thought-card img { transition: transform .5s var(--v2-ease-out); }
   .v2-work-index-row:hover img, .v2-thought-card:hover img { transform: scale(1.018); }
   .v2-work-hero-art { perspective: 900px; }
